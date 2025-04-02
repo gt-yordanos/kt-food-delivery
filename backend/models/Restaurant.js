@@ -15,12 +15,12 @@ const restaurantSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,  // Renamed contact to phone
+    required: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true,  // Ensuring email is unique
+    unique: true,
   },
   openingHours: {
     monday: {
@@ -57,16 +57,16 @@ const restaurantSchema = new mongoose.Schema({
       type: String,
     },
     twitter: {
-      type: String,  // Changed from 'x' to 'twitter' for clarity
+      type: String,
     },
     instagram: {
       type: String,
     },
     linkedin: {
-      type: String,  // Added LinkedIn for example
+      type: String,
     },
     youtube: {
-      type: String,  // Added YouTube for example
+      type: String,
     },
   },
   createdAt: {
