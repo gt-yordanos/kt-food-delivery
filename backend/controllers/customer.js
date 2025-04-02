@@ -54,14 +54,14 @@ export const logIn = async (req, res) => {
     const token = jwt.sign(
       { customerId: customer._id, role: 'customer' },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '30d' }
     );
 
     // Store token in cookies (HttpOnly for security)
     res.cookie('authToken', token, {
       httpOnly: true, // Makes sure the cookie can't be accessed by JavaScript (helps prevent XSS attacks)
       secure: process.env.NODE_ENV === 'production', // Set to true if in production, requires HTTPS
-      maxAge: 3600000, // 1 hour expiration
+      maxAge: 3600000 * 30 ,
     });
 
     res.status(200).json({ message: 'Logged in successfully' });
