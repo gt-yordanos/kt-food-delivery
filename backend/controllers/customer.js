@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { Customer } from '../models/customerModel.js';
-import { Order } from '../models/orderModel.js';
+import { Customer } from '../models/Customer.js';
+import { Order } from '../models/Order.js';
 
 // Sign Up Controller
 export const signUp = async (req, res) => {
