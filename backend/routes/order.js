@@ -2,15 +2,14 @@ import express from 'express';
 import {
   createOrder,
   getAllOrders,
-  trackOrder,
-  updateOrderStatus,
-} from '../controllers/orderController.js';
+  trackOrder
+} from '../controllers/order.js';
+import { authenticateUser, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/create', createOrder);
-router.get('/all', getAllOrders);
-router.get('/track/:orderId', trackOrder);
-router.put('/update-status/:orderId', updateOrderStatus);
+router.post('/create', authenticateUser, authorizeRoles(['customer']), createOrder);
+router.get('/all', authenticateUser, authorizeRoles(['admin', 'restaurantOwner']), getAllOrders);
+router.get('/track/:orderId', authenticateUser, authorizeRoles(['customer']), trackOrder);
 
 export default router;
