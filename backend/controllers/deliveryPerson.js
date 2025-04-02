@@ -48,8 +48,17 @@ export const loginDeliveryPerson = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ id: deliveryPerson._id, role: 'deliveryPerson' }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
+    const token = jwt.sign(
+      { id: deliveryPerson._id, role: 'deliveryPerson' }, 
+      process.env.JWT_SECRET, 
+      {expiresIn: '30d', }
+    );
+
+    // Store token in cookies
+    res.cookie('authToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({ message: 'Login successful', token, deliveryPerson });
