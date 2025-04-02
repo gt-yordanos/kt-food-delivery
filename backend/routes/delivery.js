@@ -4,12 +4,12 @@ import {
   getDeliveryDetails,
   changeDeliveryStatus,
 } from '../controllers/delivery.js';
-import { authenticateUser, authorizeRoles } from '../middleware/authMiddleware.js';
+import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/create', authenticateUser, authorizeRoles(['admin', 'restaurantOwner']), createDelivery);
-router.get('/details/:orderId', authenticateUser, authorizeRoles(['admin', 'restaurantOwner']), getDeliveryDetails);
-router.put('/change-status/:deliveryId', authenticateUser, authorizeRoles(['deliveryPerson']), changeDeliveryStatus);
+router.post('/create', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), createDelivery);
+router.get('/details/:orderId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getDeliveryDetails);
+router.put('/change-status/:deliveryId', authenticateToken, authorizeRoles(['deliveryPerson']), changeDeliveryStatus);
 
 export default router;

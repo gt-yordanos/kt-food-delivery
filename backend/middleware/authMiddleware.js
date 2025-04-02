@@ -20,7 +20,7 @@ export const authenticateToken = (req, res, next) => {
 };
 
 // Middleware for role-based authorization (customer or admin)
-export const authorizeRole = (allowedRoles) => {
+export const authorizeRoles = (allowedRoles) => {
   return (req, res, next) => {
     if (!allowedRoles.includes(req.role)) {
       return res.status(403).json({ message: 'Access denied. You do not have the required role.' });
