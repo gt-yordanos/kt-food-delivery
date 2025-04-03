@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import {FaSignOutAlt, FaExpandAlt, FaCompressAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaExpandAlt, FaCompressAlt } from 'react-icons/fa';
 import { useTheme } from '../../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../../contexts/AuthContext';
-
+import logo from '../../assets/ktLogo.png';
 const Sidebar = ({ links }) => {
   const [collapsed, setCollapsed] = useState(false);
   const { theme } = useTheme();
@@ -32,12 +32,18 @@ const Sidebar = ({ links }) => {
 
   return (
     <div
-      className={`h-screen bg-base-300 transition-all duration-300 p-2 ${collapsed ? 'w-24' : 'w-52'}`}
+      className={`h-screen z-30 bg-base-300 p-2 transition-all duration-300 ${collapsed ? 'w-24' : 'w-52'}`}
       style={{ transition: 'width 0.3s ease' }}
     >
-      <div className="mb-4 text-xl font-semibold text-center">
-          KT Restaurant
+      {/* Logo Section */}
+      <div className="mb-4 text-center mt-4">
+        <img
+          src={logo}
+          alt="KT Restaurant Logo"
+          className={`transition-all duration-300 ${collapsed ? 'w-12' : 'w-18'} mx-auto`}
+        />
       </div>
+
       <div className="mb-4 flex justify-between items-center gap-2">
         <ThemeToggle />
         <button
@@ -47,6 +53,7 @@ const Sidebar = ({ links }) => {
           {collapsed ? <FaExpandAlt /> : <FaCompressAlt />}
         </button>
       </div>
+
       <ul className="menu p-0 text-base-content flex flex-col gap-2 m-auto">
         {links.map((link, index) => (
           <li key={index}>
