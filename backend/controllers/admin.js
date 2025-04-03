@@ -50,7 +50,7 @@ export const loginAdmin = async (req, res) => {
     );
 
     // Store token in cookies
-    res.cookie('token', token, {
+    res.cookie('authToken', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 30 * 24 * 60 * 60 * 1000,

@@ -20,6 +20,14 @@ const api = {
   getDeliveryDetails: `${BASE_URL}/delivery/details/{orderId}`,
   changeDeliveryStatus: `${BASE_URL}/delivery/change-status/{deliveryId}`,
 
+  // Delivery Person Routes
+  addDeliveryPerson: `${BASE_URL}/delivery-persons/add`,
+  loginDeliveryPerson: `${BASE_URL}/delivery-persons/login`,
+  updateDeliveryPerson: `${BASE_URL}/delivery-persons/update/{deliveryPersonId}`,
+  deleteDeliveryPerson: `${BASE_URL}/delivery-persons/delete/{deliveryPersonId}`,
+  getAllDeliveryPersons: `${BASE_URL}/delivery-persons/all`,
+  searchDeliveryPerson: `${BASE_URL}/delivery-persons/search`,
+
   // Menu Routes
   addMenuItem: `${BASE_URL}/menu/add-menu-item`,
   updateMenuItem: `${BASE_URL}/menu/update-menu-item/{menuId}`,
