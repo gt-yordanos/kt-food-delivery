@@ -69,11 +69,19 @@ export const updateRestaurantOwner = async (req, res) => {
     const { ownerId } = req.params;
     const { name, email, password } = req.body;
 
-    let updatedFields = { name, email };
+    // Prepare the fields to be updated
+    let updatedFields = {};
+
+    // Update name and email if they are provided
+    if (name) updatedFields.name = name;
+    if (email) updatedFields.email = email;
+
+    // If password is provided, hash it before updating
     if (password) {
       updatedFields.password = await bcrypt.hash(password, 10);
     }
 
+    // Update the owner in the database
     const updatedOwner = await RestaurantOwner.findByIdAndUpdate(
       ownerId,
       updatedFields,
