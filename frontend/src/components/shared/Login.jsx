@@ -24,12 +24,20 @@ const Login = ({ loginApi, redirectLink }) => {
     }
 
     try {
-      const response = await loginApi(email, password);
-      const { token } = response.data;
+      // Call loginApi and pass the email and password as an object
+      const response = await loginApi({ email, password });
+
+      // Extract the token and store it in context
+      const { token } = response;
       login(token);
+
+      // Redirect the user to the desired page
       navigate(redirectLink);
-      toast.success('Login successful!'); // Show success toast
+
+      // Show success toast
+      toast.success('Login successful!');
     } catch (err) {
+      // Handle errors
       setError('Invalid credentials or server error');
       toast.error('Invalid credentials or server error'); // Show error toast
     }
