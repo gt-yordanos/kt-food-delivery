@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {FaSignOutAlt, FaExpandAlt, FaCompressAlt } from 'react-icons/fa';
-import { useTheme } from '.../contexts/ThemeContext';
-import ThemeToggle from '../ThemeToggle';
-import { useAuth } from '.../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import ThemeToggle from './ThemeToggle';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Sidebar = ({ links }) => {
   const [collapsed, setCollapsed] = useState(false);
