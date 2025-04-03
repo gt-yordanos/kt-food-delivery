@@ -7,6 +7,7 @@ import AdminPage from './pages/admin/Admin';
 import OwnerPage from './pages/owner/Owner';
 import Login from './components/shared/Login';
 // import Unauthorized from './pages/Unauthorized';
+import api from './api'; 
 import './App.css'
 
 const App = () => {
@@ -16,7 +17,7 @@ const App = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<Login loginApi='http' redirectLink="/customer/dashboard" />} />
-          <Route path="/admin/login" element={<Login loginApi="http:localhost://2200/admin/login" redirectLink="/admin/dashboard" />} />
+          <Route path="/admin/login" element={<Login loginApi={api.loginAdmin} redirectLink="/admin/dashboard" />} />
           <Route path="/owner/login" element={<Login loginApi='http' redirectLink="/owner/dashboard" />} />
           {/* <Route path="/unauthorized" element={<Unauthorized />} /> */}
 
