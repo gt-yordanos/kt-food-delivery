@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import CustomerPage from './pages/customer/Customer';
-import AdminPage from './pages/admin/Admin';
+import AdminPage from './pages/admin/Admin'; // Import AdminPage which handles nested routes
 import OwnerPage from './pages/owner/Owner';
 import Login from './components/shared/Login';
 import api from './api'; 
@@ -21,7 +21,11 @@ const App = () => {
 
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute requiredRole="customer"><CustomerPage /></ProtectedRoute>} />
-          <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="admin"><AdminPage /></ProtectedRoute>} />
+          
+          {/* Admin Route (Handles all /admin subroutes) */}
+          <Route path="/admin/*" element={<ProtectedRoute requiredRole="admin"><AdminPage /></ProtectedRoute>} />
+
+          {/* Owner Dashboard */}
           <Route path="/owner" element={<ProtectedRoute requiredRole="owner"><OwnerPage /></ProtectedRoute>} />
         </Routes>
       </Router>
