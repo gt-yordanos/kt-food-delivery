@@ -14,7 +14,7 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="flex h-screen">
       <Sidebar links={links} />
-      <div className="flex-1 p-6">
+      <div className="flex-1">
         {children}
       </div>
     </div>
