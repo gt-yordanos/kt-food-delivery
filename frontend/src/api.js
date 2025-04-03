@@ -15,6 +15,13 @@ const api = {
   updateAccount: `${BASE_URL}/customers/update-account`,
   deleteAccount: `${BASE_URL}/customers/delete-account`,
 
+  // Restaurant Owner Routes
+  addRestaurantOwner: `${BASE_URL}/restaurant-owners/add`,
+  loginRestaurantOwner: `${BASE_URL}/restaurant-owners/login`,
+  updateRestaurantOwner: `${BASE_URL}/restaurant-owners/update/{ownerId}`,
+  getAllRestaurantOwners: `${BASE_URL}/restaurant-owners/all`,
+  searchRestaurantOwner: `${BASE_URL}/restaurant-owners/search`,
+
   // Delivery Routes
   createDelivery: `${BASE_URL}/delivery/create`,
   getDeliveryDetails: `${BASE_URL}/delivery/details/{orderId}`,
