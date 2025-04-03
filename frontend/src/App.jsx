@@ -1,9 +1,13 @@
-import React from 'react';
+import React from 'react'; 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/shared/ProtectedRoute';
-import CustomerPage from './pages/admin/Customer';
-import AdminPage from './pages/admin/Admin'; // Import AdminPage which handles nested routes
+import AdminLayout from './pages/admin/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+import Customers from './pages/admin/Customers';
+import Owners from './pages/admin/Owners';
+import DeliveryPerson from './pages/shared/DeliveryPerson';
+import Restaurant from './pages/shared/Restaurant';
 import OwnerPage from './pages/owner/Owner';
 import Login from './components/shared/Login';
 import api from './api'; 
@@ -20,10 +24,15 @@ const App = () => {
           <Route path="/owner/login" element={<Login loginApi="http" redirectLink="/owner/dashboard" />} />
 
           {/* Protected Routes */}
-          <Route path="/" element={<ProtectedRoute requiredRole="customer"><CustomerPage /></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute requiredRole="customer"><p>Customer</p></ProtectedRoute>} />
           
-          {/* Admin Route (Handles all /admin subroutes) */}
-          <Route path="/admin/*" element={<ProtectedRoute requiredRole="admin"><AdminPage /></ProtectedRoute>} />
+          {/* Admin Routes (No Nesting) */}
+          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout><Dashboard /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="admin"><AdminLayout><Dashboard /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/customers" element={<ProtectedRoute requiredRole="admin"><AdminLayout><Customers /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/owners" element={<ProtectedRoute requiredRole="admin"><AdminLayout><Owners /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/delivery-person" element={<ProtectedRoute requiredRole="admin"><AdminLayout><DeliveryPerson /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/restaurant" element={<ProtectedRoute requiredRole="admin"><AdminLayout><Restaurant /></AdminLayout></ProtectedRoute>} />
 
           {/* Owner Dashboard */}
           <Route path="/owner" element={<ProtectedRoute requiredRole="owner"><OwnerPage /></ProtectedRoute>} />

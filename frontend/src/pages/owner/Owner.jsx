@@ -1,5 +1,4 @@
 import React from 'react';
-import AdminOwnerLayout from '../../components/shared/AdminOwnerLayout';
 import { Link } from 'react-router-dom';
 
 const OwnerPage = () => {
@@ -13,10 +12,9 @@ const OwnerPage = () => {
   ];
 
   return (
-    <AdminOwnerLayout links={links}>
-      <h1>Owner Dashboard</h1>
-      <p>Manage your restaurant operations here!</p>
-    </AdminOwnerLayout>
+   <>
+   hi
+  </>
   );
 };
 
