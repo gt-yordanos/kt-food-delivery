@@ -21,7 +21,8 @@ const api = {
   updateRestaurantOwner: `${BASE_URL}/restaurant-owners/update/{ownerId}`,
   getAllRestaurantOwners: `${BASE_URL}/restaurant-owners/all`,
   searchRestaurantOwner: `${BASE_URL}/restaurant-owners/search`,
-
+  deleteRestaurantOwner: `${BASE_URL}/restaurant-owners/delete/{ownerId}`,
+  
   // Delivery Routes
   createDelivery: `${BASE_URL}/delivery/create`,
   getDeliveryDetails: `${BASE_URL}/delivery/details/{orderId}`,
