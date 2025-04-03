@@ -7,7 +7,7 @@ import AdminOwnerLayout from '../../components/shared/AdminOwnerLayout';
 import Dashboard from './Dashboard';
 import Customers from './Customers';
 import Owners from './Owners';
-import DeliveryPerson from '../shared/Delivery';
+import DeliveryPerson from '../shared/DeliveryPerson';
 import Restaurant from '../shared/Restaurant';
 
 const AdminPage = () => {
@@ -22,8 +22,9 @@ const AdminPage = () => {
   return (
     <AdminOwnerLayout links={links}>
       <Routes>
-        {/* Nested routes inside /admin */}
+        {/* Root path for /admin directly renders Dashboard */}
         <Route path="/" element={<Dashboard />} />
+        {/* Explicit dashboard route */}
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="customers" element={<Customers />} />
         <Route path="owners" element={<Owners />} />

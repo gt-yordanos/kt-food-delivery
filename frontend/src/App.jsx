@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/shared/ProtectedRoute';
-import CustomerPage from './pages/customer/Customer';
+import CustomerPage from './pages/admin/Customer';
 import AdminPage from './pages/admin/Admin'; // Import AdminPage which handles nested routes
 import OwnerPage from './pages/owner/Owner';
 import Login from './components/shared/Login';
