@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import jwt_decode from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         // Decode the token and extract user information
-        const decodedToken = jwt_decode(token);
+        const decodedToken = jwtDecode(token);
         const role = decodedToken.role;
         setUser({ token, role });
       } catch (err) {
