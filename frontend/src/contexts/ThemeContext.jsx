@@ -3,7 +3,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const savedTheme = localStorage.getItem('theme') || 'light';
+  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  const savedTheme = localStorage.getItem('theme') || systemTheme;
   const [theme, setTheme] = useState(savedTheme);
 
   useEffect(() => {
