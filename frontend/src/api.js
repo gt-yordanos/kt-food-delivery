@@ -22,7 +22,7 @@ const api = {
   getAllRestaurantOwners: `${BASE_URL}/restaurant-owners/all`,
   searchRestaurantOwner: `${BASE_URL}/restaurant-owners/search`,
   deleteRestaurantOwner: `${BASE_URL}/restaurant-owners/delete/{ownerId}`,
-  
+
   // Delivery Routes
   createDelivery: `${BASE_URL}/delivery/create`,
   getDeliveryDetails: `${BASE_URL}/delivery/details/{orderId}`,
@@ -50,6 +50,7 @@ const api = {
   // Restaurant Routes
   addRestaurant: `${BASE_URL}/restaurants/add`,
   updateRestaurant: `${BASE_URL}/restaurants/update`,
+  getAllRestaurantntInfo: `${BASE_URL}/restaurants/`,
 };
 
 export default api;
