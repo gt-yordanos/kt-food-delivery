@@ -4,7 +4,8 @@ import {
   loginRestaurantOwner, 
   updateRestaurantOwner, 
   getAllRestaurantOwners, 
-  searchRestaurantOwner 
+  searchRestaurantOwner,
+  deleteRestaurantOwner
 } from '../controllers/restaurantOwner.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
