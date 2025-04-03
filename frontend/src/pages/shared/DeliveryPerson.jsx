@@ -1,133 +1,83 @@
-import React, { useEffect, useState } from 'react';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-import axios from 'axios';  // Import Axios
-import api from '../../api';  // Import API routes
+import React, { useState, useEffect } from 'react';
+import { FaPlus, FaEdit, FaTrash, FaKey } from 'react-icons/fa';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import api from '../../api.js';
+
+const getAuthHeader = () => {
+  const token = localStorage.getItem('authToken');
+  return { headers: { Authorization: `Bearer ${token}` } };
+};
 
 const DeliveryPerson = () => {
   const [deliveryPersons, setDeliveryPersons] = useState([]);
-  const [newPerson, setNewPerson] = useState({ name: '', email: '', password: '' });
-  const [editingPerson, setEditingPerson] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState('');
+  const [currentPerson, setCurrentPerson] = useState({ name: '', email: '', password: '' });
 
-  // Fetch all delivery persons on component mount
   useEffect(() => {
     fetchDeliveryPersons();
   }, []);
 
   const fetchDeliveryPersons = async () => {
     try {
-      const response = await axios.get(api.getAllDeliveryPersons, {
-        withCredentials: true,  // Ensures cookies are sent automatically
-      });
-
-      setDeliveryPersons(response.data || []); // If the response is not an array, we set an empty array
+      const response = await axios.get(api.getAllDeliveryPersons, getAuthHeader());
+      setDeliveryPersons(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      console.error('Error fetching delivery persons:', error);
+      console.error('Error fetching data', error);
       setDeliveryPersons([]);
     }
   };
 
-  const handleAddDeliveryPerson = async () => {
-    if (!newPerson.name || !newPerson.email || !newPerson.password) {
-      alert('All fields are required');
-      return;
-    }
-
-    setLoading(true);
+  const handleSearch = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
     try {
-      const response = await axios.post(api.addDeliveryPerson, newPerson, {
-        withCredentials: true,  // Ensures cookies are sent automatically
-      });
-
-      if (response.data) {
-        setDeliveryPersons([...deliveryPersons, response.data.newDeliveryPerson]);
-        setNewPerson({ name: '', email: '', password: '' });
-      } else {
-        alert(response.data.message);
-      }
+      const response = await axios.get(`${api.searchDeliveryPerson}?query=${query}`, getAuthHeader());
+      setDeliveryPersons(response.data);
     } catch (error) {
-      console.error('Error adding delivery person:', error);
+      console.error('Error searching data', error);
+      setDeliveryPersons([]);
     }
-    setLoading(false);
   };
 
-  const handleEditDeliveryPerson = async () => {
-    if (!editingPerson.name || !editingPerson.email) {
-      alert('Name and Email are required');
-      return;
-    }
-
-    setLoading(true);
+  const handleAddOrEdit = async () => {
     try {
-      const response = await axios.put(api.updateDeliveryPerson.replace('{deliveryPersonId}', editingPerson._id), editingPerson, {
-        withCredentials: true,  // Ensures cookies are sent automatically
-      });
-
-      if (response.data) {
-        setDeliveryPersons(deliveryPersons.map(person => (person._id === editingPerson._id ? editingPerson : person)));
-        setEditingPerson(null);
+      if (modalType === 'edit') {
+        await axios.put(api.updateDeliveryPerson.replace('{deliveryPersonId}', currentPerson._id), currentPerson, getAuthHeader());
+        toast.success('Updated successfully!');
       } else {
-        alert('Failed to update');
+        await axios.post(api.addDeliveryPerson, currentPerson, getAuthHeader());
+        toast.success('Added successfully!');
       }
+      fetchDeliveryPersons();
+      setShowModal(false);
     } catch (error) {
-      console.error('Error updating delivery person:', error);
+      toast.error('Error saving data!');
     }
-    setLoading(false);
   };
 
-  const handleDeleteDeliveryPerson = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this delivery person?')) return;
-
+  const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(api.deleteDeliveryPerson.replace('{deliveryPersonId}', id), {
-        withCredentials: true,  // Ensures cookies are sent automatically
-      });
-
-      if (response.data) {
-        setDeliveryPersons(deliveryPersons.filter(person => person._id !== id));
-      } else {
-        alert('Failed to delete');
-      }
+      await axios.delete(api.deleteDeliveryPerson.replace('{deliveryPersonId}', id), getAuthHeader());
+      toast.success('Deleted successfully!');
+      fetchDeliveryPersons();
     } catch (error) {
-      console.error('Error deleting delivery person:', error);
+      toast.error('Error deleting data!');
     }
   };
 
   return (
-    <div className="p-6 bg-base-100 rounded-lg shadow-md">
-      <h1 className="text-3xl font-semibold mb-4">Delivery People</h1>
-
-      {/* Add New Delivery Person */}
-      <div className="flex gap-2 mb-4">
-        <input 
-          type="text" 
-          placeholder="Name" 
-          value={newPerson.name} 
-          onChange={(e) => setNewPerson({ ...newPerson, name: e.target.value })} 
-          className="input input-bordered"
-        />
-        <input 
-          type="email" 
-          placeholder="Email" 
-          value={newPerson.email} 
-          onChange={(e) => setNewPerson({ ...newPerson, email: e.target.value })} 
-          className="input input-bordered"
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={newPerson.password} 
-          onChange={(e) => setNewPerson({ ...newPerson, password: e.target.value })} 
-          className="input input-bordered"
-        />
-        <button className="btn btn-primary" onClick={handleAddDeliveryPerson} disabled={loading}>
-          <FaPlus /> {loading ? 'Adding...' : 'Add'}
-        </button>
-      </div>
-
-      {/* Delivery Persons Table */}
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold mb-4">Delivery Persons</h1>
+      <input type="text" placeholder="Search" value={searchQuery} onChange={handleSearch} className="input input-bordered w-full mb-4" />
+      <button onClick={() => { setShowModal(true); setModalType('add'); }} className="btn btn-primary mb-4">
+        <FaPlus /> Add Delivery Person
+      </button>
       <div className="overflow-x-auto">
-        <table className="table w-full">
+        <table className="table table-zebra w-full">
           <thead>
             <tr>
               <th>Name</th>
@@ -138,50 +88,45 @@ const DeliveryPerson = () => {
           <tbody>
             {deliveryPersons.map(person => (
               <tr key={person._id}>
+                <td>{person.name}</td>
+                <td>{person.email}</td>
                 <td>
-                  {editingPerson && editingPerson._id === person._id ? (
-                    <input 
-                      type="text" 
-                      value={editingPerson.name} 
-                      onChange={(e) => setEditingPerson({ ...editingPerson, name: e.target.value })} 
-                      className="input input-bordered"
-                    />
-                  ) : person.name}
-                </td>
-                <td>
-                  {editingPerson && editingPerson._id === person._id ? (
-                    <input 
-                      type="email" 
-                      value={editingPerson.email} 
-                      onChange={(e) => setEditingPerson({ ...editingPerson, email: e.target.value })} 
-                      className="input input-bordered"
-                    />
-                  ) : person.email}
-                </td>
-                <td>
-                  {editingPerson && editingPerson._id === person._id ? (
-                    <>
-                      <button className="btn btn-success mr-2" onClick={handleEditDeliveryPerson} disabled={loading}>
-                        {loading ? 'Saving...' : 'Save'}
-                      </button>
-                      <button className="btn btn-secondary" onClick={() => setEditingPerson(null)}>Cancel</button>
-                    </>
-                  ) : (
-                    <>
-                      <button className="btn btn-warning mr-2" onClick={() => setEditingPerson(person)}>
-                        <FaEdit />
-                      </button>
-                      <button className="btn btn-danger" onClick={() => handleDeleteDeliveryPerson(person._id)}>
-                        <FaTrash />
-                      </button>
-                    </>
-                  )}
+                  <button onClick={() => { setCurrentPerson(person); setModalType('edit'); setShowModal(true); }} className="btn btn-warning mr-2">
+                    <FaEdit />
+                  </button>
+                  <button onClick={() => handleDelete(person._id)} className="btn btn-danger mr-2">
+                    <FaTrash />
+                  </button>
+                  <button onClick={() => { setCurrentPerson(person); setModalType('reset'); setShowModal(true); }} className="btn btn-info">
+                    <FaKey />
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {showModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h2 className="text-lg font-bold mb-4">{modalType === 'edit' ? 'Edit' : modalType === 'reset' ? 'Reset Password' : 'Add'} Delivery Person</h2>
+            {modalType !== 'reset' && (
+              <>
+                <input type="text" placeholder="Name" value={currentPerson.name} onChange={(e) => setCurrentPerson({ ...currentPerson, name: e.target.value })} className="input input-bordered w-full mb-2" />
+                <input type="email" placeholder="Email" value={currentPerson.email} onChange={(e) => setCurrentPerson({ ...currentPerson, email: e.target.value })} className="input input-bordered w-full mb-2" />
+              </>
+            )}
+            {modalType !== 'edit' && (
+              <input type="password" placeholder="Password" value={currentPerson.password} onChange={(e) => setCurrentPerson({ ...currentPerson, password: e.target.value })} className="input input-bordered w-full mb-2" />
+            )}
+            <div className="modal-action">
+              <button onClick={handleAddOrEdit} className="btn btn-success">Save</button>
+              <button onClick={() => setShowModal(false)} className="btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

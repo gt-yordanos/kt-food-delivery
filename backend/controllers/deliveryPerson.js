@@ -75,16 +75,20 @@ export const updateDeliveryPerson = async (req, res) => {
     const { deliveryPersonId } = req.params;
     const { name, email, password } = req.body;
 
-    let updateData = { name, email };
+    let updateData = {};
 
-    // If password is provided, hash it before updating
-    if (password) {
-      updateData.password = await bcrypt.hash(password, 10);
+    // Add fields to updateData only if they are provided
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+    if (password) updateData.password = await bcrypt.hash(password, 10);
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: 'No valid fields provided for update' });
     }
 
     const updatedDeliveryPerson = await DeliveryPerson.findByIdAndUpdate(
       deliveryPersonId,
-      updateData,
+      { $set: updateData }, // Ensures partial updates
       { new: true }
     );
 
@@ -98,6 +102,7 @@ export const updateDeliveryPerson = async (req, res) => {
     res.status(500).json({ message: 'Failed to update delivery person' });
   }
 };
+
 
 // Delete a delivery person (Admin & RestaurantOwner)
 export const deleteDeliveryPerson = async (req, res) => {
