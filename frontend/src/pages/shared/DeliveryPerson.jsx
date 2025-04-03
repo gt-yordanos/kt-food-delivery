@@ -86,10 +86,6 @@ const DeliveryPerson = () => {
         response = await axios.post(api.addDeliveryPerson, currentPerson, getAuthHeader());
       }
   
-      // Use the server response message if available
-      const successMessage = response?.data?.message || 'Operation was successful!';
-      toast.success(successMessage);
-  
       fetchDeliveryPersons();
       closeModal();
     } catch (error) {
