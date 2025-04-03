@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-import api from '../../api'; // Import API routes
+import axios from 'axios';  // Import Axios
+import api from '../../api';  // Import API routes
 
 const DeliveryPerson = () => {
   const [deliveryPersons, setDeliveryPersons] = useState([]);
@@ -8,18 +9,21 @@ const DeliveryPerson = () => {
   const [editingPerson, setEditingPerson] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch all delivery persons on load
+  // Fetch all delivery persons on component mount
   useEffect(() => {
     fetchDeliveryPersons();
   }, []);
 
   const fetchDeliveryPersons = async () => {
     try {
-      const response = await fetch(api.getAllDeliveryPersons);
-      const data = await response.json();
-      setDeliveryPersons(data);
+      const response = await axios.get(api.getAllDeliveryPersons, {
+        withCredentials: true,  // Ensures cookies are sent automatically
+      });
+
+      setDeliveryPersons(response.data || []); // If the response is not an array, we set an empty array
     } catch (error) {
       console.error('Error fetching delivery persons:', error);
+      setDeliveryPersons([]);
     }
   };
 
@@ -31,18 +35,15 @@ const DeliveryPerson = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(api.addDeliveryPerson, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPerson),
+      const response = await axios.post(api.addDeliveryPerson, newPerson, {
+        withCredentials: true,  // Ensures cookies are sent automatically
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        setDeliveryPersons([...deliveryPersons, data.newDeliveryPerson]);
+      if (response.data) {
+        setDeliveryPersons([...deliveryPersons, response.data.newDeliveryPerson]);
         setNewPerson({ name: '', email: '', password: '' });
       } else {
-        alert(data.message);
+        alert(response.data.message);
       }
     } catch (error) {
       console.error('Error adding delivery person:', error);
@@ -58,13 +59,11 @@ const DeliveryPerson = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(api.updateDeliveryPerson.replace('{deliveryPersonId}', editingPerson._id), {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingPerson),
+      const response = await axios.put(api.updateDeliveryPerson.replace('{deliveryPersonId}', editingPerson._id), editingPerson, {
+        withCredentials: true,  // Ensures cookies are sent automatically
       });
 
-      if (response.ok) {
+      if (response.data) {
         setDeliveryPersons(deliveryPersons.map(person => (person._id === editingPerson._id ? editingPerson : person)));
         setEditingPerson(null);
       } else {
@@ -80,9 +79,11 @@ const DeliveryPerson = () => {
     if (!window.confirm('Are you sure you want to delete this delivery person?')) return;
 
     try {
-      const response = await fetch(api.deleteDeliveryPerson.replace('{deliveryPersonId}', id), { method: 'DELETE' });
+      const response = await axios.delete(api.deleteDeliveryPerson.replace('{deliveryPersonId}', id), {
+        withCredentials: true,  // Ensures cookies are sent automatically
+      });
 
-      if (response.ok) {
+      if (response.data) {
         setDeliveryPersons(deliveryPersons.filter(person => person._id !== id));
       } else {
         alert('Failed to delete');

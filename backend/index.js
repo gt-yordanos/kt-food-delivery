@@ -18,7 +18,17 @@ dotenv.config();
 
 const app = express();
 app.use(cookieParser());
-app.use(cors());
+
+// CORS middleware to dynamically allow all origins and credentials
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow all origins
+      callback(null, true); // `true` will allow any origin
+    },
+    credentials: true, // Allow credentials (cookies) to be sent
+  })
+);
 
 connectDB();
 app.use(express.json());

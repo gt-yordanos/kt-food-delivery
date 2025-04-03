@@ -53,6 +53,7 @@ export const loginRestaurantOwner = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 30 * 24 * 60 * 60 * 1000,
+      ameSite: 'None',
     });
 
     res.status(200).json({ message: 'Login successful', token });
