@@ -21,7 +21,7 @@ const App = () => {
 
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute requiredRole="customer"><CustomerPage /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPage /></ProtectedRoute>} />
+          <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="admin"><AdminPage /></ProtectedRoute>} />
           <Route path="/owner" element={<ProtectedRoute requiredRole="owner"><OwnerPage /></ProtectedRoute>} />
         </Routes>
       </Router>

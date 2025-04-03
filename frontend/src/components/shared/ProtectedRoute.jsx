@@ -1,8 +1,8 @@
 import React from 'react';
-import { Route, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-const ProtectedRoute = ({ children, requiredRole, ...rest }) => {
+const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children, requiredRole, ...rest }) => {
     return <Navigate to="/unauthorized" />;
   }
 
-  return <Route {...rest} element={children} />;
+  return children;
 };
 
 export default ProtectedRoute;
