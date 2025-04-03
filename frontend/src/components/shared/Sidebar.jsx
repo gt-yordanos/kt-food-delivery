@@ -36,7 +36,7 @@ const Sidebar = ({ links }) => {
       style={{ transition: 'width 0.3s ease' }}
     >
       <div className="mb-4 text-xl font-semibold text-center">
-        HUESA
+          KT Restaurant
       </div>
       <div className="mb-4 flex justify-between items-center gap-2">
         <ThemeToggle />
