@@ -84,12 +84,9 @@ const Owners = () => {
         toast.success('Password reset successfully!');
       } else {
         response = await axios.post(api.addRestaurantOwner, currentOwner, getAuthHeader());
+        toast.success('Added successfully!');
       }
-
-      // Use the server response message if available
-      const successMessage = response?.data?.message || 'Operation was successful!';
-      toast.success(successMessage);
-
+      
       fetchOwners();
       closeModal();
     } catch (error) {
