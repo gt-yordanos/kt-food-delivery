@@ -1,5 +1,5 @@
 // Define the base URL for your API
-const BASE_URL = 'https://localhost:2200/api';
+const BASE_URL = 'http://localhost:2200/api';
 
 const api = {
   // Admin Routes
