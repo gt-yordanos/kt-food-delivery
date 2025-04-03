@@ -10,7 +10,7 @@ const ThemeToggle = () => {
         type="checkbox"
         className="theme-controller"
         value="synthwave"
-        checked={theme === 'dark'} // Reflect the theme
+        checked={theme === 'black'} // Reflect the theme
         onChange={toggleTheme} // Toggle between light and dark
       />
 
