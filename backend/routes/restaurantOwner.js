@@ -16,5 +16,6 @@ router.post('/login', loginRestaurantOwner);
 router.put('/update/:ownerId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), updateRestaurantOwner);
 router.get('/all', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllRestaurantOwners);
 router.get('/search', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), searchRestaurantOwner);
+router.delete('/delete/:ownerId', authenticateToken, authorizeRoles(['admin']), deleteRestaurantOwner);
 
 export default router;

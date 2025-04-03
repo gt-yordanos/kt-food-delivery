@@ -84,7 +84,6 @@ const DeliveryPerson = () => {
         toast.success('Password reset successfully!');
       } else {
         response = await axios.post(api.addDeliveryPerson, currentPerson, getAuthHeader());
-        toast.success('Added successfully!');
       }
   
       // Use the server response message if available

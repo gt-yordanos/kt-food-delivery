@@ -119,3 +119,22 @@ export const searchRestaurantOwner = async (req, res) => {
     res.status(500).json({ message: 'Failed to search restaurant owner' });
   }
 };
+
+// Delete a restaurant owner (Admin can perform this)
+export const deleteRestaurantOwner = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+
+    // Find and delete the restaurant owner by ID
+    const deletedOwner = await RestaurantOwner.findByIdAndDelete(ownerId);
+
+    if (!deletedOwner) {
+      return res.status(404).json({ message: 'Restaurant owner not found' });
+    }
+
+    res.status(200).json({ message: 'Restaurant owner deleted successfully', deletedOwner });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to delete restaurant owner' });
+  }
+};
