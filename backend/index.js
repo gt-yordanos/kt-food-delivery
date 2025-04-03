@@ -3,8 +3,6 @@ import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { Restaurant } from './models/Restaurant.js';
-import {defaultRestaurantData} from './controllers/restaurant.js';
 
 // Import route files
 import adminRoutes from './routes/admin.js';
@@ -49,21 +47,6 @@ app.use('/api/restaurant-owners', restaurantOwnerRoutes);
 app.get('/', (req, res) => {
   res.send('Welcome to the Restaurant Delivery API');
 });
-const initializeRestaurant = async () => {
-  try {
-    const existingRestaurant = await Restaurant.findOne();
-    if (!existingRestaurant) {
-      const newRestaurant = new Restaurant(defaultRestaurantData);
-      await newRestaurant.save();
-      console.log('Default restaurant created.');
-    }
-  } catch (error) {
-    console.error('Error initializing restaurant:', error);
-  }
-};
-
-// Call the function at startup
-initializeRestaurant();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

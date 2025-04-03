@@ -14,20 +14,26 @@ const Restaurant = () => {
   const [restaurant, setRestaurant] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedRestaurant, setEditedRestaurant] = useState({});
+  const [editedRestaurant, setEditedRestaurant] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchRestaurant();
   }, []);
 
   const fetchRestaurant = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(api.getRestaurant, getAuthHeader());
       setRestaurant(response.data);
-      setEditedRestaurant(response.data); // Set editable data
+      setEditedRestaurant(response.data);
+      setError(null);
     } catch (error) {
       console.error('Error fetching restaurant:', error);
       toast.error('Failed to load restaurant details');
+      setError(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,21 +60,30 @@ const Restaurant = () => {
     setEditedRestaurant({ ...editedRestaurant, [e.target.name]: e.target.value });
   };
 
-  if (!restaurant) {
+  if (loading) {
     return <p>Loading restaurant details...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-500">Error loading restaurant details. Please try again later.</p>;
+  }
+
+  if (!restaurant) {
+    return <p>No restaurant data available.</p>;
   }
 
   return (
     <div className="p-6 bg-base-100 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Restaurant Details</h1>
-      
+
+      {/* Name */}
       <div className="mb-4">
         <label className="font-semibold">Name:</label>
         {isEditing ? (
           <input
             type="text"
             name="name"
-            value={editedRestaurant.name}
+            value={editedRestaurant?.name || ''}
             onChange={handleChange}
             className="input input-bordered w-full"
           />
@@ -77,12 +92,13 @@ const Restaurant = () => {
         )}
       </div>
 
+      {/* About */}
       <div className="mb-4">
         <label className="font-semibold">About:</label>
         {isEditing ? (
           <textarea
             name="about"
-            value={editedRestaurant.about}
+            value={editedRestaurant?.about || ''}
             onChange={handleChange}
             className="textarea textarea-bordered w-full"
           />
@@ -91,6 +107,7 @@ const Restaurant = () => {
         )}
       </div>
 
+      {/* Address */}
       <div className="mb-4 flex items-center">
         <FaMapMarkerAlt className="mr-2" />
         <label className="font-semibold">Address:</label>
@@ -98,7 +115,7 @@ const Restaurant = () => {
           <input
             type="text"
             name="address"
-            value={editedRestaurant.address}
+            value={editedRestaurant?.address || ''}
             onChange={handleChange}
             className="input input-bordered w-full"
           />
@@ -107,6 +124,7 @@ const Restaurant = () => {
         )}
       </div>
 
+      {/* Phone */}
       <div className="mb-4 flex items-center">
         <FaPhoneAlt className="mr-2" />
         <label className="font-semibold">Phone:</label>
@@ -114,7 +132,7 @@ const Restaurant = () => {
           <input
             type="text"
             name="phone"
-            value={editedRestaurant.phone}
+            value={editedRestaurant?.phone || ''}
             onChange={handleChange}
             className="input input-bordered w-full"
           />
@@ -123,6 +141,7 @@ const Restaurant = () => {
         )}
       </div>
 
+      {/* Email */}
       <div className="mb-4 flex items-center">
         <FaEnvelope className="mr-2" />
         <label className="font-semibold">Email:</label>
@@ -130,7 +149,7 @@ const Restaurant = () => {
           <input
             type="email"
             name="email"
-            value={editedRestaurant.email}
+            value={editedRestaurant?.email || ''}
             onChange={handleChange}
             className="input input-bordered w-full"
           />
@@ -139,22 +158,33 @@ const Restaurant = () => {
         )}
       </div>
 
+      {/* Opening Hours */}
       <div className="mb-4">
         <h2 className="font-semibold flex items-center">
           <FaClock className="mr-2" /> Opening Hours:
         </h2>
-        {Object.entries(restaurant?.openingHours || {}).map(([day, hours]) => (
-          <p key={day}><strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong> {hours || 'N/A'}</p>
-        ))}
+        {restaurant?.openingHours
+          ? Object.entries(restaurant.openingHours).map(([day, hours]) => (
+              <p key={day}>
+                <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong> {hours || 'N/A'}
+              </p>
+            ))
+          : <p>Loading...</p>}
       </div>
 
+      {/* Social Links */}
       <div className="mb-4">
         <h2 className="font-semibold">Social Links:</h2>
-        {Object.entries(restaurant?.socialLinks || {}).map(([platform, link]) => (
-          <p key={platform}><strong>{platform.charAt(0).toUpperCase() + platform.slice(1)}:</strong> {link || 'N/A'}</p>
-        ))}
+        {restaurant?.socialLinks
+          ? Object.entries(restaurant.socialLinks).map(([platform, link]) => (
+              <p key={platform}>
+                <strong>{platform.charAt(0).toUpperCase() + platform.slice(1)}:</strong> {link || 'N/A'}
+              </p>
+            ))
+          : <p>Loading...</p>}
       </div>
 
+      {/* Edit / Save Buttons */}
       <div className="mt-4">
         {isEditing ? (
           <button onClick={handleSaveClick} className="btn btn-success">
