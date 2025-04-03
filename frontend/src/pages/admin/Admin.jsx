@@ -4,18 +4,18 @@ import { Routes, Route } from 'react-router-dom'; // Import routes and route han
 import AdminOwnerLayout from '../../components/shared/AdminOwnerLayout';
 
 // Import individual admin section components
-import AdminDashboard from './Dashboard';
-import AdminCustomers from './Customers';
-import AdminOwners from './Owners';
-import AdminDelivery from './Delivery';
-import AdminRestaurant from './Restaurant';
+import Dashboard from './Dashboard';
+import Customers from './Customers';
+import Owners from './Owners';
+import DeliveryPerson from '../shared/Delivery';
+import Restaurant from '../shared/Restaurant';
 
 const AdminPage = () => {
   const links = [
     { label: 'Dashboard', path: 'dashboard', icon: FaTachometerAlt },
     { label: 'Customers', path: 'customers', icon: FaUsers },
     { label: 'Owners', path: 'owners', icon: FaUserTie },
-    { label: 'Delivery People', path: 'delivery', icon: FaTruck },
+    { label: 'Delivery People', path: 'delivery-person', icon: FaTruck },
     { label: 'Restaurant', path: 'restaurant', icon: FaUtensils },
   ];
 
@@ -24,11 +24,11 @@ const AdminPage = () => {
       <Routes>
         {/* Nested routes inside /admin */}
         <Route path="/" element={<Dashboard />} />
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="customers" element={<AdminCustomers />} />
-        <Route path="owners" element={<AdminOwners />} />
-        <Route path="delivery" element={<AdminDelivery />} />
-        <Route path="restaurant" element={<AdminRestaurant />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="customers" element={<Customers />} />
+        <Route path="owners" element={<Owners />} />
+        <Route path="delivery-person" element={<DeliveryPerson />} />
+        <Route path="restaurant" element={<Restaurant />} />
       </Routes>
     </AdminOwnerLayout>
   );
