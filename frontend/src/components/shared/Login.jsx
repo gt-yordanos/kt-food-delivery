@@ -58,7 +58,7 @@ const Login = ({ loginApi, redirectLink }) => {
 
   return (
     <div className="max-w-sm mx-auto min-h-[100vh] flex items-center justify-center">
-      <div className="card bg-base-200 border-amber-500 border-2 sm:w-[70%] w-90%">
+      <div className="card bg-base-200 border-gray-600 border-1 sm:w-[80%] w-90%">
         <div className="card-body">
           <h2 className="font-bold text-center text-2xl mb-6">Login</h2>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
