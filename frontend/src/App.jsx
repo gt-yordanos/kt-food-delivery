@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/shared/ProtectedRoute';
@@ -10,7 +10,7 @@ import DeliveryPerson from './pages/shared/DeliveryPerson';
 import Restaurant from './pages/shared/Restaurant';
 import OwnerPage from './pages/owner/Owner';
 import Login from './components/shared/Login';
-import api from './api'; 
+import api from './api';
 import './App.css';
 
 const App = () => {
@@ -26,7 +26,7 @@ const App = () => {
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute requiredRole="customer"><p>Customer</p></ProtectedRoute>} />
           
-          {/* Admin Routes (No Nesting) */}
+          {/* Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout><Dashboard /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="admin"><AdminLayout><Dashboard /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/customers" element={<ProtectedRoute requiredRole="admin"><AdminLayout><Customers /></AdminLayout></ProtectedRoute>} />
