@@ -113,9 +113,9 @@ export const getAllRestaurantOwners = async (req, res) => {
 // Search restaurant owner by name (Admin and Restaurant Owner can perform this)
 export const searchRestaurantOwner = async (req, res) => {
   try {
-    const { name } = req.query;
+    const { query } = req.query;
 
-    const owners = await RestaurantOwner.find({ name: { $regex: name, $options: 'i' } });
+    const owners = await RestaurantOwner.find({ name: { $regex: query, $options: 'i' } });
 
     if (owners.length === 0) {
       return res.status(404).json({ message: 'No restaurant owners found' });
