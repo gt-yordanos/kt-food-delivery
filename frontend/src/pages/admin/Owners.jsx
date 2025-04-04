@@ -18,18 +18,22 @@ const Owners = () => {
   const [currentOwner, setCurrentOwner] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(null);
+  const [loadingTable, setLoadingTable] = useState(false); // Add loadingTable state for table data
 
   useEffect(() => {
     fetchOwners();
   }, []);
 
   const fetchOwners = async () => {
+    setLoadingTable(true); // Set loading state to true while fetching data
     try {
       const response = await axios.get(api.getAllRestaurantOwners, getAuthHeader());
       setOwners(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching data', error);
       setOwners([]);
+    } finally {
+      setLoadingTable(false); // Set loading state to false once the data is fetched
     }
   };
 
@@ -132,27 +136,35 @@ const Owners = () => {
             </tr>
           </thead>
           <tbody>
-            {owners.map(owner => (
-              <tr key={owner._id}>
-                <td>{owner.name}</td>
-                <td>{owner.email}</td>
-                <td>
-                  <button onClick={() => { setCurrentOwner(owner); setModalType('edit'); setShowModal(true); }} className="btn btn-warning mr-2">
-                    <FaEdit />
-                  </button>
-                  <button onClick={() => handleDelete(owner._id)} className="btn btn-error mr-2">
-                    {deleteLoading === owner._id ? (
-                      <span className="loading loading-spinner loading-sm"></span>
-                    ) : (
-                      <FaTrash />
-                    )}
-                  </button>
-                  <button onClick={() => { setCurrentOwner({ _id: owner._id, password: '' }); setModalType('reset'); setShowModal(true); }} className="btn btn-info">
-                    <FaKey />
-                  </button>
+            {loadingTable ? (
+              <tr>
+                <td colSpan="3" className="text-center">
+                  <span className="loading loading-spinner loading-xl"></span> {/* Show spinner when loading */}
                 </td>
               </tr>
-            ))}
+            ) : (
+              owners.map(owner => (
+                <tr key={owner._id}>
+                  <td>{owner.name}</td>
+                  <td>{owner.email}</td>
+                  <td>
+                    <button onClick={() => { setCurrentOwner(owner); setModalType('edit'); setShowModal(true); }} className="btn btn-warning mr-2">
+                      <FaEdit />
+                    </button>
+                    <button onClick={() => handleDelete(owner._id)} className="btn btn-error mr-2">
+                      {deleteLoading === owner._id ? (
+                        <span className="loading loading-spinner loading-sm"></span>
+                      ) : (
+                        <FaTrash />
+                      )}
+                    </button>
+                    <button onClick={() => { setCurrentOwner({ _id: owner._id, password: '' }); setModalType('reset'); setShowModal(true); }} className="btn btn-info">
+                      <FaKey />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

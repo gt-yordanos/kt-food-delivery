@@ -18,18 +18,22 @@ const DeliveryPerson = () => {
   const [currentPerson, setCurrentPerson] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(null);
+  const [fetching, setFetching] = useState(true); // Added loading state for fetching data
 
   useEffect(() => {
     fetchDeliveryPersons();
   }, []);
 
   const fetchDeliveryPersons = async () => {
+    setFetching(true); // Set loading to true before starting the fetch
     try {
       const response = await axios.get(api.getAllDeliveryPersons, getAuthHeader());
       setDeliveryPersons(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching data', error);
       setDeliveryPersons([]);
+    } finally {
+      setFetching(false); // Set loading to false after the fetch is completed
     }
   };
 
@@ -131,27 +135,35 @@ const DeliveryPerson = () => {
             </tr>
           </thead>
           <tbody>
-            {deliveryPersons.map(person => (
-              <tr key={person._id}>
-                <td>{person.name}</td>
-                <td>{person.email}</td>
-                <td>
-                  <button onClick={() => { setCurrentPerson(person); setModalType('edit'); setShowModal(true); }} className="btn btn-warning mr-2">
-                    <FaEdit />
-                  </button>
-                  <button onClick={() => handleDelete(person._id)} className="btn btn-error mr-2">
-                    {deleteLoading === person._id ? (
-                      <span className="loading loading-spinner loading-sm"></span>
-                    ) : (
-                      <FaTrash />
-                    )}
-                  </button>
-                  <button onClick={() => { setCurrentPerson({ _id: person._id, password: '' }); setModalType('reset'); setShowModal(true); }} className="btn btn-info">
-                    <FaKey />
-                  </button>
+            {fetching ? (
+              <tr>
+                <td colSpan="3" className="text-center">
+                  <span className="loading loading-spinner loading-lg"></span>
                 </td>
               </tr>
-            ))}
+            ) : (
+              deliveryPersons.map(person => (
+                <tr key={person._id}>
+                  <td>{person.name}</td>
+                  <td>{person.email}</td>
+                  <td>
+                    <button onClick={() => { setCurrentPerson(person); setModalType('edit'); setShowModal(true); }} className="btn btn-warning mr-2">
+                      <FaEdit />
+                    </button>
+                    <button onClick={() => handleDelete(person._id)} className="btn btn-error mr-2">
+                      {deleteLoading === person._id ? (
+                        <span className="loading loading-spinner loading-sm"></span>
+                      ) : (
+                        <FaTrash />
+                      )}
+                    </button>
+                    <button onClick={() => { setCurrentPerson({ _id: person._id, password: '' }); setModalType('reset'); setShowModal(true); }} className="btn btn-info">
+                      <FaKey />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
