@@ -10,12 +10,21 @@ const getAuthHeader = () => {
   return { headers: { Authorization: `Bearer ${token}` } };
 };
 
+const BASE_URL = 'http://localhost:2200';
+
 const Menu = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
-  const [currentItem, setCurrentItem] = useState({ name: '', description: '', price: '', category: '', image: '' });
+  const [currentItem, setCurrentItem] = useState({
+    name: '',
+    description: '',
+    price: '',
+    category: '',
+    image: ''
+  });
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [loadingTable, setLoadingTable] = useState(false);
@@ -47,7 +56,7 @@ const Menu = () => {
   );
 
   const handleAddOrEdit = async () => {
-    const { name, description, price, category, image } = currentItem;
+    const { name, description, price, category } = currentItem;
 
     if (!name || !description || !price || !category) {
       toast.error('All fields except image are required.');
@@ -55,17 +64,38 @@ const Menu = () => {
     }
 
     setLoading(true);
+
     try {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('price', price);
+      formData.append('category', category);
+      if (imageFile) formData.append('image', imageFile);
+
       let response;
+
       if (modalType === 'edit') {
         response = await axios.put(
           api.updateMenuItem.replace('{menuId}', currentItem._id),
-          currentItem,
-          getAuthHeader()
+          formData,
+          {
+            ...getAuthHeader(),
+            headers: {
+              ...getAuthHeader().headers,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
         );
         toast.success('Menu item updated successfully!');
       } else {
-        response = await axios.post(api.addMenuItem, currentItem, getAuthHeader());
+        response = await axios.post(api.addMenuItem, formData, {
+          ...getAuthHeader(),
+          headers: {
+            ...getAuthHeader().headers,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         toast.success('Menu item added successfully!');
       }
 
@@ -73,6 +103,7 @@ const Menu = () => {
       closeModal();
     } catch (error) {
       toast.error('Error saving menu item');
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -94,26 +125,36 @@ const Menu = () => {
   const closeModal = () => {
     setShowModal(false);
     setCurrentItem({ name: '', description: '', price: '', category: '', image: '' });
+    setImageFile(null);
   };
 
   return (
     <div className="p-6 bg-base-100 rounded-lg shadow-md h-full">
       <h1 className="text-2xl font-bold mb-4">Menu Items</h1>
-      <input type="text" placeholder="Search by name or category" value={searchQuery} onChange={handleSearch} className="input input-bordered w-full mb-4" />
+      <input
+        type="text"
+        placeholder="Search by name or category"
+        value={searchQuery}
+        onChange={handleSearch}
+        className="input input-bordered w-full mb-4"
+      />
       <button
         onClick={() => {
           setShowModal(true);
           setModalType('add');
           setCurrentItem({ name: '', description: '', price: '', category: '', image: '' });
+          setImageFile(null);
         }}
         className="btn btn-primary mb-4"
       >
         <FaPlus /> Add Menu Item
       </button>
+
       <div className="overflow-x-auto">
         <table className="table table-zebra w-full">
           <thead>
             <tr>
+              <th>Image</th>
               <th>Name</th>
               <th>Description</th>
               <th>Price</th>
@@ -124,13 +165,22 @@ const Menu = () => {
           <tbody>
             {loadingTable ? (
               <tr>
-                <td colSpan="5" className="text-center">
+                <td colSpan="6" className="text-center">
                   <span className="loading loading-spinner loading-lg"></span>
                 </td>
               </tr>
             ) : (
               filteredMenu.map(item => (
                 <tr key={item._id}>
+                  <td>
+                    {item.image ? (
+                      <img
+                        src={`${BASE_URL}${item.image}`}
+                        alt={item.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                    ) : 'No Image'}
+                  </td>
                   <td>{item.name}</td>
                   <td>{item.description}</td>
                   <td>${item.price}</td>
@@ -141,6 +191,7 @@ const Menu = () => {
                         setCurrentItem(item);
                         setModalType('edit');
                         setShowModal(true);
+                        setImageFile(null);
                       }}
                       className="btn btn-warning mr-2"
                     >
@@ -198,11 +249,10 @@ const Menu = () => {
               className="input input-bordered w-full mb-2"
             />
             <input
-              type="text"
-              placeholder="Image URL (optional)"
-              value={currentItem.image}
-              onChange={(e) => setCurrentItem({ ...currentItem, image: e.target.value })}
-              className="input input-bordered w-full mb-2"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files[0])}
+              className="file-input file-input-bordered w-full mb-2"
             />
             <div className="modal-action">
               <button onClick={handleAddOrEdit} className="btn btn-success">

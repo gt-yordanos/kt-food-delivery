@@ -1,48 +1,61 @@
 import { Menu } from '../models/Menu.js';
 
-// Add a new menu item (Admin and RestaurantOwner can perform this)
-export const addMenuItem = async (req, res) => {
-  try {
-    const { name, description, price, category, image } = req.body;
+  export const addMenuItem = async (req, res) => {
+    try {
+      const { name, description, price, category } = req.body;
+      const image = req.file ? `/uploads/${req.file.filename}` : '';
 
-    const newMenuItem = new Menu({
-      name,
-      description,
-      price,
-      category,
-      image,
-    });
+      const newMenuItem = new Menu({
+        name,
+        description,
+        price,
+        category,
+        image,
+      });
 
-    await newMenuItem.save();
-    res.status(201).json({ message: 'Menu item added successfully', newMenuItem });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to add menu item' });
-  }
-};
-
-// Update an existing menu item (Admin and RestaurantOwner can perform this)
-export const updateMenuItem = async (req, res) => {
-  try {
-    const { menuId } = req.params;
-    const { name, description, price, category, image, available } = req.body;
-
-    const updatedMenuItem = await Menu.findByIdAndUpdate(
-      menuId,
-      { name, description, price, category, image, available },
-      { new: true }
-    );
-
-    if (!updatedMenuItem) {
-      return res.status(404).json({ message: 'Menu item not found' });
+      await newMenuItem.save();
+      res.status(201).json({ message: 'Menu item added successfully', newMenuItem });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Failed to add menu item' });
     }
+  };
 
-    res.status(200).json({ message: 'Menu item updated successfully', updatedMenuItem });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to update menu item' });
-  }
-};
+  // Update an existing menu item (Admin and RestaurantOwner can perform this)
+  export const updateMenuItem = async (req, res) => {
+    try {
+      const { menuId } = req.params;
+      const { name, description, price, category, available } = req.body;
+      const image = req.file ? `/uploads/${req.file.filename}` : undefined;
+
+      const updatedFields = {
+        name,
+        description,
+        price,
+        category,
+        available,
+      };
+
+      if (image) {
+        updatedFields.image = image;
+      }
+
+      const updatedMenuItem = await Menu.findByIdAndUpdate(
+        menuId,
+        updatedFields,
+        { new: true }
+      );
+
+      if (!updatedMenuItem) {
+        return res.status(404).json({ message: 'Menu item not found' });
+      }
+
+      res.status(200).json({ message: 'Menu item updated successfully', updatedMenuItem });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Failed to update menu item' });
+    }
+  };
 
 // Delete a menu item (Admin and RestaurantOwner can perform this)
 export const deleteMenuItem = async (req, res) => {

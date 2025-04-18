@@ -18,6 +18,7 @@ dotenv.config();
 
 const app = express();
 app.use(cookieParser());
+app.use('/uploads', express.static('uploads'));
 
 // CORS middleware to dynamically allow all origins and credentials
 app.use(
