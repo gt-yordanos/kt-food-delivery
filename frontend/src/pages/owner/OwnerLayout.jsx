@@ -1,12 +1,12 @@
 import React from 'react';
 import Sidebar from '../../components/shared/Sidebar';
 import {
-  FaTachometerAlt,   // Dashboard
-  FaUtensils,        // Menu
-  FaRegBuilding,            // Restaurant (house-style icon)
-  FaTruck,           // Delivery People
-  FaGift,            // Delivery
-  FaClipboardList    // Orders
+  FaTachometerAlt,
+  FaUtensils,
+  FaRegBuilding,
+  FaTruck,
+  FaGift,
+  FaClipboardList
 } from 'react-icons/fa';
 
 const OwnerLayout = ({ children }) => {
