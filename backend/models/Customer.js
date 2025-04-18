@@ -13,9 +13,21 @@ const cartSchema = new mongoose.Schema({
 });
 
 const customerSchema = new mongoose.Schema({
-  name: {
+  firstName: {
     type: String,
     required: true,
+  },
+  middleName: {
+    type: String,
+  },
+  lastName: {
+    type: String,
+    required: true,
+  },
+  phoneNumber: {
+    type: String,
+    required: true,
+    unique: true,
   },
   email: {
     type: String,
