@@ -14,6 +14,9 @@ const api = {
   logOut: `${BASE_URL}/customers/log-out`,
   updateAccount: `${BASE_URL}/customers/update-account`,
   deleteAccount: `${BASE_URL}/customers/delete-account`,
+  getCustomerInfo: `${BASE_URL}/customers/customer-info`,
+  getAllCustomers: `${BASE_URL}/customers/all-customers`,
+  searchCustomerByName: `${BASE_URL}/customers/search-customer`,
 
   // Restaurant Owner Routes
   addRestaurantOwner: `${BASE_URL}/restaurant-owners/add`,
