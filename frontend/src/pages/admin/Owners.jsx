@@ -15,7 +15,7 @@ const Owners = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
-  const [currentOwner, setCurrentOwner] = useState({ name: '', email: '', password: '' });
+  const [currentOwner, setCurrentOwner] = useState({ firstName: '', middleName: '', lastName: '', email: '', phoneNumber: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [loadingTable, setLoadingTable] = useState(false); // Add loadingTable state for table data
@@ -52,13 +52,18 @@ const Owners = () => {
   const handleAddOrEdit = async () => {
     // Validation for 'add' or 'edit'
     if (modalType === 'add' || modalType === 'edit') {
-      if (!currentOwner.name) {
-        toast.error('Name is required');
+      if (!currentOwner.firstName || !currentOwner.middleName || !currentOwner.lastName) {
+        toast.error('Full name (first, middle, and last) is required');
         return;
       }
 
       if (!currentOwner.email || !/^\S+@\S+\.\S+$/.test(currentOwner.email)) {
         toast.error('Please enter a valid email address');
+        return;
+      }
+
+      if (!currentOwner.phoneNumber || currentOwner.phoneNumber.length < 10) {
+        toast.error('Please enter a valid phone number');
         return;
       }
 
@@ -90,7 +95,7 @@ const Owners = () => {
         response = await axios.post(api.addRestaurantOwner, currentOwner, getAuthHeader());
         toast.success('Added successfully!');
       }
-      
+
       fetchOwners();
       closeModal();
     } catch (error) {
@@ -116,14 +121,14 @@ const Owners = () => {
 
   const closeModal = () => {
     setShowModal(false);
-    setCurrentOwner({ name: '', email: '', password: '' });
+    setCurrentOwner({ firstName: '', middleName: '', lastName: '', email: '', phoneNumber: '', password: '' });
   };
 
   return (
     <div className="p-6 bg-base-100 rounded-lg shadow-md h-full">
       <h1 className="text-2xl font-bold mb-4">Restaurant Owners</h1>
       <input type="text" placeholder="Search" value={searchQuery} onChange={handleSearch} className="input input-bordered w-full mb-4" />
-      <button onClick={() => { setShowModal(true); setModalType('add'); setCurrentOwner({ name: '', email: '', password: '' }); }} className="btn btn-primary mb-4">
+      <button onClick={() => { setShowModal(true); setModalType('add'); setCurrentOwner({ firstName: '', middleName: '', lastName: '', email: '', phoneNumber: '', password: '' }); }} className="btn btn-primary mb-4">
         <FaPlus /> Add Restaurant Owner
       </button>
       <div className="overflow-x-auto">
@@ -132,21 +137,23 @@ const Owners = () => {
             <tr>
               <th>Name</th>
               <th>Email</th>
+              <th>Phone Number</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loadingTable ? (
               <tr>
-                <td colSpan="3" className="text-center">
+                <td colSpan="4" className="text-center">
                   <span className="loading loading-spinner loading-xl"></span> {/* Show spinner when loading */}
                 </td>
               </tr>
             ) : (
               owners.map(owner => (
                 <tr key={owner._id}>
-                  <td>{owner.name}</td>
+                  <td>{owner.firstName} {owner.middleName} {owner.lastName}</td>
                   <td>{owner.email}</td>
+                  <td>{owner.phoneNumber}</td>
                   <td>
                     <button onClick={() => { setCurrentOwner(owner); setModalType('edit'); setShowModal(true); }} className="btn btn-warning mr-2">
                       <FaEdit />
@@ -177,8 +184,11 @@ const Owners = () => {
             </h2>
             {modalType !== 'reset' && (
               <>
-                <input type="text" placeholder="Name" value={currentOwner.name} onChange={(e) => setCurrentOwner({ ...currentOwner, name: e.target.value })} className="input input-bordered w-full mb-2" />
+                <input type="text" placeholder="First Name" value={currentOwner.firstName} onChange={(e) => setCurrentOwner({ ...currentOwner, firstName: e.target.value })} className="input input-bordered w-full mb-2" />
+                <input type="text" placeholder="Middle Name" value={currentOwner.middleName} onChange={(e) => setCurrentOwner({ ...currentOwner, middleName: e.target.value })} className="input input-bordered w-full mb-2" />
+                <input type="text" placeholder="Last Name" value={currentOwner.lastName} onChange={(e) => setCurrentOwner({ ...currentOwner, lastName: e.target.value })} className="input input-bordered w-full mb-2" />
                 <input type="email" placeholder="Email" value={currentOwner.email} onChange={(e) => setCurrentOwner({ ...currentOwner, email: e.target.value })} className="input input-bordered w-full mb-2" />
+                <input type="text" placeholder="Phone Number" value={currentOwner.phoneNumber} onChange={(e) => setCurrentOwner({ ...currentOwner, phoneNumber: e.target.value })} className="input input-bordered w-full mb-2" />
               </>
             )}
             {modalType !== 'edit' && (
