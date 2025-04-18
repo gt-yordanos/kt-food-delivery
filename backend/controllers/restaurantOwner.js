@@ -5,20 +5,28 @@ import { RestaurantOwner } from '../models/RestaurantOwner.js';
 // Add/Create a new restaurant owner (Admin and Restaurant Owner can perform this)
 export const addRestaurantOwner = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { firstName, middleName, lastName, email, password, phoneNumber } = req.body;
 
+    // Check if the owner already exists
     const existingOwner = await RestaurantOwner.findOne({ email });
     if (existingOwner) {
       return res.status(400).json({ message: 'Restaurant owner already exists' });
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new restaurant owner
     const newOwner = new RestaurantOwner({
-      name,
+      firstName,
+      middleName,
+      lastName,
       email,
+      phoneNumber,
       password: hashedPassword,
     });
 
+    // Save the new owner
     await newOwner.save();
     res.status(201).json({ message: 'Restaurant owner added successfully', newOwner });
   } catch (error) {
@@ -53,7 +61,7 @@ export const loginRestaurantOwner = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 30 * 24 * 60 * 60 * 1000,
-      ameSite: 'None',
+      sameSite: 'None',
     });
 
     res.status(200).json({ message: 'Login successful', token });
@@ -67,26 +75,21 @@ export const loginRestaurantOwner = async (req, res) => {
 export const updateRestaurantOwner = async (req, res) => {
   try {
     const { ownerId } = req.params;
-    const { name, email, password } = req.body;
+    const { firstName, middleName, lastName, email, password, phoneNumber } = req.body;
 
-    // Prepare the fields to be updated
     let updatedFields = {};
 
-    // Update name and email if they are provided
-    if (name) updatedFields.name = name;
+    if (firstName) updatedFields.firstName = firstName;
+    if (middleName) updatedFields.middleName = middleName;
+    if (lastName) updatedFields.lastName = lastName;
     if (email) updatedFields.email = email;
+    if (phoneNumber) updatedFields.phoneNumber = phoneNumber;
 
-    // If password is provided, hash it before updating
     if (password) {
       updatedFields.password = await bcrypt.hash(password, 10);
     }
 
-    // Update the owner in the database
-    const updatedOwner = await RestaurantOwner.findByIdAndUpdate(
-      ownerId,
-      updatedFields,
-      { new: true }
-    );
+    const updatedOwner = await RestaurantOwner.findByIdAndUpdate(ownerId, updatedFields, { new: true });
 
     if (!updatedOwner) {
       return res.status(404).json({ message: 'Restaurant owner not found' });
@@ -115,7 +118,13 @@ export const searchRestaurantOwner = async (req, res) => {
   try {
     const { query } = req.query;
 
-    const owners = await RestaurantOwner.find({ name: { $regex: query, $options: 'i' } });
+    const owners = await RestaurantOwner.find({
+      $or: [
+        { firstName: { $regex: query, $options: 'i' } },
+        { middleName: { $regex: query, $options: 'i' } },
+        { lastName: { $regex: query, $options: 'i' } },
+      ],
+    });
 
     if (owners.length === 0) {
       return res.status(404).json({ message: 'No restaurant owners found' });
@@ -133,7 +142,6 @@ export const deleteRestaurantOwner = async (req, res) => {
   try {
     const { ownerId } = req.params;
 
-    // Find and delete the restaurant owner by ID
     const deletedOwner = await RestaurantOwner.findByIdAndDelete(ownerId);
 
     if (!deletedOwner) {
