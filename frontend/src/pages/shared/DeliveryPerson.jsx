@@ -15,7 +15,15 @@ const DeliveryPerson = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
-  const [currentPerson, setCurrentPerson] = useState({ name: '', email: '', password: '' });
+  const [currentPerson, setCurrentPerson] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+    campus: '',
+  });
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [fetching, setFetching] = useState(true); // Added loading state for fetching data
@@ -52,13 +60,18 @@ const DeliveryPerson = () => {
   const handleAddOrEdit = async () => {
     // Validation for 'add' or 'edit'
     if (modalType === 'add' || modalType === 'edit') {
-      if (!currentPerson.name) {
-        toast.error('Name is required');
+      if (!currentPerson.firstName || !currentPerson.lastName) {
+        toast.error('First and Last name are required');
         return;
       }
   
       if (!currentPerson.email || !/^\S+@\S+\.\S+$/.test(currentPerson.email)) {
         toast.error('Please enter a valid email address');
+        return;
+      }
+
+      if (!currentPerson.phoneNumber || !/^\d{10}$/.test(currentPerson.phoneNumber)) {
+        toast.error('Please enter a valid phone number');
         return;
       }
   
@@ -115,14 +128,22 @@ const DeliveryPerson = () => {
 
   const closeModal = () => {
     setShowModal(false);
-    setCurrentPerson({ name: '', email: '', password: '' });
+    setCurrentPerson({
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      phoneNumber: '',
+      campus: '',
+    });
   };
 
   return (
     <div className="p-6 bg-base-100 rounded-lg shadow-md h-full">
       <h1 className="text-2xl font-bold mb-4">Delivery Persons</h1>
       <input type="text" placeholder="Search" value={searchQuery} onChange={handleSearch} className="input input-bordered w-full mb-4" />
-      <button onClick={() => { setShowModal(true); setModalType('add'); setCurrentPerson({ name: '', email: '', password: '' }); }} className="btn btn-primary mb-4">
+      <button onClick={() => { setShowModal(true); setModalType('add'); setCurrentPerson({ firstName: '', middleName: '', lastName: '', email: '', password: '', phoneNumber: '', campus: '' }); }} className="btn btn-primary mb-4">
         <FaPlus /> Add Delivery Person
       </button>
       <div className="overflow-x-auto">
@@ -130,7 +151,9 @@ const DeliveryPerson = () => {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Phone Number</th>
               <th>Email</th>
+              <th>Campus</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -144,8 +167,10 @@ const DeliveryPerson = () => {
             ) : (
               deliveryPersons.map(person => (
                 <tr key={person._id}>
-                  <td>{person.name}</td>
+                  <td>{person.firstName} {person.middleName} {person.lastName}</td>
+                  <td>{person.phoneNumber}</td>
                   <td>{person.email}</td>
+                  <td>{person.campus}</td>
                   <td>
                     <button onClick={() => { setCurrentPerson(person); setModalType('edit'); setShowModal(true); }} className="btn btn-warning mr-2">
                       <FaEdit />
@@ -176,8 +201,17 @@ const DeliveryPerson = () => {
             </h2>
             {modalType !== 'reset' && (
               <>
-                <input type="text" placeholder="Name" value={currentPerson.name} onChange={(e) => setCurrentPerson({ ...currentPerson, name: e.target.value })} className="input input-bordered w-full mb-2" />
+                <input type="text" placeholder="First Name" value={currentPerson.firstName} onChange={(e) => setCurrentPerson({ ...currentPerson, firstName: e.target.value })} className="input input-bordered w-full mb-2" />
+                <input type="text" placeholder="Middle Name" value={currentPerson.middleName} onChange={(e) => setCurrentPerson({ ...currentPerson, middleName: e.target.value })} className="input input-bordered w-full mb-2" />
+                <input type="text" placeholder="Last Name" value={currentPerson.lastName} onChange={(e) => setCurrentPerson({ ...currentPerson, lastName: e.target.value })} className="input input-bordered w-full mb-2" />
                 <input type="email" placeholder="Email" value={currentPerson.email} onChange={(e) => setCurrentPerson({ ...currentPerson, email: e.target.value })} className="input input-bordered w-full mb-2" />
+                <input type="text" placeholder="Phone Number" value={currentPerson.phoneNumber} onChange={(e) => setCurrentPerson({ ...currentPerson, phoneNumber: e.target.value })} className="input input-bordered w-full mb-2" />
+                <select value={currentPerson.campus} onChange={(e) => setCurrentPerson({ ...currentPerson, campus: e.target.value })} className="input input-bordered w-full mb-2">
+                  <option value="">Select Campus</option>
+                  <option value="Main">Main</option>
+                  <option value="HiT">HiT</option>
+                  <option value="CVM">CVM</option>
+                </select>
               </>
             )}
             {modalType !== 'edit' && (
