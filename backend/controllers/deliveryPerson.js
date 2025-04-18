@@ -5,7 +5,7 @@ import { DeliveryPerson } from '../models/DeliveryPerson.js';
 // Create or add a delivery person (Admin & RestaurantOwner)
 export const addDeliveryPerson = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { firstName, middleName, lastName, phoneNumber, email, password, campus } = req.body;
 
     // Check if delivery person already exists
     const existingPerson = await DeliveryPerson.findOne({ email });
@@ -17,9 +17,13 @@ export const addDeliveryPerson = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newDeliveryPerson = new DeliveryPerson({
-      name,
+      firstName,
+      middleName,
+      lastName,
+      phoneNumber,
       email,
       password: hashedPassword,
+      campus,
     });
 
     await newDeliveryPerson.save();
@@ -59,7 +63,7 @@ export const loginDeliveryPerson = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 30 * 24 * 60 * 60 * 1000,
-      ameSite: 'None',
+      sameSite: 'None',
     });
 
     res.status(200).json({ message: 'Login successful', token, deliveryPerson });
@@ -73,13 +77,17 @@ export const loginDeliveryPerson = async (req, res) => {
 export const updateDeliveryPerson = async (req, res) => {
   try {
     const { deliveryPersonId } = req.params;
-    const { name, email, password } = req.body;
+    const { firstName, middleName, lastName, phoneNumber, email, password, campus } = req.body;
 
     let updateData = {};
 
     // Add fields to updateData only if they are provided
-    if (name) updateData.name = name;
+    if (firstName) updateData.firstName = firstName;
+    if (middleName) updateData.middleName = middleName;
+    if (lastName) updateData.lastName = lastName;
+    if (phoneNumber) updateData.phoneNumber = phoneNumber;
     if (email) updateData.email = email;
+    if (campus) updateData.campus = campus;
     if (password) updateData.password = await bcrypt.hash(password, 10);
 
     if (Object.keys(updateData).length === 0) {
@@ -102,7 +110,6 @@ export const updateDeliveryPerson = async (req, res) => {
     res.status(500).json({ message: 'Failed to update delivery person' });
   }
 };
-
 
 // Delete a delivery person (Admin & RestaurantOwner)
 export const deleteDeliveryPerson = async (req, res) => {
@@ -140,7 +147,8 @@ export const searchDeliveryPerson = async (req, res) => {
 
     const deliveryPersons = await DeliveryPerson.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } },
+        { firstName: { $regex: query, $options: 'i' } },
+        { lastName: { $regex: query, $options: 'i' } },
         { email: { $regex: query, $options: 'i' } },
       ],
     });
