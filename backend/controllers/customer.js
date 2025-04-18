@@ -3,23 +3,11 @@ import jwt from 'jsonwebtoken';
 import { Customer } from '../models/Customer.js';
 import { Order } from '../models/Order.js';
 
-// Sign Up Controller
 export const signUp = async (req, res) => {
   try {
-    const {
-      firstName,
-      middleName,
-      lastName,
-      phoneNumber,
-      email,
-      password,
-      address,
-    } = req.body;
+    const { firstName, middleName, lastName, phoneNumber, email, password, address } = req.body;
 
-    // Check if the customer already exists by email or phone number
-    const existingCustomer = await Customer.findOne({
-      $or: [{ email }, { phoneNumber }],
-    });
+    const existingCustomer = await Customer.findOne({ $or: [{ email }, { phoneNumber }] });
     if (existingCustomer) {
       return res.status(400).json({ message: 'Customer already exists' });
     }
@@ -43,7 +31,6 @@ export const signUp = async (req, res) => {
   }
 };
 
-// Log In Controller
 export const logIn = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -58,11 +45,7 @@ export const logIn = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign(
-      { customerId: customer._id, role: 'customer' },
-      process.env.JWT_SECRET,
-      { expiresIn: '30d' }
-    );
+    const token = jwt.sign({ customerId: customer._id, role: 'customer' }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
     res.cookie('authToken', token, {
       httpOnly: true,
@@ -77,7 +60,6 @@ export const logIn = async (req, res) => {
   }
 };
 
-// Log Out Controller
 export const logOut = (req, res) => {
   try {
     res.clearCookie('authToken');
@@ -87,29 +69,28 @@ export const logOut = (req, res) => {
   }
 };
 
-// Update Account Controller
 export const updateAccount = async (req, res) => {
   try {
-    const {
-      firstName,
-      middleName,
-      lastName,
-      phoneNumber,
-      email,
-      address,
-    } = req.body;
-    const customerId = req.customerId;
+    const customerId = req.params.customerId;
+    const { password, ...otherFields } = req.body;
+
+    const updateData = {};
+
+    // If password is present, hash it
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    // Only include non-undefined fields
+    for (const key in otherFields) {
+      if (otherFields[key] !== undefined) {
+        updateData[key] = otherFields[key];
+      }
+    }
 
     const updatedCustomer = await Customer.findByIdAndUpdate(
       customerId,
-      {
-        firstName,
-        middleName,
-        lastName,
-        phoneNumber,
-        email,
-        address,
-      },
+      { $set: updateData },
       { new: true }
     );
 
@@ -117,8 +98,10 @@ export const updateAccount = async (req, res) => {
       return res.status(404).json({ message: 'Customer not found' });
     }
 
-    res.status(200).json({
-      message: 'Account updated successfully',
+    return res.status(200).json({
+      message: password
+        ? 'Account updated successfully with new password'
+        : 'Account updated successfully',
       updatedCustomer,
     });
   } catch (error) {
@@ -126,13 +109,11 @@ export const updateAccount = async (req, res) => {
   }
 };
 
-// Delete Account Controller
 export const deleteAccount = async (req, res) => {
   try {
-    const customerId = req.customerId;
+    const customerId = req.params.customerId;  // Use params for customer ID
 
     const deletedCustomer = await Customer.findByIdAndDelete(customerId);
-
     if (!deletedCustomer) {
       return res.status(404).json({ message: 'Customer not found' });
     }
@@ -145,10 +126,9 @@ export const deleteAccount = async (req, res) => {
   }
 };
 
-// Get Customer Info Controller
 export const getCustomerInfo = async (req, res) => {
   try {
-    const customerId = req.customerId;
+    const customerId = req.params.customerId;  // Use params for customer ID
 
     const customer = await Customer.findById(customerId);
     if (!customer) {
@@ -161,7 +141,6 @@ export const getCustomerInfo = async (req, res) => {
   }
 };
 
-// Get All Customers Controller (Admin only)
 export const getAllCustomers = async (req, res) => {
   try {
     if (req.role !== 'admin') {
@@ -175,7 +154,6 @@ export const getAllCustomers = async (req, res) => {
   }
 };
 
-// Search Customers by Name Controller (Admin only)
 export const searchCustomerByName = async (req, res) => {
   try {
     const { name } = req.query;
@@ -187,11 +165,7 @@ export const searchCustomerByName = async (req, res) => {
     const regex = new RegExp(name, 'i');
 
     const customers = await Customer.find({
-      $or: [
-        { firstName: regex },
-        { middleName: regex },
-        { lastName: regex },
-      ],
+      $or: [{ firstName: regex }, { middleName: regex }, { lastName: regex }],
     });
 
     if (customers.length === 0) {
@@ -202,4 +176,4 @@ export const searchCustomerByName = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
-}
+};

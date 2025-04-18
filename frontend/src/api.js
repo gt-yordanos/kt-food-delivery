@@ -9,12 +9,12 @@ const api = {
   deleteAdmin: `${BASE_URL}/admin/delete/{adminId}`,
 
   // Customer Routes
-  signUp: `${BASE_URL}/customers/sign-up`,
+  create: `${BASE_URL}/customers/sign-up`,
   logIn: `${BASE_URL}/customers/log-in`,
   logOut: `${BASE_URL}/customers/log-out`,
-  updateAccount: `${BASE_URL}/customers/update-account`,
-  deleteAccount: `${BASE_URL}/customers/delete-account`,
-  getCustomerInfo: `${BASE_URL}/customers/customer-info`,
+  updateCustomer: `${BASE_URL}/customers/update-account/{customerId}`,
+  deleteCustomer: `${BASE_URL}/customers/delete-account/{customerId}`,
+  getCustomerInfo: `${BASE_URL}/customers/customer-info/{customerId}`,
   getAllCustomers: `${BASE_URL}/customers/all-customers`,
   searchCustomerByName: `${BASE_URL}/customers/search-customer`,
 

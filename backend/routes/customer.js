@@ -12,12 +12,13 @@ import {
 } from '../controllers/customer.js';
 
 const router = express.Router();
+
 router.post('/sign-up', signUp);
 router.post('/log-in', logIn);
 router.post('/log-out', authenticateToken, logOut);
-router.put('/update-account', authenticateToken, authorizeRoles(['admin', 'customer']), updateAccount);
-router.delete('/delete-account', authenticateToken, authorizeRoles(['admin', 'customer']), deleteAccount);
-router.get('/customer-info', authenticateToken, authorizeRoles(['admin', 'customer', 'restaurantOwner', 'deliveryPerson']), getCustomerInfo);
+router.put('/update-account/:customerId', authenticateToken, authorizeRoles(['admin', 'customer']), updateAccount);
+router.delete('/delete-account/:customerId', authenticateToken, authorizeRoles(['admin', 'customer']), deleteAccount);
+router.get('/customer-info/:customerId', authenticateToken, authorizeRoles(['admin', 'customer', 'restaurantOwner', 'deliveryPerson']), getCustomerInfo);
 router.get('/all-customers', authenticateToken, authorizeRoles(['admin']), getAllCustomers);
 router.get('/search-customer', authenticateToken, authorizeRoles(['admin']), searchCustomerByName);
 
