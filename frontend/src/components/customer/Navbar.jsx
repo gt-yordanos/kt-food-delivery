@@ -22,7 +22,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="flex items-center justify-between py-2 px-4 sm:px-5 lg:px-[10%] bg-base-300 shadow-md fixed top-0 left-0 w-full z-50">
+    <nav className="flex items-center justify-between py-2 px-4 sm:px-[5%] lg:px-[15%] bg-base-300 shadow-md fixed top-0 left-0 w-full z-50">
       {/* Logo */}
       <HashLink smooth to="#home" className="logo">
         <img src={ktLogo} alt="KT Restaurant Logo" className="h-12" />
