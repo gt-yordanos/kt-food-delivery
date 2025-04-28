@@ -19,6 +19,7 @@ import ManageOrder from './pages/owner/Order';
 import Login from './components/shared/Login';
 import api from './api';
 import './App.css';
+import Home from './pages/customer/Home';
 
 const App = () => {
   return (
@@ -31,7 +32,7 @@ const App = () => {
           <Route path="/owner/login" element={<Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" />} />
 
           {/* Customer Protected Route */}
-          <Route path="/" element={<ProtectedRoute requiredRole="customer"><p>Customer</p></ProtectedRoute>} />
+          <Route path="/" element={<Home/>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
