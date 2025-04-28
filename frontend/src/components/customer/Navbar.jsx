@@ -14,6 +14,7 @@ const Navbar = () => {
     setCurrentHash(location.hash);
   }, [location]);
 
+  // Function to get the link classes based on active state
   const getLinkClasses = (hashOrPath) => {
     const isActive = currentHash === hashOrPath || location.pathname === hashOrPath;
     return `text-lg font-bold hover:text-amber-500 transition-all duration-300 ease-in-out ${
@@ -71,14 +72,14 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <ul
-        className={`absolute top-full left-0 w-full bg-base-300 text-white shadow-lg md:hidden flex flex-col items-center space-y-6 px-6 py-4 z-50 mt-2 transform transition-all duration-300 ease-in-out ${
+        className={`absolute top-full left-0 w-full bg-base-300 text-content shadow-lg md:hidden flex flex-col items-center space-y-6 px-6 py-4 z-50 mt-2 transform transition-all duration-300 ease-in-out ${
           menuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}
       >
-        <li><HashLink smooth to="#about" className={`text-lg font-bold hover:text-amber-500 transition-all duration-300 ease-in-out text-content`} onClick={() => setMenuOpen(false)}>About</HashLink></li>
-        <li><Link to="/menu" className={`text-lg font-bold hover:text-amber-500 transition-all duration-300 ease-in-out text-content`} onClick={() => setMenuOpen(false)}>Menu</Link></li>
-        <li><HashLink smooth to="#review" className={`text-lg font-bold hover:text-amber-500 transition-all duration-300 ease-in-out text-content`} onClick={() => setMenuOpen(false)}>Our Customer</HashLink></li>
-        <li><HashLink smooth to="#contact" className={`text-lg font-bold hover:text-amber-500 transition-all duration-300 ease-in-out text-content`} onClick={() => setMenuOpen(false)}>Contact Us</HashLink></li>
+        <li><HashLink smooth to="#about" className={getLinkClasses('#about')} onClick={() => setMenuOpen(false)}>About</HashLink></li>
+        <li><Link to="/menu" className={getLinkClasses('/menu')} onClick={() => setMenuOpen(false)}>Menu</Link></li>
+        <li><HashLink smooth to="#review" className={getLinkClasses('#review')} onClick={() => setMenuOpen(false)}>Our Customer</HashLink></li>
+        <li><HashLink smooth to="#contact" className={getLinkClasses('#contact')} onClick={() => setMenuOpen(false)}>Contact Us</HashLink></li>
       </ul>
     </nav>
   );
