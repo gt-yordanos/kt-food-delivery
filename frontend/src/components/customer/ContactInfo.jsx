@@ -3,7 +3,7 @@ import { Clock, MapPin, Phone } from 'lucide-react';
 
 const ContactInfo = () => {
   return (
-    <section className="container mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 py-12 px-4 sm:px-[5%] lg:px-[15%]">
+    <section className="mx-auto w-full grid grid-cols-1 sm:grid-cols-3 gap-8 py-12 px-4 sm:px-[5%] lg:px-[15%]">
       <div className="container-box flex flex-col items-center justify-center text-center bg-base-200 rounded-4xl shadow-lg p-6">
         <Clock className="w-8 h-8 text-amber-500 mb-4" />
         <h3 className="text-xl font-semibold">11:00 am - 8:00 pm</h3>
