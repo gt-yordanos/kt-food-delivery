@@ -12,7 +12,7 @@ import {
   searchMenuByName,
   searchAvailableMenuByName,
   updateMenuItemAvailability 
-} from '../controllers/menuController.js';
+} from '../controllers/menu.js';
 
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
@@ -22,11 +22,11 @@ router.post('/menu', authenticateToken, authorizeRoles(['admin', 'restaurantOwne
 router.put('/menu/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), updateMenuItem);
 router.delete('/menu/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), deleteMenuItem);
 
-router.get('/menu', getAllMenuItems);
-router.get('/menu/search', searchMenuByName);
+router.get('/menu',  authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllMenuItems);
+router.get('/menu/search',  authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), searchMenuByName);
 
-router.get('/menu/:menuId', getMenuItemById);
-router.get('/menu/category/:category', getMenuByCategory);
+router.get('/menu/:menuId',  authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getMenuItemById);
+router.get('/menu/category/:category',  authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getMenuByCategory);
 
 router.get('/menu/available', getAvailableMenuItems);
 router.get('/menu/available/search', searchAvailableMenuByName);
