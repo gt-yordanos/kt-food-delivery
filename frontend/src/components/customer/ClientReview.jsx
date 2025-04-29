@@ -31,7 +31,7 @@ const ClientReviews = () => {
   ];
 
   return (
-    <section className="py-12 px-4 sm:px-[5%] lg:px-[15%] bg-base-100" id="review">
+    <section className="py-12 px-4 sm:px-[5%] lg:px-[15%] bg-base-100" id="our-customer">
       <div className="text-center mb-8">
         <h4 className="text-lg text-amber-500 font-semibold">Our Customer</h4>
         <h2 className="text-3xl font-bold">Client Reviews About Our Food</h2>

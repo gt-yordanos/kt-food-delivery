@@ -33,7 +33,7 @@ const Navbar = () => {
       <ul className="hidden md:flex space-x-6">
         <li><HashLink smooth to="#about" className={getLinkClasses('#about')}>About</HashLink></li>
         <li><Link to="/menu" className={getLinkClasses('/menu')}>Menu</Link></li>
-        <li><HashLink smooth to="#review" className={getLinkClasses('#review')}>Our Customer</HashLink></li>
+        <li><HashLink smooth to="#our-customer" className={getLinkClasses('#review')}>Our Customer</HashLink></li>
         <li><HashLink smooth to="#contact" className={getLinkClasses('#contact')}>Contact Us</HashLink></li>
       </ul>
 
