@@ -33,7 +33,7 @@ const Navbar = () => {
       <ul className="hidden md:flex space-x-6">
         <li><HashLink smooth to="#about" className={getLinkClasses('#about')}>About</HashLink></li>
         <li><Link to="/menu" className={getLinkClasses('/menu')}>Menu</Link></li>
-        <li><HashLink smooth to="#our-customer" className={getLinkClasses('#review')}>Our Customer</HashLink></li>
+        <li><HashLink smooth to="#our-customer" className={getLinkClasses('#our-customer')}>Our Customer</HashLink></li>
         <li><HashLink smooth to="#contact" className={getLinkClasses('#contact')}>Contact Us</HashLink></li>
       </ul>
 
@@ -78,7 +78,7 @@ const Navbar = () => {
       >
         <li><HashLink smooth to="#about" className={getLinkClasses('#about')} onClick={() => setMenuOpen(false)}>About</HashLink></li>
         <li><Link to="/menu" className={getLinkClasses('/menu')} onClick={() => setMenuOpen(false)}>Menu</Link></li>
-        <li><HashLink smooth to="#our-customer" className={getLinkClasses('#review')} onClick={() => setMenuOpen(false)}>Our Customer</HashLink></li>
+        <li><HashLink smooth to="#our-customer" className={getLinkClasses('#our-customer')} onClick={() => setMenuOpen(false)}>Our Customer</HashLink></li>
         <li><HashLink smooth to="#contact" className={getLinkClasses('#contact')} onClick={() => setMenuOpen(false)}>Contact Us</HashLink></li>
       </ul>
     </nav>

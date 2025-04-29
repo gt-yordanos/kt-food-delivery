@@ -5,7 +5,7 @@ import aboutImage from '../../assets/aboutImage.jpeg'; // Import the image from 
 
 const About = () => {
   return (
-    <section id="about" className="about py-16 px-4 sm:px-[5%] lg:px-[15%] flex flex-col-reverse md:flex-row items-center gap-8">
+    <section id="about" className="pt-26 pb-18 px-4 sm:px-[5%] lg:px-[15%] flex flex-col-reverse md:flex-row items-center gap-8">
       <div className="about-img flex-1">
         <img
           src={aboutImage}
