@@ -38,19 +38,20 @@ const api = {
   getAllDeliveryPersons: `${BASE_URL}/delivery-persons/all`,
   searchDeliveryPerson: `${BASE_URL}/delivery-persons/search`,
 
-  // Menu Routes
-  addMenuItem: `${BASE_URL}/menu`,
-  updateMenuItem: `${BASE_URL}/menu/:menuId`,
-  deleteMenuItem: `${BASE_URL}/menu/:menuId`,
-  getAllMenuItems: `${BASE_URL}/menu`,
-  getMenuItemById: `${BASE_URL}/menu/:menuId`,
-  getMenuByCategory: `${BASE_URL}/menu/category/:category`,
-  searchMenuByName: `${BASE_URL}/menu/search`,
-  getAvailableMenuItems: `${BASE_URL}/menu/available`,
-  getAvailableMenuItemById: `${BASE_URL}/menu/available/:menuId`,
-  getAvailableMenuByCategory: `${BASE_URL}/menu/available/category/:category`,
-  searchAvailableMenuByName: `${BASE_URL}/menu/available/search`,
-  updateMenuItemAvailability: `${BASE_URL}/menu/update-availability/:menuId`,
+// Menu Routes
+addMenuItem: `${BASE_URL}/menu`,
+updateMenuItem: `${BASE_URL}/menu/{menuId}`,
+deleteMenuItem: `${BASE_URL}/menu/{menuId}`,
+getAllMenuItems: `${BASE_URL}/menu`,
+getMenuItemById: `${BASE_URL}/menu/{menuId}`,
+getMenuByCategory: `${BASE_URL}/menu/category/{category}`,
+searchMenuByName: `${BASE_URL}/menu/search`,
+getAvailableMenuItems: `${BASE_URL}/menu/available`,
+getAvailableMenuItemById: `${BASE_URL}/menu/available/{menuId}`,
+getAvailableMenuByCategory: `${BASE_URL}/menu/available/category/{category}`,
+searchAvailableMenuByName: `${BASE_URL}/menu/available/search`,
+updateMenuItemAvailability: `${BASE_URL}/menu/update-availability/{menuId}`,
+
 
   // Order Routes
   createOrder: `${BASE_URL}/orders/create`,

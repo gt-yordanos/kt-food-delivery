@@ -4,7 +4,12 @@ import { Menu } from '../models/Menu.js';
 export const addMenuItem = async (req, res) => {
   try {
     const { name, description, price, category, available } = req.body;
+
+    console.log('Category:', category);
+    console.log('Available:', available);
+
     const image = req.file ? `/uploads/${req.file.filename}` : '';
+    console.log('Image Path:', image);
 
     const newMenuItem = new Menu({
       name,
@@ -15,10 +20,13 @@ export const addMenuItem = async (req, res) => {
       image,
     });
 
+    console.log('New Menu Item:', newMenuItem);
+
     await newMenuItem.save();
+
     res.status(201).json({ message: 'Menu item added successfully', newMenuItem });
   } catch (error) {
-    console.error(error);
+    console.error('Error adding menu item:', error);
     res.status(500).json({ message: 'Failed to add menu item' });
   }
 };
@@ -30,27 +38,24 @@ export const updateMenuItem = async (req, res) => {
     const { name, description, price, category, available } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : undefined;
 
-    const updatedFields = {
-      name,
-      description,
-      price,
-      category,
-      available,
-    };
+    // Debug logs
+    console.log('[UPDATE] Request received for Menu ID:', menuId);
+    console.log('[UPDATE] New Data:', { name, description, price, category, available, image });
 
-    if (image) {
-      updatedFields.image = image;
-    }
+    const updatedFields = { name, description, price, category, available };
+    if (image) updatedFields.image = image;
 
     const updatedMenuItem = await Menu.findByIdAndUpdate(menuId, updatedFields, { new: true });
 
     if (!updatedMenuItem) {
+      console.warn('[UPDATE] Menu item not found:', menuId);
       return res.status(404).json({ message: 'Menu item not found' });
     }
 
+    console.log('[UPDATE] Successfully updated menu item:', updatedMenuItem);
     res.status(200).json({ message: 'Menu item updated successfully', updatedMenuItem });
   } catch (error) {
-    console.error(error);
+    console.error('[UPDATE] Error:', error);
     res.status(500).json({ message: 'Failed to update menu item' });
   }
 };
@@ -60,20 +65,24 @@ export const deleteMenuItem = async (req, res) => {
   try {
     const { menuId } = req.params;
 
+    console.log('[DELETE] Request to delete Menu ID:', menuId);
+
     const deletedMenuItem = await Menu.findByIdAndDelete(menuId);
 
     if (!deletedMenuItem) {
+      console.warn('[DELETE] Menu item not found:', menuId);
       return res.status(404).json({ message: 'Menu item not found' });
     }
 
+    console.log('[DELETE] Successfully deleted menu item:', deletedMenuItem);
     res.status(200).json({ message: 'Menu item deleted successfully' });
   } catch (error) {
-    console.error(error);
+    console.error('[DELETE] Error:', error);
     res.status(500).json({ message: 'Failed to delete menu item' });
   }
 };
 
-// **Get all menu items** (Accessible by anyone)
+// **Get all menu items**
 export const getAllMenuItems = async (req, res) => {
   try {
     const menuItems = await Menu.find();
@@ -84,10 +93,10 @@ export const getAllMenuItems = async (req, res) => {
   }
 };
 
-// **Get all available menu items** (Accessible only if available)
+// **Get all available menu items**
 export const getAvailableMenuItems = async (req, res) => {
   try {
-    const menuItems = await Menu.find({ available: true }); // Only available items
+    const menuItems = await Menu.find({ available: true });
     res.status(200).json(menuItems);
   } catch (error) {
     console.error(error);
@@ -95,7 +104,7 @@ export const getAvailableMenuItems = async (req, res) => {
   }
 };
 
-// **Get a menu item by ID** (Accessible by anyone)
+// **Get a menu item by ID**
 export const getMenuItemById = async (req, res) => {
   try {
     const { menuId } = req.params;
@@ -113,7 +122,7 @@ export const getMenuItemById = async (req, res) => {
   }
 };
 
-// **Get a menu item by ID** (Accessible only if available)
+// **Get a menu item by ID (only if available)**
 export const getAvailableMenuItemById = async (req, res) => {
   try {
     const { menuId } = req.params;
@@ -131,7 +140,7 @@ export const getAvailableMenuItemById = async (req, res) => {
   }
 };
 
-// **Get menu items by category** (Accessible by anyone)
+// **Get menu items by category**
 export const getMenuByCategory = async (req, res) => {
   try {
     const { category } = req.params;
@@ -149,7 +158,7 @@ export const getMenuByCategory = async (req, res) => {
   }
 };
 
-// **Get menu items by category** (Accessible only if available)
+// **Get available menu items by category**
 export const getAvailableMenuByCategory = async (req, res) => {
   try {
     const { category } = req.params;
@@ -167,7 +176,7 @@ export const getAvailableMenuByCategory = async (req, res) => {
   }
 };
 
-// **Search menu items by name** (Accessible by anyone)
+// **Search menu items by name**
 export const searchMenuByName = async (req, res) => {
   try {
     const { name } = req.query;
@@ -185,14 +194,14 @@ export const searchMenuByName = async (req, res) => {
   }
 };
 
-// **Search menu items by name** (Accessible only if available)
+// **Search available menu items by name**
 export const searchAvailableMenuByName = async (req, res) => {
   try {
     const { name } = req.query;
 
     const menuItems = await Menu.find({
       name: { $regex: name, $options: 'i' },
-      available: true, // Only available items
+      available: true,
     });
 
     if (menuItems.length === 0) {
@@ -206,15 +215,19 @@ export const searchAvailableMenuByName = async (req, res) => {
   }
 };
 
-// Update the availability of a menu item
+// **Update the availability of a menu item**
 export const updateMenuItemAvailability = async (req, res) => {
   const { menuId } = req.params;
   const { available } = req.body;
 
   try {
+    console.log('[AVAILABILITY UPDATE] Menu ID:', menuId);
+    console.log('[AVAILABILITY UPDATE] New availability:', available);
+
     const menuItem = await Menu.findById(menuId);
 
     if (!menuItem) {
+      console.warn('[AVAILABILITY UPDATE] Menu item not found:', menuId);
       return res.status(404).json({ message: 'Menu item not found' });
     }
 
@@ -222,9 +235,10 @@ export const updateMenuItemAvailability = async (req, res) => {
 
     await menuItem.save();
 
+    console.log('[AVAILABILITY UPDATE] Availability updated:', menuItem);
     return res.status(200).json({ message: 'Menu item availability updated', menuItem });
   } catch (error) {
-    console.error(error);
+    console.error('[AVAILABILITY UPDATE] Error:', error);
     return res.status(500).json({ message: 'Server error' });
   }
 };

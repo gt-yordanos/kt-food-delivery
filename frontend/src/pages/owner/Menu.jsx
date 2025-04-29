@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,7 +11,8 @@ const getAuthHeader = () => {
 };
 
 const BASE_URL = 'http://localhost:2200';
-const categories = [
+
+const foodCategories = [
   'Injera Dishes',
   'Vegetarian',
   'Grilled Meats',
@@ -35,7 +36,8 @@ const Menu = () => {
     price: '',
     category: [],
     available: true,
-    image: ''
+    image: '',
+    _id: null,
   });
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -64,8 +66,9 @@ const Menu = () => {
     setSearchQuery(query);
   };
 
-  const filteredMenu = menuItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery) || item.category.join(' ').toLowerCase().includes(searchQuery)
+  const filteredMenu = menuItems.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery) ||
+    item.category.join(' ').toLowerCase().includes(searchQuery)
   );
 
   const handleAddOrEdit = async () => {
@@ -83,7 +86,7 @@ const Menu = () => {
       formData.append('name', name);
       formData.append('description', description);
       formData.append('price', price);
-      formData.append('category', category);
+      category.forEach(cat => formData.append('category', cat));
       formData.append('available', currentItem.available);
       if (imageFile) formData.append('image', imageFile);
 
@@ -153,12 +156,37 @@ const Menu = () => {
 
   const closeModal = () => {
     setShowModal(false);
-    setCurrentItem({ name: '', description: '', price: '', category: [], available: true, image: '' });
+    setCurrentItem({
+      name: '',
+      description: '',
+      price: '',
+      category: [],
+      available: true,
+      image: '',
+      _id: null,
+    });
     setImageFile(null);
   };
 
+  const handleCategorySelect = (e) => {
+    const selectedCategory = e.target.value;
+    if (selectedCategory && !currentItem.category.includes(selectedCategory)) {
+      setCurrentItem({
+        ...currentItem,
+        category: [...currentItem.category, selectedCategory],
+      });
+    }
+  };
+
+  const handleCategoryRemove = (categoryToRemove) => {
+    setCurrentItem({
+      ...currentItem,
+      category: currentItem.category.filter((cat) => cat !== categoryToRemove),
+    });
+  };
+
   return (
-    <div className="p-6 bg-base-100 rounded-lg shadow-md h-full">
+    <div className="p-6 h-full">
       <h1 className="text-2xl font-bold mb-4">Menu Items</h1>
       <input
         type="text"
@@ -171,7 +199,15 @@ const Menu = () => {
         onClick={() => {
           setShowModal(true);
           setModalType('add');
-          setCurrentItem({ name: '', description: '', price: '', category: [], available: true, image: '' });
+          setCurrentItem({
+            name: '',
+            description: '',
+            price: '',
+            category: [],
+            available: true,
+            image: '',
+            _id: null,
+          });
           setImageFile(null);
         }}
         className="btn btn-primary mb-4"
@@ -179,83 +215,86 @@ const Menu = () => {
         <FaPlus /> Add Menu Item
       </button>
 
+      {/* Table container */}
       <div className="overflow-x-auto">
-        <table className="table table-zebra w-full">
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Price</th>
-              <th>Category</th>
-              <th>Availability</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loadingTable ? (
+        <div className="max-h-[500px] overflow-y-auto">
+          <table className="table table-zebra w-full">
+            <thead className="sticky top-0 bg-base-200 z-10">
               <tr>
-                <td colSpan="7" className="text-center">
-                  <span className="loading loading-spinner loading-lg"></span>
-                </td>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Availability</th>
+                <th>Actions</th>
               </tr>
-            ) : (
-              filteredMenu.map(item => (
-                <tr key={item._id}>
-                  <td>
-                    {item.image ? (
-                      <img
-                        src={`${BASE_URL}${item.image}`}
-                        alt={item.name}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-                    ) : 'No Image'}
-                  </td>
-                  <td>{item.name}</td>
-                  <td>{item.description}</td>
-                  <td>${item.price}</td>
-                  <td>{item.category.join(', ')}</td>
-                  <td>
-                    <label className="swap">
-                      <input
-                        type="checkbox"
-                        checked={item.available}
-                        onChange={() => handleAvailabilityToggle(item._id, item.available)}
-                      />
-                      <div className="swap-on">Available</div>
-                      <div className="swap-off">Unavailable</div>
-                    </label>
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => {
-                        setCurrentItem(item);
-                        setModalType('edit');
-                        setShowModal(true);
-                        setImageFile(null);
-                      }}
-                      className="btn btn-warning mr-2"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item._id)}
-                      className="btn btn-error"
-                    >
-                      {deleteLoading === item._id ? (
-                        <span className="loading loading-spinner loading-sm"></span>
-                      ) : (
-                        <FaTrash />
-                      )}
-                    </button>
+            </thead>
+            <tbody>
+              {loadingTable ? (
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    <span className="loading loading-spinner loading-lg"></span>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filteredMenu.map((item) => (
+                  <tr key={item._id}>
+                    <td>
+                      {item.image ? (
+                        <img
+                          src={`${BASE_URL}${item.image}`}
+                          alt={item.name}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      ) : 'No Image'}
+                    </td>
+                    <td>{item.name}</td>
+                    <td>{item.description}</td>
+                    <td>${item.price}</td>
+                    <td>{item.category.join(', ')}</td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        defaultChecked={item.available}
+                        className="toggle"
+                        onChange={() =>
+                          handleAvailabilityToggle(item._id, item.available)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => {
+                          setCurrentItem(item);
+                          setModalType('edit');
+                          setShowModal(true);
+                          setImageFile(null);
+                        }}
+                        className="btn btn-warning mr-2"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className="btn btn-error"
+                      >
+                        {deleteLoading === item._id ? (
+                          <span className="loading loading-spinner loading-sm"></span>
+                        ) : (
+                          <FaTrash />
+                        )}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Modal */}
       {showModal && (
         <div className="modal modal-open">
           <div className="modal-box">
@@ -282,33 +321,53 @@ const Menu = () => {
               onChange={(e) => setCurrentItem({ ...currentItem, price: e.target.value })}
               className="input input-bordered w-full mb-2"
             />
+
             <select
-              multiple
-              value={currentItem.category}
-              onChange={(e) => setCurrentItem({ ...currentItem, category: Array.from(e.target.selectedOptions, option => option.value) })}
-              className="select select-bordered w-full mb-2"
+              className="input input-bordered w-full mb-2"
+              onChange={handleCategorySelect}
+              value=""
             >
-              {categories.map((cat, index) => (
-                <option key={index} value={cat}>
-                  {cat}
+              <option value="">Select Category</option>
+              {foodCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
                 </option>
               ))}
             </select>
+
+            <div className="mb-4">
+              {currentItem.category.map((category, index) => (
+                <div
+                  key={index}
+                  className="inline-flex items-center bg-blue-100 text-blue-800 rounded-full py-1 px-3 mr-2 mb-2"
+                >
+                  <span>{category}</span>
+                  <FaTimes
+                    className="ml-2 cursor-pointer"
+                    onClick={() => handleCategoryRemove(category)}
+                  />
+                </div>
+              ))}
+            </div>
+
             <div className="flex items-center mb-2">
               <label htmlFor="availability" className="mr-2">Availability:</label>
               <input
                 type="checkbox"
-                id="availability"
+                className="toggle"
                 checked={currentItem.available}
                 onChange={() => setCurrentItem({ ...currentItem, available: !currentItem.available })}
               />
             </div>
+
+            <label htmlFor="image" className="mb-2">Image:</label>
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setImageFile(e.target.files[0])}
               className="file-input file-input-bordered w-full mb-2"
             />
+
             <div className="modal-action">
               <button onClick={handleAddOrEdit} className="btn btn-success">
                 {loading ? <span className="loading loading-spinner loading-sm"></span> : 'Save'}

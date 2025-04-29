@@ -11,28 +11,41 @@ import {
   getAvailableMenuByCategory,
   searchMenuByName,
   searchAvailableMenuByName,
-  updateMenuItemAvailability 
+  updateMenuItemAvailability
 } from '../controllers/menu.js';
 
+import { upload } from '../config/upload.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/menu', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), addMenuItem);
-router.put('/menu/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), updateMenuItem);
-router.delete('/menu/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), deleteMenuItem);
+router.post(
+  '/',
+  authenticateToken,
+  authorizeRoles(['admin', 'restaurantOwner']),
+  upload.single('image'),
+  addMenuItem
+);
 
-router.get('/menu',  authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllMenuItems);
-router.get('/menu/search',  authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), searchMenuByName);
+router.put(
+  '/:menuId',
+  authenticateToken,
+  authorizeRoles(['admin', 'restaurantOwner']),
+  upload.single('image'),
+  updateMenuItem
+);
 
-router.get('/menu/:menuId',  authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getMenuItemById);
-router.get('/menu/category/:category',  authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getMenuByCategory);
+router.delete('/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), deleteMenuItem);
 
-router.get('/menu/available', getAvailableMenuItems);
-router.get('/menu/available/search', searchAvailableMenuByName);
+router.get('/', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllMenuItems);
+router.get('/search', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), searchMenuByName);
+router.get('/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getMenuItemById);
+router.get('/category/:category', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getMenuByCategory);
 
-router.get('/menu/available/:menuId', getAvailableMenuItemById);
-router.get('/menu/available/category/:category', getAvailableMenuByCategory);
+router.get('/available', getAvailableMenuItems);
+router.get('/available/search', searchAvailableMenuByName);
+router.get('/available/:menuId', getAvailableMenuItemById);
+router.get('/available/category/:category', getAvailableMenuByCategory);
 
 router.put('/update-availability/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), updateMenuItemAvailability);
 
