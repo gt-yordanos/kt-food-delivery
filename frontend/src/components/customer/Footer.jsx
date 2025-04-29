@@ -1,38 +1,29 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from 'react-icons/fa'; // Added icons
-import { FaTiktok } from 'react-icons/fa'; // Tiktok Icon from Font Awesome
+import {
+  FaFacebook, FaTwitter, FaInstagram, FaLinkedin,
+  FaYoutube, FaPhone, FaEnvelope, FaMapMarkerAlt
+} from 'react-icons/fa';
+import { FaTiktok } from 'react-icons/fa';
 import { useRestaurant } from '../../contexts/RestaurantContext';
 
 const Footer = () => {
   const { restaurant, loading, error } = useRestaurant();
 
-  // Check if the restaurant info is still loading or if there was an error
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!restaurant) return null;
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  const currentTime = new Date();
-  const openTime = new Date();
-  openTime.setHours(restaurant.openingHour.split(':')[0], restaurant.openingHour.split(':')[1]);
-  const closeTime = new Date();
-  closeTime.setHours(restaurant.closingHour.split(':')[0], restaurant.closingHour.split(':')[1]);
-
-  const isOpen = currentTime >= openTime && currentTime <= closeTime;
-  const openCloseMessage = isOpen 
-    ? `Now open, will close at ${restaurant.closingHour}`
-    : `Now closed, will open at ${restaurant.openingHour}`;
+  const daysOfWeek = [
+    'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
+  ];
 
   return (
-    <footer className="bg-base-300 py-10 px-4 sm:px-[5%] lg:px-[15%]">
+    <footer className="bg-base-300 py-10 px-4 sm:px-[5%] lg:px-[15%]" id="contact">
       <div className="max-w-screen-xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Nav Links */}
+          {/* Quick Links */}
           <div>
             <h4 className="text-lg font-bold text-amber-500 mb-4">Quick Links</h4>
             <ul>
@@ -47,27 +38,35 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-bold text-amber-500 mb-4">Restaurant Info</h4>
             <p className="text-content mb-2"><strong>{restaurant.name}</strong></p>
-            <p className="text-content mb-2">{restaurant.address}</p>
 
-            {/* Phone & Email with Icons and Transition */}
-            <div className="flex items-center mb-2 transition-transform hover:scale-105">
-              <FaPhone className="mr-2 text-amber-500" />
-              <a href={`tel:${restaurant.phone}`} className="text-content">{restaurant.phone}</a>
+            <div className="flex items-center mb-2 transition-transform hover:scale-105 min-w-0">
+              <FaPhone className="flex-shrink-0 mr-2 text-amber-500 w-5 h-5" />
+              <a href={`tel:${restaurant.phone}`} className="text-content truncate">{restaurant.phone}</a>
             </div>
-            <div className="flex items-center mb-2 transition-transform hover:scale-105">
-              <FaEnvelope className="mr-2 text-amber-500" />
-              <a href={`mailto:${restaurant.email}`} className="text-content">{restaurant.email}</a>
+            <div className="flex items-center mb-2 transition-transform hover:scale-105 min-w-0">
+              <FaEnvelope className="flex-shrink-0 mr-2 text-amber-500 w-5 h-5" />
+              <a href={`mailto:${restaurant.email}`} className="text-content truncate">{restaurant.email}</a>
             </div>
-            <div className="flex items-center mb-2 transition-transform hover:scale-105">
-              <FaMapMarkerAlt className="mr-2 text-amber-500" />
-              <span className="text-content">{restaurant.address}</span>
+            <div className="flex items-center mb-2 transition-transform hover:scale-105 min-w-0 cursor-pointer">
+              <FaMapMarkerAlt className="flex-shrink-0 mr-2 text-amber-500 w-5 h-5" />
+              <span className="text-content truncate">{restaurant.address}</span>
             </div>
-
-            {/* Opening/Closing Hours */}
-            <div className="text-content">{openCloseMessage}</div>
           </div>
 
-          {/* Social Media Links */}
+          {/* Opening Hours */}
+          <div>
+            <h4 className="text-lg font-bold text-amber-500 mb-4">Opening Hours</h4>
+            <ul className="text-content space-y-1">
+              {daysOfWeek.map((day) => (
+                <li key={day}>
+                  <span className="capitalize">{day}:</span>{' '}
+                  {restaurant.openingHours[day].start} - {restaurant.openingHours[day].end}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Social Media */}
           <div>
             <h4 className="text-lg font-bold text-amber-500 mb-4">Follow Us</h4>
             <div className="flex space-x-4">
