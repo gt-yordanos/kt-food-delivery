@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaEdit, FaSave, FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaLink, FaYoutube, FaTiktok } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -90,6 +90,18 @@ const Restaurant = () => {
           [platform]: value,
         }
       }));
+    } else if (name.includes('openingHours')) {
+      const [day, key] = name.split('.');
+      setEditedRestaurant((prevState) => ({
+        ...prevState,
+        openingHours: {
+          ...prevState.openingHours,
+          [day]: {
+            ...prevState.openingHours[day],
+            [key]: value,
+          },
+        },
+      }));
     } else {
       setEditedRestaurant((prevState) => ({
         ...prevState,
@@ -132,7 +144,9 @@ const Restaurant = () => {
         </div>
 
         <div className="mb-4">
-          <label className="font-semibold">Address:</label>
+          <label className="font-semibold flex items-center">
+            <FaMapMarkerAlt className="mr-2" /> Address:
+          </label>
           <input
             type="text"
             name="address"
@@ -174,7 +188,7 @@ const Restaurant = () => {
         <button
           className="btn btn-info mt-4"
           onClick={() => isEditing.restaurantInfo ? handleSaveClick('restaurantInfo') : handleEditClick('restaurantInfo')}
-          disabled={loading} // Disable the button when loading is true to prevent further edits while saving
+          disabled={loading}
         >
           {isEditing.restaurantInfo ? (
             <>
@@ -191,29 +205,44 @@ const Restaurant = () => {
 
       {/* Opening Hours Section */}
       <div className="mb-6">
-        <div className="mb-4">
-          {restaurant?.openingHours ? (
-            Object.entries(restaurant.openingHours).map(([day, hours]) => (
-              <div key={day} className="mb-2">
-                <input
-                  type="text"
-                  name={day}
-                  value={isEditing.openingHours ? editedRestaurant?.openingHours[day] || '' : hours}
-                  onChange={handleChange}
-                  disabled={!isEditing.openingHours}
-                  className="input input-bordered w-full"
-                />
-              </div>
-            ))
-          ) : (
-            <p>Loading...</p>
-          )}
-        </div>
+        <h2 className="text-lg font-semibold mb-2 flex items-center">
+          <FaClock className="mr-2" /> Opening Hours
+        </h2>
+        {restaurant?.openingHours ? (
+          Object.entries(restaurant.openingHours).map(([day, hours]) => (
+            <div key={day} className="flex items-center gap-4 mb-2">
+              <label className="capitalize w-20">{day}:</label>
 
+              {/* Start Time Input */}
+              <input
+                type="time"
+                name={`${day}.start`}
+                value={isEditing.openingHours ? editedRestaurant?.openingHours[day]?.start || '' : hours.start}
+                onChange={handleChange}
+                disabled={!isEditing.openingHours}
+                className="input input-bordered"
+              />
+
+              <span>to</span>
+
+              {/* End Time Input */}
+              <input
+                type="time"
+                name={`${day}.end`}
+                value={isEditing.openingHours ? editedRestaurant?.openingHours[day]?.end || '' : hours.end}
+                onChange={handleChange}
+                disabled={!isEditing.openingHours}
+                className="input input-bordered"
+              />
+            </div>
+          ))
+        ) : (
+          <p>Loading...</p>
+        )}
         <button
           className="btn btn-info mt-4"
           onClick={() => isEditing.openingHours ? handleSaveClick('openingHours') : handleEditClick('openingHours')}
-          disabled={loading} // Disable the button when loading is true to prevent further edits while saving
+          disabled={loading}
         >
           {isEditing.openingHours ? (
             <>
@@ -263,7 +292,7 @@ const Restaurant = () => {
                   <label className="mr-2">{platform.charAt(0).toUpperCase() + platform.slice(1)}:</label>
                   <input
                     type="text"
-                    name={`socialLinks.${platform}`} // Name with platform to distinguish
+                    name={`socialLinks.${platform}`}
                     value={isEditing.socialLinks ? editedRestaurant?.socialLinks[platform] || '' : link}
                     onChange={handleChange}
                     disabled={!isEditing.socialLinks}
@@ -280,7 +309,7 @@ const Restaurant = () => {
         <button
           className="btn btn-info mt-4"
           onClick={() => isEditing.socialLinks ? handleSaveClick('socialLinks') : handleEditClick('socialLinks')}
-          disabled={loading} // Disable the button when loading is true to prevent further edits while saving
+          disabled={loading}
         >
           {isEditing.socialLinks ? (
             <>
