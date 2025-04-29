@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
-import { Facebook, Twitter, Instagram, Linkedin, YouTube, TikTok } from 'lucide-react';
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa'; // Using Font Awesome icons
+import { FaTiktok } from 'react-icons/fa'; // Tiktok Icon from Font Awesome
 import { useRestaurant } from '../../contexts/RestaurantContext';
 
 const Footer = () => {
@@ -46,32 +47,32 @@ const Footer = () => {
             <div className="flex space-x-4">
               {restaurant.socialLinks.facebook && (
                 <a href={restaurant.socialLinks.facebook} target="_blank" rel="noopener noreferrer">
-                  <Facebook className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  <FaFacebook className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
               {restaurant.socialLinks.twitter && (
                 <a href={restaurant.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
-                  <Twitter className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  <FaTwitter className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
               {restaurant.socialLinks.instagram && (
                 <a href={restaurant.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
-                  <Instagram className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  <FaInstagram className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
               {restaurant.socialLinks.linkedin && (
                 <a href={restaurant.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
-                  <Linkedin className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  <FaLinkedin className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
               {restaurant.socialLinks.youtube && (
                 <a href={restaurant.socialLinks.youtube} target="_blank" rel="noopener noreferrer">
-                  <YouTube className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  <FaYoutube className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
               {restaurant.socialLinks.tiktok && (
                 <a href={restaurant.socialLinks.tiktok} target="_blank" rel="noopener noreferrer">
-                  <TikTok className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  <FaTiktok className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
             </div>
