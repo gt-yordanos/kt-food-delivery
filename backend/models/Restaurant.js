@@ -1,35 +1,24 @@
 import mongoose from 'mongoose';
 
+const timeRangeSchema = new mongoose.Schema({
+  start: { type: String, required: true }, // Format: "HH:mm"
+  end: { type: String, required: true },   // Format: "HH:mm"
+}, { _id: false });
+
 const restaurantSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  about: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-  phone: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
+  name: { type: String, required: true },
+  about: { type: String, required: true },
+  address: { type: String, required: true },
+  phone: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   openingHours: {
-    monday: { type: String, required: true },
-    tuesday: { type: String, required: true },
-    wednesday: { type: String, required: true },
-    thursday: { type: String, required: true },
-    friday: { type: String, required: true },
-    saturday: { type: String, required: true },
-    sunday: { type: String, required: true },
+    monday: { type: timeRangeSchema, required: true },
+    tuesday: { type: timeRangeSchema, required: true },
+    wednesday: { type: timeRangeSchema, required: true },
+    thursday: { type: timeRangeSchema, required: true },
+    friday: { type: timeRangeSchema, required: true },
+    saturday: { type: timeRangeSchema, required: true },
+    sunday: { type: timeRangeSchema, required: true },
   },
   socialLinks: {
     facebook: { type: String },
@@ -45,15 +34,14 @@ const restaurantSchema = new mongoose.Schema({
   },
 });
 
-// Prevent multiple instances of the restaurant
+// Ensure only one restaurant instance exists
 restaurantSchema.pre('save', async function (next) {
-  const existingRestaurant = await mongoose.models.Restaurant.findOne();
-  if (existingRestaurant && existingRestaurant._id.toString() !== this._id.toString()) {
+  const existing = await mongoose.models.Restaurant.findOne();
+  if (existing && existing._id.toString() !== this._id.toString()) {
     throw new Error('Only one restaurant instance is allowed.');
   }
   next();
 });
 
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
-
 export { Restaurant };

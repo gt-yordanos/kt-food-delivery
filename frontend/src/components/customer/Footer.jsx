@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa'; // Using Font Awesome icons
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from 'react-icons/fa'; // Added icons
 import { FaTiktok } from 'react-icons/fa'; // Tiktok Icon from Font Awesome
 import { useRestaurant } from '../../contexts/RestaurantContext';
 
@@ -16,6 +16,17 @@ const Footer = () => {
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  const currentTime = new Date();
+  const openTime = new Date();
+  openTime.setHours(restaurant.openingHour.split(':')[0], restaurant.openingHour.split(':')[1]);
+  const closeTime = new Date();
+  closeTime.setHours(restaurant.closingHour.split(':')[0], restaurant.closingHour.split(':')[1]);
+
+  const isOpen = currentTime >= openTime && currentTime <= closeTime;
+  const openCloseMessage = isOpen 
+    ? `Now open, will close at ${restaurant.closingHour}`
+    : `Now closed, will open at ${restaurant.openingHour}`;
 
   return (
     <footer className="bg-base-300 py-10 px-4 sm:px-[5%] lg:px-[15%]">
@@ -37,8 +48,23 @@ const Footer = () => {
             <h4 className="text-lg font-bold text-amber-500 mb-4">Restaurant Info</h4>
             <p className="text-content mb-2"><strong>{restaurant.name}</strong></p>
             <p className="text-content mb-2">{restaurant.address}</p>
-            <p className="text-content mb-2">{restaurant.phone}</p>
-            <p className="text-content">{restaurant.email}</p>
+
+            {/* Phone & Email with Icons and Transition */}
+            <div className="flex items-center mb-2 transition-transform hover:scale-105">
+              <FaPhone className="mr-2 text-amber-500" />
+              <a href={`tel:${restaurant.phone}`} className="text-content">{restaurant.phone}</a>
+            </div>
+            <div className="flex items-center mb-2 transition-transform hover:scale-105">
+              <FaEnvelope className="mr-2 text-amber-500" />
+              <a href={`mailto:${restaurant.email}`} className="text-content">{restaurant.email}</a>
+            </div>
+            <div className="flex items-center mb-2 transition-transform hover:scale-105">
+              <FaMapMarkerAlt className="mr-2 text-amber-500" />
+              <span className="text-content">{restaurant.address}</span>
+            </div>
+
+            {/* Opening/Closing Hours */}
+            <div className="text-content">{openCloseMessage}</div>
           </div>
 
           {/* Social Media Links */}
@@ -76,13 +102,6 @@ const Footer = () => {
                 </a>
               )}
             </div>
-          </div>
-
-          {/* Address / Contact */}
-          <div>
-            <h4 className="text-lg font-bold text-amber-500 mb-4">Contact Us</h4>
-            <p className="text-content mb-2">Phone: {restaurant.phone}</p>
-            <p className="text-content mb-2">Email: {restaurant.email}</p>
           </div>
         </div>
       </div>
