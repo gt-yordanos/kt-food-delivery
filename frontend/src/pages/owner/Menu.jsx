@@ -11,6 +11,18 @@ const getAuthHeader = () => {
 };
 
 const BASE_URL = 'http://localhost:2200';
+const categories = [
+  'Injera Dishes',
+  'Vegetarian',
+  'Grilled Meats',
+  'Soups & Stews',
+  'Breakfast',
+  'Snacks & Street Food',
+  'Beverages',
+  'Salads & Sides',
+  'Desserts',
+  'Fast Food',
+];
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -21,7 +33,8 @@ const Menu = () => {
     name: '',
     description: '',
     price: '',
-    category: '',
+    category: [],
+    available: true,
     image: ''
   });
   const [imageFile, setImageFile] = useState(null);
@@ -52,13 +65,13 @@ const Menu = () => {
   };
 
   const filteredMenu = menuItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery) || item.category.toLowerCase().includes(searchQuery)
+    item.name.toLowerCase().includes(searchQuery) || item.category.join(' ').toLowerCase().includes(searchQuery)
   );
 
   const handleAddOrEdit = async () => {
     const { name, description, price, category } = currentItem;
 
-    if (!name || !description || !price || !category) {
+    if (!name || !description || !price || category.length === 0) {
       toast.error('All fields except image are required.');
       return;
     }
@@ -71,6 +84,7 @@ const Menu = () => {
       formData.append('description', description);
       formData.append('price', price);
       formData.append('category', category);
+      formData.append('available', currentItem.available);
       if (imageFile) formData.append('image', imageFile);
 
       let response;
@@ -122,9 +136,24 @@ const Menu = () => {
     }
   };
 
+  const handleAvailabilityToggle = async (id, currentAvailability) => {
+    try {
+      const newAvailability = !currentAvailability;
+      await axios.put(
+        api.updateMenuItemAvailability.replace('{menuId}', id),
+        { available: newAvailability },
+        getAuthHeader()
+      );
+      toast.success(`Menu item ${newAvailability ? 'available' : 'unavailable'}`);
+      fetchMenuItems();
+    } catch (error) {
+      toast.error('Error updating availability');
+    }
+  };
+
   const closeModal = () => {
     setShowModal(false);
-    setCurrentItem({ name: '', description: '', price: '', category: '', image: '' });
+    setCurrentItem({ name: '', description: '', price: '', category: [], available: true, image: '' });
     setImageFile(null);
   };
 
@@ -142,7 +171,7 @@ const Menu = () => {
         onClick={() => {
           setShowModal(true);
           setModalType('add');
-          setCurrentItem({ name: '', description: '', price: '', category: '', image: '' });
+          setCurrentItem({ name: '', description: '', price: '', category: [], available: true, image: '' });
           setImageFile(null);
         }}
         className="btn btn-primary mb-4"
@@ -159,13 +188,14 @@ const Menu = () => {
               <th>Description</th>
               <th>Price</th>
               <th>Category</th>
+              <th>Availability</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loadingTable ? (
               <tr>
-                <td colSpan="6" className="text-center">
+                <td colSpan="7" className="text-center">
                   <span className="loading loading-spinner loading-lg"></span>
                 </td>
               </tr>
@@ -184,7 +214,18 @@ const Menu = () => {
                   <td>{item.name}</td>
                   <td>{item.description}</td>
                   <td>${item.price}</td>
-                  <td>{item.category}</td>
+                  <td>{item.category.join(', ')}</td>
+                  <td>
+                    <label className="swap">
+                      <input
+                        type="checkbox"
+                        checked={item.available}
+                        onChange={() => handleAvailabilityToggle(item._id, item.available)}
+                      />
+                      <div className="swap-on">Available</div>
+                      <div className="swap-off">Unavailable</div>
+                    </label>
+                  </td>
                   <td>
                     <button
                       onClick={() => {
@@ -241,13 +282,27 @@ const Menu = () => {
               onChange={(e) => setCurrentItem({ ...currentItem, price: e.target.value })}
               className="input input-bordered w-full mb-2"
             />
-            <input
-              type="text"
-              placeholder="Category"
+            <select
+              multiple
               value={currentItem.category}
-              onChange={(e) => setCurrentItem({ ...currentItem, category: e.target.value })}
-              className="input input-bordered w-full mb-2"
-            />
+              onChange={(e) => setCurrentItem({ ...currentItem, category: Array.from(e.target.selectedOptions, option => option.value) })}
+              className="select select-bordered w-full mb-2"
+            >
+              {categories.map((cat, index) => (
+                <option key={index} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+            <div className="flex items-center mb-2">
+              <label htmlFor="availability" className="mr-2">Availability:</label>
+              <input
+                type="checkbox"
+                id="availability"
+                checked={currentItem.available}
+                onChange={() => setCurrentItem({ ...currentItem, available: !currentItem.available })}
+              />
+            </div>
             <input
               type="file"
               accept="image/*"
