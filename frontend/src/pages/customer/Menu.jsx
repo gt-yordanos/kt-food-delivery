@@ -1,16 +1,18 @@
 import React from 'react';
 import MenuCard from '../../components/customer/MenuCard';
+import tibsImage from '../../assets/tibs.jpg';
+import kikilImage from '../../assets/kikil.webp';
 
 // Dummy menu data – replace with API or props as needed
 const sampleMenu = [
   {
-    image: 'https://via.placeholder.com/300x200',
-    name: 'Grilled Chicken',
-    description: 'Juicy grilled chicken with spices and herbs.',
-    price: 12.99,
+    image: tibsImage,
+    name: 'Tibs',
+    description: 'Sautéed meat with spices, served with injera.',
+    price: 14.99,
   },
   {
-    image: 'https://via.placeholder.com/300x200',
+    image: kikilImage,
     name: 'Veggie Delight',
     description: 'Fresh vegetables served with hummus and pita.',
     price: 9.49,

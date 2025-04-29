@@ -20,6 +20,7 @@ import Login from './components/shared/Login';
 import api from './api';
 import './App.css';
 import Home from './pages/customer/Home';
+import Menu from './pages/customer/Menu';
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
 
           {/* Customer Protected Route */}
           <Route path="/" element={<Home/>} />
+          <Route path="/menu" element={<Menu/>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />

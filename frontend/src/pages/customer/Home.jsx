@@ -5,7 +5,6 @@ import ContactInfo from '../../components/customer/ContactInfo'
 import About from '../../components/customer/About'
 import ClientReviews from '../../components/customer/ClientReview'
 import Footer from '../../components/customer/Footer'
-import Menu from './Menu'
 
 const Home = () => {
   return (
@@ -15,7 +14,6 @@ const Home = () => {
       <ContactInfo/>
       <About/>
       <ClientReviews/>
-      <Menu/>
       <Footer/>
     </>
   )

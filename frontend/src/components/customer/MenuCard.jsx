@@ -2,7 +2,7 @@ import React from 'react';
 
 const MenuCard = ({ image, name, description, price }) => {
   return (
-    <div className="bg-base-200 rounded-4xl shadow-lg overflow-hidden flex flex-col">
+    <div className="bg-base-300 rounded-4xl shadow-lg overflow-hidden flex flex-col">
       {/* Top: Image */}
       <div className="w-full h-48 overflow-hidden">
         <img
@@ -22,7 +22,7 @@ const MenuCard = ({ image, name, description, price }) => {
 
         {/* Price & Button */}
         <div className="flex items-center justify-between mt-auto">
-          <span className="text-amber-500 font-bold text-sm">${price}</span>
+          <span className="text-amber-500 font-bold text-md">${price}</span>
           <button className="btn btn-md bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full">Order Now</button>
         </div>
       </div>
