@@ -1,5 +1,19 @@
 import mongoose from 'mongoose';
 
+// Shortened food categories enum
+const foodCategories = [
+  'Injera Dishes',
+  'Vegetarian',
+  'Grilled Meats',
+  'Soups & Stews',
+  'Breakfast',
+  'Snacks & Street Food',
+  'Beverages',
+  'Salads & Sides',
+  'Desserts',
+  'Fast Food',
+];
+
 const menuSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -18,7 +32,8 @@ const menuSchema = new mongoose.Schema({
     default: true,
   },
   category: {
-    type: String,
+    type: [String],
+    enum: foodCategories,
     required: true,
   },
   image: {
