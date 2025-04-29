@@ -50,6 +50,7 @@ const api = {
   getAvailableMenuItemById: `${BASE_URL}/menu/available/:menuId`,
   getAvailableMenuByCategory: `${BASE_URL}/menu/available/category/:category`,
   searchAvailableMenuByName: `${BASE_URL}/menu/available/search`,
+  updateMenuItemAvailability: `${BASE_URL}/menu/update-availability/:menuId`,
 
   // Order Routes
   createOrder: `${BASE_URL}/orders/create`,
