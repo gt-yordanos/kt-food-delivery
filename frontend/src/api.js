@@ -1,4 +1,3 @@
-// Define the base URL for your API
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const api = {
@@ -40,10 +39,17 @@ const api = {
   searchDeliveryPerson: `${BASE_URL}/delivery-persons/search`,
 
   // Menu Routes
-  addMenuItem: `${BASE_URL}/menu/add-menu-item`,
-  updateMenuItem: `${BASE_URL}/menu/update-menu-item/{menuId}`,
-  deleteMenuItem: `${BASE_URL}/menu/delete-menu-item/{menuId}`,
-  getAllMenuItems: `${BASE_URL}/menu/menu-items`,
+  addMenuItem: `${BASE_URL}/menu`,
+  updateMenuItem: `${BASE_URL}/menu/:menuId`,
+  deleteMenuItem: `${BASE_URL}/menu/:menuId`,
+  getAllMenuItems: `${BASE_URL}/menu`,
+  getMenuItemById: `${BASE_URL}/menu/:menuId`,
+  getMenuByCategory: `${BASE_URL}/menu/category/:category`,
+  searchMenuByName: `${BASE_URL}/menu/search`,
+  getAvailableMenuItems: `${BASE_URL}/menu/available`,
+  getAvailableMenuItemById: `${BASE_URL}/menu/available/:menuId`,
+  getAvailableMenuByCategory: `${BASE_URL}/menu/available/category/:category`,
+  searchAvailableMenuByName: `${BASE_URL}/menu/available/search`,
 
   // Order Routes
   createOrder: `${BASE_URL}/orders/create`,
@@ -53,7 +59,7 @@ const api = {
   // Restaurant Routes
   addRestaurant: `${BASE_URL}/restaurants/add`,
   updateRestaurant: `${BASE_URL}/restaurants/update`,
-  getAllRestaurantntInfo: `${BASE_URL}/restaurants/`,
+  getAllRestaurantInfo: `${BASE_URL}/restaurants/`,
 };
 
 export default api;
