@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { FaUserAlt, FaLock } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../contexts/AuthContext'; // Import AuthContext
+import { useAuth } from '../../contexts/AuthContext';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Login = ({ loginApi, redirectLink }) => {
@@ -11,8 +11,9 @@ const Login = ({ loginApi, redirectLink }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
-  const { loading, login } = useAuth(); // Use login function from AuthContext
+  const { loading, login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,7 +59,7 @@ const Login = ({ loginApi, redirectLink }) => {
 
   return (
     <div className="max-w-sm mx-auto min-h-[100vh] flex items-center justify-center">
-      <div className="card bg-base-200 border-gray-600 border-1 sm:w-[80%] w-90%">
+      <div className="card bg-base-200 border-gray-600 border-1 sm:w-[80%] w-[90%]">
         <div className="card-body">
           <h2 className="font-bold text-center text-2xl mb-6">Login</h2>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -100,6 +101,16 @@ const Login = ({ loginApi, redirectLink }) => {
               </button>
             </div>
           </form>
+
+          {/* Conditionally show Sign Up link if current path is /login */}
+          {location.pathname === '/login' && (
+            <p className="mt-4 text-center text-sm">
+              New here?{' '}
+              <Link to="/signup" className="text-primary underline hover:text-secondary">
+                Create an account
+              </Link>
+            </p>
+          )}
         </div>
       </div>
     </div>
