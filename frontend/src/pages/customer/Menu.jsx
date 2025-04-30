@@ -4,17 +4,30 @@ import MenuCard from '../../components/customer/MenuCard';
 import { useDebounce } from 'use-debounce';
 import api from '../../api';
 
+// ✅ Import images directly
+import injera from '../../assets/category/injera.webp';
+import vegetarian from '../../assets/category/vegetarian.webp';
+import grilled from '../../assets/category/grilled.jpg';
+import soups from '../../assets/category/soups.jpg';
+import breakfast from '../../assets/category/breakfast.jpg';
+import snacks from '../../assets/category/snacks.webp';
+import beverages from '../../assets/category/beverages.jpg';
+import salads from '../../assets/category/salads.jpg';
+import desserts from '../../assets/category/desserts.jpg';
+import fastfood from '../../assets/category/fastfood.jpg';
+
+// ✅ Use imported images here
 const foodCategories = [
-  { name: 'Injera Dishes', image: '/images/categories/injera.jpg' },
-  { name: 'Vegetarian', image: '/images/categories/vegetarian.jpg' },
-  { name: 'Grilled Meats', image: '/images/categories/grilled.jpg' },
-  { name: 'Soups & Stews', image: '/images/categories/soups.jpg' },
-  { name: 'Breakfast', image: '/images/categories/breakfast.jpg' },
-  { name: 'Snacks & Street Food', image: '/images/categories/snacks.jpg' },
-  { name: 'Beverages', image: '/images/categories/beverages.jpg' },
-  { name: 'Salads & Sides', image: '/images/categories/salads.jpg' },
-  { name: 'Desserts', image: '/images/categories/desserts.jpg' },
-  { name: 'Fast Food', image: '/images/categories/fastfood.jpg' },
+  { name: 'Injera Dishes', image: injera },
+  { name: 'Vegetarian', image: vegetarian },
+  { name: 'Grilled Meats', image: grilled },
+  { name: 'Soups & Stews', image: soups },
+  { name: 'Breakfast', image: breakfast },
+  { name: 'Snacks & Street Food', image: snacks },
+  { name: 'Beverages', image: beverages },
+  { name: 'Salads & Sides', image: salads },
+  { name: 'Desserts', image: desserts },
+  { name: 'Fast Food', image: fastfood },
 ];
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
