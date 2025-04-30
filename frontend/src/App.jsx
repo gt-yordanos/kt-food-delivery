@@ -27,7 +27,6 @@ import SignUp from './pages/customer/SignUp';
 
 const App = () => {
   return (
-    <AuthProvider>
       <Router>
         <Routes>
           {/* Public Routes */}
@@ -92,7 +91,6 @@ const App = () => {
           <Route path="/owner/orders" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageOrder /></OwnerLayout></ProtectedRoute>} />
         </Routes>
       </Router>
-    </AuthProvider>
   );
 };
 

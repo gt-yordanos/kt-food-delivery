@@ -19,7 +19,7 @@ export const authenticateToken = (req, res, next) => {
     }
 
     // Attach user info to the request object for use in other routes
-    req.customerId = user.customerId;
+    req.id = user.id;  // Using `id` instead of `customerId`
     req.role = user.role;
 
     next();
