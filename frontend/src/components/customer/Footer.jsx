@@ -11,7 +11,6 @@ import { useRestaurant } from '../../contexts/RestaurantContext';
 const Footer = () => {
   const { restaurant, loading, error } = useRestaurant();
 
-  // Handle loading, error, or missing restaurant data
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!restaurant) return null;
@@ -20,22 +19,21 @@ const Footer = () => {
     'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
   ];
 
-  // Check if openingHours is defined
   const openingHours = restaurant.openingHours || {};
 
   return (
     <footer className="bg-base-300 py-10 px-4 sm:px-[5%] lg:px-[15%]" id="contact">
       <div className="max-w-screen-xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          
+
           {/* Quick Links */}
           <div>
             <h4 className="text-lg font-bold text-amber-500 mb-4">Quick Links</h4>
-            <ul>
-              <li><HashLink smooth to="#about" className="hover:text-amber-500">About</HashLink></li>
+            <ul className="space-y-2">
+              <li><HashLink smooth to="/#about" className="hover:text-amber-500">About</HashLink></li>
               <li><Link to="/menu" className="hover:text-amber-500">Menu</Link></li>
-              <li><HashLink smooth to="#our-customer" className="hover:text-amber-500">Our Customer</HashLink></li>
-              <li><HashLink smooth to="#contact" className="hover:text-amber-500">Contact Us</HashLink></li>
+              <li><HashLink smooth to="/#our-customer" className="hover:text-amber-500">Our Customer</HashLink></li>
+              <li><HashLink smooth to="/#contact" className="hover:text-amber-500">Contact Us</HashLink></li>
             </ul>
           </div>
 

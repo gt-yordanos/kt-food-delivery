@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { HashLink } from 'react-router-hash-link'; // Ensure HashLink is imported
+import { HashLink } from 'react-router-hash-link';
 import { ShoppingCart, UserRound, Menu, X } from 'lucide-react';
 import ThemeToggle from '../shared/ThemeToggle';
 import ktLogo from '../../assets/ktLogo.png';
@@ -11,17 +11,21 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    setCurrentHash(location.hash); // Keeps track of the current hash in the URL
+    setCurrentHash(location.hash);
 
-    // Scroll to top if we are navigating to a new page (like "/menu")
+    // Scroll to top when navigating to /menu
     if (location.pathname === '/menu') {
       window.scrollTo(0, 0);
     }
   }, [location]);
 
-  // Function to get the link classes based on active state
   const getLinkClasses = (hashOrPath) => {
-    const isActive = currentHash === hashOrPath || location.pathname === hashOrPath;
+    const isActive =
+      (hashOrPath.startsWith('/#') &&
+        location.pathname === '/' &&
+        location.hash === hashOrPath.replace('/', '')) ||
+      location.pathname === hashOrPath;
+
     return `text-lg font-bold hover:text-amber-500 transition-all duration-300 ease-in-out ${
       isActive ? 'text-amber-500' : 'text-content'
     }`;
@@ -30,31 +34,31 @@ const Navbar = () => {
   return (
     <nav className="flex items-center justify-between py-2 px-4 sm:px-[5%] lg:px-[15%] bg-base-300 shadow-md fixed top-0 left-0 w-full z-50">
       {/* Logo */}
-      <HashLink smooth to="#home" className="logo">
+      <HashLink smooth to="/#home" className="logo">
         <img src={ktLogo} alt="KT Restaurant Logo" className="h-12" />
       </HashLink>
 
       {/* Desktop Menu */}
       <ul className="hidden md:flex space-x-6">
-        {/* About link will take you to the root path ('/') and scroll to #about */}
         <li>
           <HashLink smooth to="/#about" className={getLinkClasses('/#about')}>
             About
           </HashLink>
         </li>
-        {/* Menu link will take you to the menu page */}
         <li>
           <Link to="/menu" className={getLinkClasses('/menu')}>
             Menu
           </Link>
         </li>
-        {/* Our Customer link will take you to the root path ('/') and scroll to #our-customer */}
         <li>
-          <HashLink smooth to="/#our-customer" className={getLinkClasses('/#our-customer')}>
+          <HashLink
+            smooth
+            to="/#our-customer"
+            className={getLinkClasses('/#our-customer')}
+          >
             Our Customer
           </HashLink>
         </li>
-        {/* Contact Us link will take you to the root path ('/') and scroll to #contact */}
         <li>
           <HashLink smooth to="/#contact" className={getLinkClasses('/#contact')}>
             Contact Us
@@ -62,34 +66,24 @@ const Navbar = () => {
         </li>
       </ul>
 
-      {/* Right Side - ThemeToggle, Cart, User, Hamburger */}
+      {/* Right Side */}
       <div className="flex items-center space-x-4 px-4 py-2">
-        {/* Theme & Cart */}
         <div className="flex items-center space-x-4 bg-amber-500 rounded-full px-4 h-10">
           <ThemeToggle colorException={true} />
           <div className="relative mr-6">
             <HashLink smooth to="#cart" className="text-2xl text-black hover:text-black-focus">
               <ShoppingCart className="w-6 h-6" />
             </HashLink>
-            <span
-              id="cart-count"
-              className="absolute -top-1 left-6 bg-blue-900 opacity-90 text-white rounded-full text-xs min-w-4 h-4 p-1 text-center font-bold flex items-center justify-center"
-            >
+            <span className="absolute -top-1 left-6 bg-blue-900 opacity-90 text-white rounded-full text-xs min-w-4 h-4 p-1 text-center font-bold flex items-center justify-center">
               99
             </span>
           </div>
 
-          {/* Hamburger Icon - Only on Mobile */}
           <button className="md:hidden text-black" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* User */}
         <div className="bg-amber-500 rounded-full h-10 w-10 text-xl text-black hover:text-black-focus flex items-center justify-center cursor-pointer">
           <UserRound className="w-6 h-6" />
         </div>
@@ -101,7 +95,6 @@ const Navbar = () => {
           menuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}
       >
-        {/* Mobile Links */}
         <li>
           <HashLink smooth to="/#about" className={getLinkClasses('/#about')} onClick={() => setMenuOpen(false)}>
             About
