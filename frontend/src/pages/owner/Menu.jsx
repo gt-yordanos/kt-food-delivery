@@ -10,7 +10,7 @@ const getAuthHeader = () => {
   return { headers: { Authorization: `Bearer ${token}` } };
 };
 
-const BASE_URL = 'http://localhost:2200';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const foodCategories = [
   'Injera Dishes',
@@ -216,7 +216,7 @@ const Menu = () => {
       </button>
 
       {/* Table container */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto hide-scrollbar">
         <div className="max-h-[500px] overflow-y-auto">
           <table className="table table-zebra w-full">
             <thead className="sticky top-0 bg-base-200 z-10">
