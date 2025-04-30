@@ -39,7 +39,7 @@ const App = () => {
           element={
             <>
               <Navbar/>
-              <Login loginApi={api.logIn} redirectLink="/customer/dashboard" />
+              <Login loginApi={api.logIn} redirectLink="/" />
               <Footer/>
             </>
           } 
