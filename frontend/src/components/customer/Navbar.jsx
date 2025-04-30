@@ -5,11 +5,15 @@ import { ShoppingCart, Menu, X } from 'lucide-react';
 import ThemeToggle from '../shared/ThemeToggle';
 import ktLogo from '../../assets/ktLogo.png';
 import ProfileModal from './ProfileModal';
+import { useCart } from '../../contexts/CartContext'; // Import the cart context
 
 const Navbar = () => {
   const location = useLocation();
   const [currentHash, setCurrentHash] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const { getItemCount } = useCart(); // Get the cart item count from context
+  const cartItemCount = getItemCount(); // Fetch the current item count
 
   useEffect(() => {
     setCurrentHash(location.hash);
@@ -52,11 +56,7 @@ const Navbar = () => {
           </Link>
         </li>
         <li>
-          <HashLink
-            smooth
-            to="/#our-customer"
-            className={getLinkClasses('/#our-customer')}
-          >
+          <HashLink smooth to="/#our-customer" className={getLinkClasses('/#our-customer')}>
             Our Customer
           </HashLink>
         </li>
@@ -72,12 +72,14 @@ const Navbar = () => {
         <div className="flex items-center space-x-4 bg-amber-500 rounded-full px-4 h-10">
           <ThemeToggle colorException={true} />
           <div className="relative mr-6">
-            <HashLink smooth to="#cart" className="text-2xl text-black hover:text-black-focus">
+            <Link to="/cart" className="text-2xl text-black hover:text-black-focus">
               <ShoppingCart className="w-6 h-6" />
-            </HashLink>
-            <span className="absolute -top-1 left-6 bg-blue-900 opacity-90 text-white rounded-full text-xs min-w-4 h-4 p-1 text-center font-bold flex items-center justify-center">
-              99
-            </span>
+            </Link>
+            {/* Cart counter */}
+            
+              <span className="absolute -top-1 left-6 bg-blue-900 opacity-90 text-white rounded-full text-xs min-w-4 h-4 p-1 text-center font-bold flex items-center justify-center">
+                {cartItemCount}
+              </span>
           </div>
 
           <button className="md:hidden text-black" onClick={() => setMenuOpen(!menuOpen)}>

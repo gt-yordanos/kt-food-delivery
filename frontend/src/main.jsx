@@ -4,6 +4,7 @@ import './index.css';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { RestaurantProvider } from './contexts/RestaurantContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
 import App from './App.jsx';
 import { ToastContainer } from 'react-toastify';
 
@@ -12,7 +13,9 @@ createRoot(document.getElementById('root')).render(
     <ThemeProvider>
       <RestaurantProvider>
         <AuthProvider>
-          <App />
+          <CartProvider>
+            <App />
+          </CartProvider>
         </AuthProvider>
         <ToastContainer />
       </RestaurantProvider>
