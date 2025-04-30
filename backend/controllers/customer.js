@@ -76,12 +76,12 @@ export const updateAccount = async (req, res) => {
 
     const updateData = {};
 
-    // If password is present, hash it
+    // If password is present, hash it, otherwise leave it unchanged
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);
     }
 
-    // Only include non-undefined fields
+    // Only include non-undefined fields (excluding password if it's not provided)
     for (const key in otherFields) {
       if (otherFields[key] !== undefined) {
         updateData[key] = otherFields[key];
@@ -99,9 +99,7 @@ export const updateAccount = async (req, res) => {
     }
 
     return res.status(200).json({
-      message: password
-        ? 'Account updated successfully with new password'
-        : 'Account updated successfully',
+      message: password ? 'Account updated successfully with new password' : 'Account updated successfully',
       updatedCustomer,
     });
   } catch (error) {

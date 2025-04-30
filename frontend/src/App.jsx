@@ -24,6 +24,7 @@ import Menu from './pages/customer/Menu';
 import Navbar from './components/customer/Navbar';
 import Footer from './components/customer/Footer';
 import SignUp from './pages/customer/SignUp';
+import Profile from './pages/customer/Profile';
 
 const App = () => {
   return (
@@ -72,6 +73,15 @@ const App = () => {
             </>
             } 
             /> 
+            <Route path="/profile" 
+          element={
+            <>
+              <Navbar/>
+              <Profile/>
+              <Footer/>
+            </>
+          } 
+          />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
