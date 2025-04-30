@@ -39,14 +39,20 @@ router.delete('/:menuId', authenticateToken, authorizeRoles(['admin', 'restauran
 
 router.get('/', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllMenuItems);
 router.get('/search', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), searchMenuByName);
-router.get('/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getMenuItemById);
 router.get('/category/:category', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getMenuByCategory);
+router.get('/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getMenuItemById);
 
-router.get('/available', getAvailableMenuItems);
 router.get('/available/search', searchAvailableMenuByName);
-router.get('/available/:menuId', getAvailableMenuItemById);
 router.get('/available/category/:category', getAvailableMenuByCategory);
+router.get('/available', getAvailableMenuItems);
+router.get('/available/:menuId', getAvailableMenuItemById);
 
-router.put('/update-availability/:menuId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), updateMenuItemAvailability);
+
+router.put(
+  '/update-availability/:menuId',
+  authenticateToken,
+  authorizeRoles(['admin', 'restaurantOwner']),
+  updateMenuItemAvailability
+);
 
 export default router;
