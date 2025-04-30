@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
-import { ShoppingCart, UserRound, Menu, X } from 'lucide-react';
+import { ShoppingCart, Menu, X } from 'lucide-react';
 import ThemeToggle from '../shared/ThemeToggle';
 import ktLogo from '../../assets/ktLogo.png';
+import ProfileModal from './ProfileModal';
 
 const Navbar = () => {
   const location = useLocation();
@@ -84,9 +85,8 @@ const Navbar = () => {
           </button>
         </div>
 
-        <div className="bg-amber-500 rounded-full h-10 w-10 text-xl text-black hover:text-black-focus flex items-center justify-center cursor-pointer">
-          <UserRound className="w-6 h-6" />
-        </div>
+        {/* Profile Modal Dropdown */}
+        <ProfileModal />
       </div>
 
       {/* Mobile Menu */}
