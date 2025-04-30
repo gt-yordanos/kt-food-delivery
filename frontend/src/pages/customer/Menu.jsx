@@ -62,7 +62,6 @@ const Menu = () => {
     <section className="py-12 px-4 sm:px-[5%] lg:px-[15%] bg-base-100">
       <div className="text-center mb-8 mt-10">
         <h4 className="text-lg text-amber-500 font-semibold">Our Menu</h4>
-        <h2 className="text-3xl font-bold">Client Reviews About Our Food</h2>
       </div>
 
       {/* Search Bar */}
@@ -76,7 +75,7 @@ const Menu = () => {
         />
       </div>
 
-      {/* Category Filters - Horizontal Scroll without scrollbar */}
+      {/* Category Filters */}
       <div className="overflow-x-auto hide-scrollbar mb-10">
         <div className="flex gap-6 w-max px-2">
           {foodCategories.map((cat, index) => {
@@ -110,23 +109,25 @@ const Menu = () => {
 
       {/* Menu Items Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {loading ? (
-          <div className="col-span-full flex justify-center">
-            <span className="loading loading-spinner loading-lg"></span>
-          </div>
-        ) : menuItems.length === 0 ? (
-          <p className="col-span-full text-center text-lg text-gray-500">No menu items found.</p>
-        ) : (
-          menuItems.map((item, index) => (
-            <MenuCard
-              key={index}
-              image={`${BASE_URL}${item.image}`}
-              name={item.name}
-              description={item.description}
-              price={item.price}
-            />
-          ))
-        )}
+        {loading
+          ? Array.from({ length: 4 }).map((_, i) => (
+              <MenuCard key={i} loading={true} />
+            ))
+          : menuItems.length === 0 ? (
+              <p className="col-span-full text-center text-lg text-gray-500">
+                No menu items found.
+              </p>
+            ) : (
+              menuItems.map((item, index) => (
+                <MenuCard
+                  key={index}
+                  image={`${BASE_URL}${item.image}`}
+                  name={item.name}
+                  description={item.description}
+                  price={item.price}
+                />
+              ))
+            )}
       </div>
     </section>
   );
