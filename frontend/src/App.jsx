@@ -23,6 +23,7 @@ import Home from './pages/customer/Home';
 import Menu from './pages/customer/Menu';
 import Navbar from './components/customer/Navbar';
 import Footer from './components/customer/Footer';
+import SignUp from './pages/customer/SignUp';
 
 const App = () => {
   return (
@@ -30,11 +31,30 @@ const App = () => {
       <Router>
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<Login loginApi={api.logIn} redirectLink="/customer/dashboard" />} />
           <Route path="/admin/login" element={<Login loginApi={api.loginAdmin} redirectLink="/admin/dashboard" />} />
           <Route path="/owner/login" element={<Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" />} />
 
-          {/* Customer Protected Route */}
+          {/* Customer*/}
+          <Route path="/login" 
+          element={
+            <>
+              <Navbar/>
+              <Login loginApi={api.logIn} redirectLink="/customer/dashboard" />
+              <Footer/>
+            </>
+          } 
+          />
+
+          <Route path="/signup" 
+          element={
+            <>
+              <Navbar/>
+              <SignUp/>
+              <Footer/>
+            </>
+          } 
+          />
+
           <Route path="/" 
           element={
             <>
