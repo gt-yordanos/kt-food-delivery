@@ -27,13 +27,13 @@ const MenuCard = ({ image, name, description, price, loading = false }) => {
           {/* Info Section */}
           <div className="flex flex-col justify-between flex-1 py-8 px-4 md:p-4 w-full">
             <div className="mb-4">
-              <p className="text-2xl md:text-lg font-semibold">{name}</p>
-              <p className="text-lg md:text-xs">{description}</p>
+              <p className="text-2xl lg:text-lg font-semibold">{name}</p>
+              <p className="text-lg lg:text-xs">{description}</p>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-amber-500 font-bold text-xl md:text-sm">${price}</span>
-              <button className="btn btn-large md:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full">
+              <span className="text-amber-500 font-bold text-xl lg:text-sm">${price}</span>
+              <button className="btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full">
                 Order Now
               </button>
             </div>

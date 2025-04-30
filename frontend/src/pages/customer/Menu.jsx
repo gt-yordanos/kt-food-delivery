@@ -82,7 +82,7 @@ const Menu = () => {
         <input
           type="text"
           placeholder="Search for a dish..."
-          className="w-full sm:w-96 md:w-[500px] px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm shadow-sm"
+          className="w-full sm:w-96 md:w-[500px] px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm shadow-sm"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -102,16 +102,16 @@ const Menu = () => {
                   className={`w-16 h-16 rounded-full overflow-hidden shadow-sm border ${
                     isSelected
                       ? 'border-2 border-emerald-500'
-                      : 'border border-amber-500'
+                      : 'border-2 border-amber-500'
                   } transition-all duration-200`}
                 >
                   <img
                     src={cat.image}
                     alt={cat.name}
-                    className="w-full h-full object-cover rounded-full"
+                    className="w-full h-full object-cover rounded-full hover:transform hover:scale-105 transition-transform duration-200"
                   />
                 </button>
-                <span className="mt-1 text-xs font-medium text-gray-700 w-20 truncate">
+                <span className="mt-1 text-xs font-medium text-content w-20 truncate">
                   {cat.name}
                 </span>
               </div>
