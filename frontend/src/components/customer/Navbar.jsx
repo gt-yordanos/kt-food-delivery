@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { HashLink } from 'react-router-hash-link';
+import { HashLink } from 'react-router-hash-link'; // Ensure HashLink is imported
 import { ShoppingCart, UserRound, Menu, X } from 'lucide-react';
 import ThemeToggle from '../shared/ThemeToggle';
 import ktLogo from '../../assets/ktLogo.png';
@@ -11,7 +11,12 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    setCurrentHash(location.hash);
+    setCurrentHash(location.hash); // Keeps track of the current hash in the URL
+
+    // Scroll to top if we are navigating to a new page (like "/menu")
+    if (location.pathname === '/menu') {
+      window.scrollTo(0, 0);
+    }
   }, [location]);
 
   // Function to get the link classes based on active state
@@ -31,10 +36,30 @@ const Navbar = () => {
 
       {/* Desktop Menu */}
       <ul className="hidden md:flex space-x-6">
-        <li><HashLink smooth to="#about" className={getLinkClasses('#about')}>About</HashLink></li>
-        <li><Link to="/menu" className={getLinkClasses('/menu')}>Menu</Link></li>
-        <li><HashLink smooth to="#our-customer" className={getLinkClasses('#our-customer')}>Our Customer</HashLink></li>
-        <li><HashLink smooth to="#contact" className={getLinkClasses('#contact')}>Contact Us</HashLink></li>
+        {/* About link will take you to the root path ('/') and scroll to #about */}
+        <li>
+          <HashLink smooth to="/#about" className={getLinkClasses('/#about')}>
+            About
+          </HashLink>
+        </li>
+        {/* Menu link will take you to the menu page */}
+        <li>
+          <Link to="/menu" className={getLinkClasses('/menu')}>
+            Menu
+          </Link>
+        </li>
+        {/* Our Customer link will take you to the root path ('/') and scroll to #our-customer */}
+        <li>
+          <HashLink smooth to="/#our-customer" className={getLinkClasses('/#our-customer')}>
+            Our Customer
+          </HashLink>
+        </li>
+        {/* Contact Us link will take you to the root path ('/') and scroll to #contact */}
+        <li>
+          <HashLink smooth to="/#contact" className={getLinkClasses('/#contact')}>
+            Contact Us
+          </HashLink>
+        </li>
       </ul>
 
       {/* Right Side - ThemeToggle, Cart, User, Hamburger */}
@@ -76,10 +101,27 @@ const Navbar = () => {
           menuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}
       >
-        <li><HashLink smooth to="#about" className={getLinkClasses('#about')} onClick={() => setMenuOpen(false)}>About</HashLink></li>
-        <li><Link to="/menu" className={getLinkClasses('/menu')} onClick={() => setMenuOpen(false)}>Menu</Link></li>
-        <li><HashLink smooth to="#our-customer" className={getLinkClasses('#our-customer')} onClick={() => setMenuOpen(false)}>Our Customer</HashLink></li>
-        <li><HashLink smooth to="#contact" className={getLinkClasses('#contact')} onClick={() => setMenuOpen(false)}>Contact Us</HashLink></li>
+        {/* Mobile Links */}
+        <li>
+          <HashLink smooth to="/#about" className={getLinkClasses('/#about')} onClick={() => setMenuOpen(false)}>
+            About
+          </HashLink>
+        </li>
+        <li>
+          <Link to="/menu" className={getLinkClasses('/menu')} onClick={() => setMenuOpen(false)}>
+            Menu
+          </Link>
+        </li>
+        <li>
+          <HashLink smooth to="/#our-customer" className={getLinkClasses('/#our-customer')} onClick={() => setMenuOpen(false)}>
+            Our Customer
+          </HashLink>
+        </li>
+        <li>
+          <HashLink smooth to="/#contact" className={getLinkClasses('/#contact')} onClick={() => setMenuOpen(false)}>
+            Contact Us
+          </HashLink>
+        </li>
       </ul>
     </nav>
   );

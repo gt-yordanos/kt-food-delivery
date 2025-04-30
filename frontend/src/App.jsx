@@ -21,6 +21,8 @@ import api from './api';
 import './App.css';
 import Home from './pages/customer/Home';
 import Menu from './pages/customer/Menu';
+import Navbar from './components/customer/Navbar';
+import Footer from './components/customer/Footer';
 
 const App = () => {
   return (
@@ -33,8 +35,24 @@ const App = () => {
           <Route path="/owner/login" element={<Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" />} />
 
           {/* Customer Protected Route */}
-          <Route path="/" element={<Home/>} />
-          <Route path="/menu" element={<Menu/>} />
+          <Route path="/" 
+          element={
+            <>
+              <Navbar/>
+              <Home/>
+              <Footer/>
+            </>
+            } 
+            /> 
+          <Route path="/menu" 
+          element={
+            <>
+              <Navbar/>
+              <Menu/>
+              <Footer/>
+            </>
+            } 
+            /> 
 
           {/* Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
