@@ -13,6 +13,8 @@ const formatTime = (timeString) => {
 
 // Utility function to check if the restaurant is open
 const isRestaurantOpen = (openingHours) => {
+  if (!openingHours) return { status: 'closed', nextTime: null };
+
   const now = new Date();
   const currentDay = now.toLocaleString('en-US', { weekday: 'long' }).toLowerCase();
   const todayHours = openingHours[currentDay];
@@ -40,7 +42,7 @@ const ContactInfo = () => {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
-  if (!restaurant) return null;
+  if (!restaurant || !restaurant.openingHours) return <div>No restaurant data available</div>;
 
   const openStatus = isRestaurantOpen(restaurant.openingHours);
 

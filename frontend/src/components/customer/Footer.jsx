@@ -11,6 +11,7 @@ import { useRestaurant } from '../../contexts/RestaurantContext';
 const Footer = () => {
   const { restaurant, loading, error } = useRestaurant();
 
+  // Handle loading, error, or missing restaurant data
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!restaurant) return null;
@@ -19,10 +20,14 @@ const Footer = () => {
     'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
   ];
 
+  // Check if openingHours is defined
+  const openingHours = restaurant.openingHours || {};
+
   return (
     <footer className="bg-base-300 py-10 px-4 sm:px-[5%] lg:px-[15%]" id="contact">
       <div className="max-w-screen-xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
           {/* Quick Links */}
           <div>
             <h4 className="text-lg font-bold text-amber-500 mb-4">Quick Links</h4>
@@ -60,7 +65,7 @@ const Footer = () => {
               {daysOfWeek.map((day) => (
                 <li key={day}>
                   <span className="capitalize">{day}:</span>{' '}
-                  {restaurant.openingHours[day].start} - {restaurant.openingHours[day].end}
+                  {openingHours[day] ? `${openingHours[day].start} - ${openingHours[day].end}` : 'Closed'}
                 </li>
               ))}
             </ul>
@@ -70,32 +75,32 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-bold text-amber-500 mb-4">Follow Us</h4>
             <div className="flex space-x-4">
-              {restaurant.socialLinks.facebook && (
+              {restaurant.socialLinks?.facebook && (
                 <a href={restaurant.socialLinks.facebook} target="_blank" rel="noopener noreferrer">
                   <FaFacebook className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
-              {restaurant.socialLinks.twitter && (
+              {restaurant.socialLinks?.twitter && (
                 <a href={restaurant.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
                   <FaTwitter className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
-              {restaurant.socialLinks.instagram && (
+              {restaurant.socialLinks?.instagram && (
                 <a href={restaurant.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
                   <FaInstagram className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
-              {restaurant.socialLinks.linkedin && (
+              {restaurant.socialLinks?.linkedin && (
                 <a href={restaurant.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
                   <FaLinkedin className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
-              {restaurant.socialLinks.youtube && (
+              {restaurant.socialLinks?.youtube && (
                 <a href={restaurant.socialLinks.youtube} target="_blank" rel="noopener noreferrer">
                   <FaYoutube className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>
               )}
-              {restaurant.socialLinks.tiktok && (
+              {restaurant.socialLinks?.tiktok && (
                 <a href={restaurant.socialLinks.tiktok} target="_blank" rel="noopener noreferrer">
                   <FaTiktok className="w-6 h-6 text-amber-500 hover:text-amber-400" />
                 </a>

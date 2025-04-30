@@ -28,8 +28,8 @@ const Restaurant = () => {
   const fetchRestaurant = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(api.getAllRestaurantntInfo, getAuthHeader());
-      console.log("Fetched restaurant data:", response.data);
+      const response = await axios.get(api.getAllRestaurantInfo, getAuthHeader());
+      console.log("Fetched restaurant data:", response.data);  // Console log to view the fetched data
       setRestaurant(response.data);
       setEditedRestaurant(response.data);
       setError(null);

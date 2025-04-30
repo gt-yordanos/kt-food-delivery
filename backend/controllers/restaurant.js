@@ -45,26 +45,3 @@ export const updateRestaurant = async (req, res) => {
     res.status(500).json({ message: error.message || 'Failed to update restaurant' });
   }
 };
-
-// Update the availability of a menu item
-export const updateMenuItemAvailability = async (req, res) => {
-  const { menuId } = req.params;
-  const { available } = req.body;
-
-  try {
-    const menuItem = await Menu.findById(menuId);
-
-    if (!menuItem) {
-      return res.status(404).json({ message: 'Menu item not found' });
-    }
-
-    menuItem.available = available;
-
-    await menuItem.save();
-
-    return res.status(200).json({ message: 'Menu item availability updated', menuItem });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Server error' });
-  }
-};

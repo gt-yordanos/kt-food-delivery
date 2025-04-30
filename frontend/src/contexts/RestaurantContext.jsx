@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import api from '../api.js'; 
+
 // Define the context
 const RestaurantContext = createContext();
 
@@ -14,8 +15,9 @@ export const RestaurantProvider = ({ children }) => {
     // Fetch the restaurant info when the component mounts
     const fetchRestaurantInfo = async () => {
       try {
-        const response = await axios.get(api.getAllRestaurantntInfo);
+        const response = await axios.get(api.getAllRestaurantInfo);
         setRestaurant(response.data);
+        console.log('Fetched restaurant data:', response.data); // Log the fetched data
       } catch (err) {
         setError(err.message);
       } finally {
