@@ -138,6 +138,7 @@ const Menu = () => {
                   name={item.name}
                   description={item.description}
                   price={item.price}
+                  item={item} // Pass the item data here
                 />
               ))
             )}

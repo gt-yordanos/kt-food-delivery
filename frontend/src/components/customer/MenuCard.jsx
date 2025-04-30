@@ -1,6 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { FaCartPlus, FaCheckCircle } from 'react-icons/fa'; // Importing icons
+import { useCart } from '../../contexts/CartContext';  // Import useCart hook
 
-const MenuCard = ({ image, name, description, price, loading = false }) => {
+const MenuCard = ({ image, name, description, price, loading = false, item }) => {
+  const [addedToCart, setAddedToCart] = useState(false);
+  const { addItemToCart } = useCart();  // Access addItemToCart from context
+
+  const handleAddToCart = () => {
+    if (addItemToCart) {
+      addItemToCart(item);
+      setAddedToCart(true); // Set added state
+    }
+  };
+
   return (
     <div className="bg-base-300 rounded-[2rem] overflow-hidden flex flex-col justify-between
                     transition-all duration-300 ease-in-out mx-auto
@@ -16,12 +28,30 @@ const MenuCard = ({ image, name, description, price, loading = false }) => {
       ) : (
         <>
           {/* Image Section */}
-          <div className="w-full h-1/2 flex justify-center items-center overflow-hidden group-hover:scale-110 transition-transform duration-500 ease-in-out">
+          <div className="relative w-full h-1/2 flex justify-center items-center overflow-hidden">
             <img
               src={image}
               alt={name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
             />
+
+            {/* Add Text or Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              className="flex items-center btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full absolute top-3 left-2"
+            >
+              {addedToCart ? (
+                <>
+                  <FaCheckCircle className='h-6 w-6 lg:h-5 lg:w-5' />
+                  <span>Added</span>
+                </>
+              ) : (
+                <>
+                  <FaCartPlus className='h-6 w-6 lg:h-5 lg:w-5' />
+                  <span>Add</span>
+                </>
+              )}
+            </button>
           </div>
 
           {/* Info Section */}
@@ -33,9 +63,12 @@ const MenuCard = ({ image, name, description, price, loading = false }) => {
 
             <div className="flex items-center justify-between">
               <span className="text-amber-500 font-bold text-xl lg:text-sm">${price}</span>
-              <button className="btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full">
-                Order Now
-              </button>
+              <div className="flex gap-2 lg:gap-2">
+                {/* Order Now Button */}
+                <button className="btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full">
+                  Order Now
+                </button>
+              </div>
             </div>
           </div>
         </>
