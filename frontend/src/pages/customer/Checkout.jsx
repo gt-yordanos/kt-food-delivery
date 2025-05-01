@@ -11,7 +11,7 @@ const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, loading } = useAuth(); // Get user from AuthContext
-  const { items } = location.state || {};
+  const { items } = location.state || {}; // Get cart items passed via location state
   const [cartItems, setCartItems] = useState(items || []);
   const [totalPrice, setTotalPrice] = useState(0);
 
@@ -23,6 +23,16 @@ const Checkout = () => {
       navigate('/login');
     }
   }, [user, loading, navigate]);
+
+  // Ensure quantity is set for all items
+  useEffect(() => {
+    setCartItems((prevItems) =>
+      prevItems.map(item => ({
+        ...item,
+        quantity: item.quantity || 1, // Ensure quantity is at least 1
+      }))
+    );
+  }, [items]);
 
   // Function to increase quantity
   const increaseQuantity = (id) => {

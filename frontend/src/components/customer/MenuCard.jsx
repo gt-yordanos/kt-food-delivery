@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaCartPlus, FaCheckCircle } from 'react-icons/fa'; // Importing icons
-import { useCart } from '../../contexts/CartContext';
+import { useCart } from '../../contexts/CartContext'; // Import the Cart Context
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 
 const MenuCard = ({ image, name, description, price, item, loading = false }) => {
@@ -20,14 +20,16 @@ const MenuCard = ({ image, name, description, price, item, loading = false }) =>
     if (addedToCart) {
       removeFromCart(item._id);
     } else {
-      addToCart(item);
+      // When adding from MenuCard, make sure the quantity is 1
+      const itemWithQuantity = { ...item, quantity: 1 };
+      addToCart(itemWithQuantity);
     }
     setAddedToCart(!addedToCart);
   };
 
   const handleOrderNow = () => {
-    // Navigate to checkout with the selected item only (no need to add it to cart)
-    navigate('/checkout', { state: { items: [item] } });
+    // Navigate to checkout with the selected item(s) and ensure quantity is 1
+    navigate('/checkout', { state: { items: [{ ...item, quantity: 1 }] } });
   };
 
   return (
