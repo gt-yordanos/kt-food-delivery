@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FaMinus, FaPlus, FaTrashAlt } from 'react-icons/fa';
+import { useAuth } from '../../contexts/AuthContext'; // Import the useAuth hook
 
 // Import logos from the assets folder
 import santimLogo from '../../assets/santimPay.jpg';
@@ -8,9 +9,20 @@ import chapaLogo from '../../assets/chapa.jpg';
 
 const Checkout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, loading } = useAuth(); // Get user from AuthContext
   const { items } = location.state || {};
   const [cartItems, setCartItems] = useState(items || []);
   const [totalPrice, setTotalPrice] = useState(0);
+
+  // Check if user is logged in and if their role is customer
+  useEffect(() => {
+    if (loading) return; // Wait for loading to finish
+    if (!user || user.role !== 'customer') {
+      // Redirect to login page if not logged in or not a customer
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
 
   // Function to increase quantity
   const increaseQuantity = (id) => {
