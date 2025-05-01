@@ -1,39 +1,52 @@
 import mongoose from 'mongoose';
 
-const orderSchema = new mongoose.Schema({
-  customer: {
+const orderItemSchema = new mongoose.Schema({
+  menuId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Customer',
+    ref: 'Menu',
     required: true,
   },
-  items: [
-    {
-      menuId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Menu',
-        required: true,
-      },
-      quantity: {
-        type: Number,
-        required: true,
-      },
-    },
-  ],
-  totalPrice: {
+  name: {
+    type: String,
+    required: true,
+  },
+  priceAtPurchase: {
     type: Number,
     required: true,
   },
-  status: {
-    type: String,
-    enum: ['pending', 'inProgress', 'completed'],
-    default: 'pending',
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  quantity: {
+    type: Number,
+    required: true,
   },
 });
 
-const Order = mongoose.model('Order', orderSchema);
+const orderSchema = new mongoose.Schema(
+  {
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Customer',
+      required: true,
+    },
+    items: [orderItemSchema],
+    totalPrice: {
+      type: Number,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'inProgress', 'completed', 'cancelled'],
+      default: 'pending',
+    },
+    deliveryAddress: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true, // adds createdAt and updatedAt
+  }
+);
+
+// Fix for OverwriteModelError
+const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 
 export { Order };

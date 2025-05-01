@@ -1,78 +1,124 @@
 import { Order } from '../models/Order.js';
-import { Customer } from '../models/Customer.js';
+import { Menu } from '../models/Menu.js';
+import { Customer } from '../models/customer.js';
 
-// Create a new order (Only customers)
+// Create a new order (status = pending by default)
 export const createOrder = async (req, res) => {
   try {
-    const { items, totalPrice } = req.body;
+    const customerId = req.user.id;
+    const { items } = req.body;
 
-    if (req.user.role !== 'customer') {
-      return res.status(403).json({ message: 'Only customers can place orders' });
-    }
-
-    const customer = await Customer.findById(req.user.id);
+    const customer = await Customer.findById(customerId);
     if (!customer) {
       return res.status(404).json({ message: 'Customer not found' });
     }
 
-    const newOrder = new Order({
-      customer: req.user.id,
-      items,
+    let totalPrice = 0;
+    const orderItems = [];
+
+    for (const item of items) {
+      const menu = await Menu.findById(item.menuId);
+      if (!menu || !menu.available) {
+        return res.status(400).json({ message: `Menu item not found or unavailable: ${item.menuId}` });
+      }
+
+      const itemTotal = menu.price * item.quantity;
+      totalPrice += itemTotal;
+
+      orderItems.push({
+        menuId: menu._id,
+        name: menu.name,
+        priceAtPurchase: menu.price,
+        quantity: item.quantity,
+      });
+    }
+
+    const order = await Order.create({
+      customer: customerId,
+      items: orderItems,
       totalPrice,
+      deliveryAddress: customer.address,
+      status: 'pending', // explicitly set
     });
 
-    await newOrder.save();
-
     customer.orderHistory.push({
-      orderId: newOrder._id,
+      orderId: order._id,
       totalPrice,
-      status: 'pending',
+      status: order.status,
     });
     await customer.save();
 
-    res.status(201).json({ message: 'Order placed successfully', order: newOrder });
+    res.status(201).json(order);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to create order' });
+    console.error('Create Order Error:', error);
+    res.status(500).json({ message: 'Server error creating order' });
   }
 };
 
-// Get all orders (Only Admins & Restaurant Owners)
+// Get all orders (FIFO)
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate('customer', 'name email')
-      .populate('items.menuId');
+      .populate('customer', 'firstName lastName email')
+      .sort({ createdAt: 1 });
 
-    res.status(200).json(orders);
+    res.json(orders);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to fetch orders' });
+    res.status(500).json({ message: 'Error fetching orders' });
   }
 };
 
-// Track order status (Only the customer who placed the order)
-export const trackOrder = async (req, res) => {
+// Get orders by customer ID
+export const getOrdersByCustomerId = async (req, res) => {
+  try {
+    const { customerId } = req.params;
+
+    const orders = await Order.find({ customer: customerId })
+      .populate('customer', 'firstName lastName')
+      .sort({ createdAt: 1 });
+
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching customer orders' });
+  }
+};
+
+// Get orders by status (FIFO)
+export const getOrdersByStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+
+    const orders = await Order.find({ status })
+      .populate('customer', 'firstName lastName')
+      .sort({ createdAt: 1 });
+
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching orders by status' });
+  }
+};
+
+// ✅ Update order status (approve, complete, cancel, etc.)
+export const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const order = await Order.findById(orderId)
-      .populate('customer', 'name email')
-      .populate('items.menuId');
+    const { status } = req.body;
 
+    const allowedStatuses = ['pending', 'inProgress', 'completed', 'cancelled'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    if (order.customer._id.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Unauthorized: You can only track your own orders' });
-    }
+    order.status = status;
+    await order.save();
 
-    res.status(200).json({
-      orderId: order._id,
-      status: order.status,
-    });
+    res.status(200).json({ message: `Order status updated to ${status}`, order });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to track order' });
+    res.status(500).json({ message: 'Error updating order status' });
   }
 };

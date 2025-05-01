@@ -63,6 +63,7 @@ const customerSchema = new mongoose.Schema({
   },
 });
 
-const Customer = mongoose.model('Customer', customerSchema);
+// Fix for OverwriteModelError
+const Customer = mongoose.models.Customer || mongoose.model('Customer', customerSchema);
 
 export { Customer };

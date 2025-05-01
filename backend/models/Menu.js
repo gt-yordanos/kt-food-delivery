@@ -46,6 +46,7 @@ const menuSchema = new mongoose.Schema({
   },
 });
 
-const Menu = mongoose.model('Menu', menuSchema);
+// Fix for OverwriteModelError
+const Menu = mongoose.models.Menu || mongoose.model('Menu', menuSchema);
 
 export { Menu };
