@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
-import { FaCartPlus, FaCheckCircle } from 'react-icons/fa'; // Importing icons
-import { useCart } from '../../contexts/CartContext';  // Import useCart hook
+import { FaCartPlus, FaCheckCircle } from 'react-icons/fa';
 
 const MenuCard = ({ image, name, description, price, loading = false, item }) => {
   const [addedToCart, setAddedToCart] = useState(false);
-  const { addItemToCart } = useCart();  // Access addItemToCart from context
 
-  const handleAddToCart = () => {
-    if (addItemToCart) {
-      addItemToCart(item);
-      setAddedToCart(true); // Set added state
-    }
+  const handleToggleCart = () => {
+    setAddedToCart(prev => !prev);
   };
 
-  return (
-    <div className="bg-base-300 rounded-[2rem] overflow-hidden flex flex-col justify-between
-                    transition-all duration-300 ease-in-out mx-auto
-                    aspect-[4/6] max-w-[20rem] min-w-[12rem] w-full group">
+  if (!item) return null;
 
+  return (
+    <div className="bg-base-300 rounded-[2rem] overflow-hidden flex flex-col justify-between transition-all duration-300 ease-in-out mx-auto aspect-[4/6] max-w-[20rem] min-w-[12rem] w-full group">
       {loading ? (
         <div className="flex w-52 flex-col gap-4 p-4 mx-auto">
           <div className="skeleton h-36 w-full"></div>
@@ -35,19 +29,22 @@ const MenuCard = ({ image, name, description, price, loading = false, item }) =>
               className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
             />
 
-            {/* Add Text or Add to Cart Button */}
             <button
-              onClick={handleAddToCart}
-              className="flex items-center btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full absolute top-3 left-2"
+              onClick={handleToggleCart}
+              className={`flex items-center btn btn-large lg:btn-sm rounded-full absolute top-3 left-2 transition-all duration-200 ${
+                addedToCart
+                  ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                  : 'bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black'
+              }`}
             >
               {addedToCart ? (
                 <>
-                  <FaCheckCircle className='h-6 w-6 lg:h-5 lg:w-5' />
+                  <FaCheckCircle className="h-6 w-6 lg:h-5 lg:w-5" />
                   <span>Added</span>
                 </>
               ) : (
                 <>
-                  <FaCartPlus className='h-6 w-6 lg:h-5 lg:w-5' />
+                  <FaCartPlus className="h-6 w-6 lg:h-5 lg:w-5" />
                   <span>Add</span>
                 </>
               )}
@@ -63,12 +60,9 @@ const MenuCard = ({ image, name, description, price, loading = false, item }) =>
 
             <div className="flex items-center justify-between">
               <span className="text-amber-500 font-bold text-xl lg:text-sm">${price}</span>
-              <div className="flex gap-2 lg:gap-2">
-                {/* Order Now Button */}
-                <button className="btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full">
-                  Order Now
-                </button>
-              </div>
+              <button className="btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full">
+                Order Now
+              </button>
             </div>
           </div>
         </>

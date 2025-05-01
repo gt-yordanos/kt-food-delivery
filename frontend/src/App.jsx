@@ -25,6 +25,7 @@ import Navbar from './components/customer/Navbar';
 import Footer from './components/customer/Footer';
 import SignUp from './pages/customer/SignUp';
 import Profile from './pages/customer/Profile';
+import Cart from './pages/customer/Cart';
 
 const App = () => {
   return (
@@ -78,6 +79,16 @@ const App = () => {
             <>
               <Navbar/>
               <Profile/>
+              <Footer/>
+            </>
+          } 
+          />
+
+          <Route path="/cart" 
+          element={
+            <>
+              <Navbar/>
+              <Cart/>
               <Footer/>
             </>
           } 

@@ -1,8 +1,8 @@
 import React from 'react';
-import { useCart } from '../contexts/CartContext';
+import { useCart } from '../../contexts/CartContext';
 import { Link } from 'react-router-dom';
 
-const CartPage = () => {
+const Cart = () => {
   const { cart, removeItemFromCart, updateItemQuantity, clearCart } = useCart();
 
   const handleQuantityChange = (itemId, e) => {
@@ -72,4 +72,4 @@ const CartPage = () => {
   );
 };
 
-export default CartPage;
+export default Cart;

@@ -76,10 +76,9 @@ const Navbar = () => {
               <ShoppingCart className="w-6 h-6" />
             </Link>
             {/* Cart counter */}
-            
-              <span className="absolute -top-1 left-6 bg-blue-900 opacity-90 text-white rounded-full text-xs min-w-4 h-4 p-1 text-center font-bold flex items-center justify-center">
-                {cartItemCount}
-              </span>
+            <span className="absolute -top-1 left-6 bg-blue-900 opacity-90 text-white rounded-full text-xs min-w-4 h-4 p-1 text-center font-bold flex items-center justify-center">
+              {cartItemCount}
+            </span>
           </div>
 
           <button className="md:hidden text-black" onClick={() => setMenuOpen(!menuOpen)}>

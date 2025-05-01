@@ -13,6 +13,7 @@ import menuRoutes from './routes/menu.js';
 import orderRoutes from './routes/order.js';
 import restaurantRoutes from './routes/restaurant.js';
 import restaurantOwnerRoutes from './routes/restaurantOwner.js';
+import cartRoutes from './routes/cartRoutes.js';
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/restaurant-owners', restaurantOwnerRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Default route
 app.get('/', (req, res) => {
