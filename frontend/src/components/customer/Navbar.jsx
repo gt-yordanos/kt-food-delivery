@@ -5,16 +5,14 @@ import { ShoppingCart, Menu, X } from 'lucide-react';
 import ThemeToggle from '../shared/ThemeToggle';
 import ktLogo from '../../assets/ktLogo.png';
 import ProfileModal from './ProfileModal';
-import { useCart } from '../../contexts/CartContext'; // Import the cart context
+import { useCart } from '../../contexts/CartContext';
 
 const Navbar = () => {
   const location = useLocation();
   const [currentHash, setCurrentHash] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { getItemCount } = useCart(); // Get the cart item count from context
-  const cartItemCount = getItemCount(); // Fetch the current item count
-
+  const { cartCount } = useCart();
   useEffect(() => {
     setCurrentHash(location.hash);
 
@@ -77,7 +75,7 @@ const Navbar = () => {
             </Link>
             {/* Cart counter */}
             <span className="absolute -top-1 left-6 bg-blue-900 opacity-90 text-white rounded-full text-xs min-w-4 h-4 p-1 text-center font-bold flex items-center justify-center">
-              {cartItemCount}
+              {cartCount}
             </span>
           </div>
 

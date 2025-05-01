@@ -3,6 +3,7 @@ import axios from 'axios';
 import MenuCard from '../../components/customer/MenuCard';
 import { useDebounce } from 'use-debounce';
 import api from '../../api';
+import { useCart } from '../../contexts/CartContext'; // Import useCart
 
 // ✅ Import images directly
 import injera from '../../assets/category/injera.webp';
@@ -33,6 +34,7 @@ const foodCategories = [
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Menu = () => {
+  const { cart, addToCart, removeFromCart, increaseQuantity, decreaseQuantity } = useCart(); // Using Cart Context
   const [menuItems, setMenuItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
