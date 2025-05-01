@@ -53,8 +53,11 @@ const api = {
   updateMenuItemAvailability: `${BASE_URL}/menu/update-availability/{menuId}`,
 
   // Order Routes
-  createOrder: `${BASE_URL}/orders/create`,
-  getAllOrders: `${BASE_URL}/orders/all`,
+  createOrder: `${BASE_URL}/orders`,
+  getAllOrders: `${BASE_URL}/orders`,
+  getOrdersByCustomerId: `${BASE_URL}/orders/customer/{customerId}`,
+  getOrdersByStatus: `${BASE_URL}/orders/status/{status}`,
+  updateOrderStatus: `${BASE_URL}/orders/{orderId}/status`,
   trackOrder: `${BASE_URL}/orders/track/{orderId}`,
 
   // Restaurant Routes
