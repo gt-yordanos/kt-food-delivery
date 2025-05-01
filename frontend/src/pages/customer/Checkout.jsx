@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaMinus, FaPlus, FaTrashAlt } from 'react-icons/fa';
-import { useAuth } from '../../contexts/AuthContext'; // Import the useAuth hook
+import { useAuth } from '../../contexts/AuthContext';
+import api from '../../api'; // Import the API object
 
 // Import logos from the assets folder
 import santimLogo from '../../assets/santimPay.jpg';
 import chapaLogo from '../../assets/chapa.jpg';
+
+export const getAuthHeader = () => {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 const Checkout = () => {
   const location = useLocation();
@@ -76,6 +82,45 @@ const Checkout = () => {
     calculateTotal();
   }, [cartItems]);
 
+  // Function to handle placing the order
+  const handlePlaceOrder = async () => {
+    const orderItems = cartItems.map(item => ({
+      menuId: item._id,
+      quantity: item.quantity,
+    }));
+  
+    try {
+      console.log('Placing order with the following items:', orderItems);
+  
+      const response = await fetch(api.createOrder, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader(), // Get the auth header
+        },
+        body: JSON.stringify({ items: orderItems }),
+      });
+  
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error response:', errorData);
+        throw new Error('Failed to place order');
+      }
+  
+      const data = await response.json();
+      console.log('Order placed successfully:', data);
+      
+      // Redirect to order confirmation or success page
+      navigate(`/order/${data._id}`);
+    } catch (error) {
+      console.error('Error placing order:', error);
+      alert('Failed to place order. Please try again.');
+    }
+  };
+  
   return (
     <div className="px-4 sm:px-[5%] lg:px-[15%] py-8">
       <h2 className="text-3xl font-semibold text-center mb-6">Checkout</h2>
@@ -136,7 +181,10 @@ const Checkout = () => {
             </button>
 
             {/* Payment Button - Chapa */}
-            <button className="btn bg-[#0d1b35] w-full h-14 sm:w-[48%] mb-4 sm:mb-0 flex items-center justify-center gap-2 py-0.5 text-white">
+            <button
+              onClick={handlePlaceOrder} // Handle order placement
+              className="btn bg-[#0d1b35] w-full h-14 sm:w-[48%] mb-4 sm:mb-0 flex items-center justify-center gap-2 py-0.5 text-white"
+            >
               <img src={chapaLogo} alt="Chapa" className="h-full" />
               Pay with Chapa
             </button>

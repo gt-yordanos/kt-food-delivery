@@ -5,8 +5,8 @@ import { Customer } from '../models/customer.js';
 // Create a new order (status = pending by default)
 export const createOrder = async (req, res) => {
   try {
-    const customerId = req.user.id;
-    const { items } = req.body;
+    const customerId = req.id;
+    const { items, campus, building, roomNumber } = req.body;
 
     const customer = await Customer.findById(customerId);
     if (!customer) {
@@ -37,8 +37,10 @@ export const createOrder = async (req, res) => {
       customer: customerId,
       items: orderItems,
       totalPrice,
-      deliveryAddress: customer.address,
-      status: 'pending', // explicitly set
+      campus,
+      building,
+      roomNumber,
+      status: 'pending',
     });
 
     customer.orderHistory.push({
@@ -46,11 +48,11 @@ export const createOrder = async (req, res) => {
       totalPrice,
       status: order.status,
     });
+
     await customer.save();
 
     res.status(201).json(order);
   } catch (error) {
-    console.error('Create Order Error:', error);
     res.status(500).json({ message: 'Server error creating order' });
   }
 };
@@ -98,7 +100,7 @@ export const getOrdersByStatus = async (req, res) => {
   }
 };
 
-// ✅ Update order status (approve, complete, cancel, etc.)
+// Update order status
 export const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;

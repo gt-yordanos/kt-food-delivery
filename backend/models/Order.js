@@ -6,20 +6,12 @@ const orderItemSchema = new mongoose.Schema({
     ref: 'Menu',
     required: true,
   },
-  name: {
-    type: String,
-    required: true,
-  },
-  priceAtPurchase: {
-    type: Number,
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-  },
+  name: { type: String, required: true },
+  priceAtPurchase: { type: Number, required: true },
+  quantity: { type: Number, required: true },
 });
 
+// Campus and buildings can be validated in frontend/UI logic
 const orderSchema = new mongoose.Schema(
   {
     customer: {
@@ -37,16 +29,25 @@ const orderSchema = new mongoose.Schema(
       enum: ['pending', 'inProgress', 'completed', 'cancelled'],
       default: 'pending',
     },
-    deliveryAddress: {
+    campus: {
       type: String,
+      enum: ['Main', 'HiT', 'CVM'],
+      required: true,
+    },
+    building: {
+      type: String,
+      required: true,
+    },
+    roomNumber: {
+      type: String,
+      required: true,
     },
   },
   {
-    timestamps: true, // adds createdAt and updatedAt
+    timestamps: true,
   }
 );
 
-// Fix for OverwriteModelError
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 
 export { Order };
