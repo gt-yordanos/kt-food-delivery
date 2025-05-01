@@ -50,8 +50,11 @@ const Checkout = () => {
 
   const increaseQuantity = (id) => {
     setCartItems((prevItems) =>
-      prevItems.map(item => {
-        if (item._id === id) item.quantity += 1;
+      prevItems.map((item) => {
+        if (item._id === id) {
+          const updatedItem = { ...item, quantity: item.quantity + 1 };
+          return updatedItem;
+        }
         return item;
       })
     );
@@ -59,8 +62,14 @@ const Checkout = () => {
 
   const decreaseQuantity = (id) => {
     setCartItems((prevItems) =>
-      prevItems.map(item => {
-        if (item._id === id && item.quantity > 1) item.quantity -= 1;
+      prevItems.map((item) => {
+        if (item._id === id && item.quantity > 1) {
+          const updatedItem = { ...item, quantity: item.quantity - 1 };
+          return updatedItem;
+        }
+        if (item._id === id && item.quantity === 1) {
+          removeFromCart(id);
+        }
         return item;
       })
     );
@@ -120,11 +129,11 @@ const Checkout = () => {
   };
 
   return (
-    <div className="px-4 sm:px-[5%] lg:px-[15%] py-8">
-      <h2 className="text-3xl font-semibold text-center mb-6">Checkout</h2>
+    <div className="px-4 sm:px-[5%] lg:px-[15%] py-22">
+      <h2 className="text-2xl font-semibold text-center mb-6">Checkout</h2>
 
       {cartItems.length === 0 ? (
-        <p className="text-center text-xl text-gray-600">Your cart is empty.</p>
+        <p className="text-center text-xl text-gray-600">You have nothing to order</p>
       ) : (
         <div>
           {cartItems.map((item) => (
