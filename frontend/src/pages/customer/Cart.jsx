@@ -8,6 +8,8 @@ const Cart = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const navigate = useNavigate();  // Initialize useNavigate
 
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
   useEffect(() => {
     const calculateTotal = () => {
       const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -43,7 +45,7 @@ const Cart = () => {
               className="flex items-center justify-between p-4 mb-4 bg-base-300 shadow-lg rounded-lg"
             >
               <div className="flex items-center gap-4">
-                <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                <img src={`${BASE_URL}${item.image}`} alt={item.name} className="w-16 h-16 object-cover rounded" />
                 <div>
                   <h3 className="text-lg font-semibold">{item.name}</h3>
                   <p className="text-sm text-gray-500">{item.description}</p>

@@ -32,6 +32,8 @@ const Checkout = () => {
   const [building, setBuilding] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
 
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  
   useEffect(() => {
     if (loading) return;
     if (!user || user.role !== 'customer') {
@@ -142,7 +144,7 @@ const Checkout = () => {
               className="flex items-center justify-between p-4 mb-4 bg-base-300 shadow-lg rounded-lg"
             >
               <div className="flex items-center gap-4">
-                <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                <img src={`${BASE_URL}${item.image}`} alt={item.name} className="w-16 h-16 object-cover rounded" />
                 <div>
                   <h3 className="text-lg font-semibold">{item.name}</h3>
                   <span className="text-xl text-amber-500 font-bold">{item.price} ETB.</span>
