@@ -2,11 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaMinus, FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
-import api from '../../api'; // Import the API object
+import api from '../../api';
+import { toast } from 'react-toastify'; // Import Toast
 
-// Import logos from the assets folder
 import santimLogo from '../../assets/santimPay.jpg';
 import chapaLogo from '../../assets/chapa.jpg';
+
+// Mock data for campuses and their buildings
+const campusOptions = {
+  Main: ['Building 1', 'Building 2', 'Building 3', 'DMC', 'AMEL'],
+  HiT: ['Engineering A', 'Engineering B', 'ICT Center'],
+  CVM: ['Vet Clinic', 'Lecture Hall 1', 'Admin Block'],
+};
 
 export const getAuthHeader = () => {
   const token = localStorage.getItem('authToken');
@@ -16,115 +23,106 @@ export const getAuthHeader = () => {
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, loading } = useAuth(); // Get user from AuthContext
-  const { items } = location.state || {}; // Get cart items passed via location state
+  const { user, loading } = useAuth();
+  const { items } = location.state || {};
   const [cartItems, setCartItems] = useState(items || []);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // Check if user is logged in and if their role is customer
+  const [campus, setCampus] = useState('');
+  const [building, setBuilding] = useState('');
+  const [roomNumber, setRoomNumber] = useState('');
+
   useEffect(() => {
-    if (loading) return; // Wait for loading to finish
+    if (loading) return;
     if (!user || user.role !== 'customer') {
-      // Redirect to login page if not logged in or not a customer
       navigate('/login');
     }
   }, [user, loading, navigate]);
 
-  // Ensure quantity is set for all items
   useEffect(() => {
     setCartItems((prevItems) =>
       prevItems.map(item => ({
         ...item,
-        quantity: item.quantity || 1, // Ensure quantity is at least 1
+        quantity: item.quantity || 1,
       }))
     );
   }, [items]);
 
-  // Function to increase quantity
   const increaseQuantity = (id) => {
-    setCartItems((prevItems) => {
-      const updatedItems = prevItems.map((item) => {
-        if (item._id === id) {
-          item.quantity += 1; // Increase the quantity
-        }
+    setCartItems((prevItems) =>
+      prevItems.map(item => {
+        if (item._id === id) item.quantity += 1;
         return item;
-      });
-      return updatedItems;
-    });
+      })
+    );
   };
 
-  // Function to decrease quantity
   const decreaseQuantity = (id) => {
-    setCartItems((prevItems) => {
-      const updatedItems = prevItems.map((item) => {
-        if (item._id === id && item.quantity > 1) {
-          item.quantity -= 1; // Decrease the quantity (ensuring it's not less than 1)
-        }
+    setCartItems((prevItems) =>
+      prevItems.map(item => {
+        if (item._id === id && item.quantity > 1) item.quantity -= 1;
         return item;
-      });
-      return updatedItems;
-    });
+      })
+    );
   };
 
-  // Function to remove item from the cart
   const removeFromCart = (id) => {
     setCartItems((prevItems) => prevItems.filter(item => item._id !== id));
   };
 
-  // Function to calculate total price
   const calculateTotal = () => {
     const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     setTotalPrice(total);
   };
 
-  // Recalculate the total whenever cartItems change
   useEffect(() => {
     calculateTotal();
   }, [cartItems]);
 
-  // Function to handle placing the order
   const handlePlaceOrder = async () => {
+    if (!campus || !building || !roomNumber) {
+      toast.error('Please fill in campus, building, and room number before placing the order.');
+      return;
+    }
+
     const orderItems = cartItems.map(item => ({
       menuId: item._id,
       quantity: item.quantity,
     }));
-  
+
     try {
-      console.log('Placing order with the following items:', orderItems);
-  
       const response = await fetch(api.createOrder, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...getAuthHeader(), // Get the auth header
+          ...getAuthHeader(),
         },
-        body: JSON.stringify({ items: orderItems }),
+        body: JSON.stringify({
+          items: orderItems,
+          campus,
+          building,
+          roomNumber,
+        }),
       });
-  
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-  
+
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error response:', errorData);
-        throw new Error('Failed to place order');
+        throw new Error(errorData.message || 'Failed to place order');
       }
-  
+
       const data = await response.json();
-      console.log('Order placed successfully:', data);
-      
-      // Redirect to order confirmation or success page
+      toast.success('Order placed successfully!');
       navigate(`/order/${data._id}`);
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
+      toast.error('Failed to place order. Please try again.');
     }
   };
-  
+
   return (
     <div className="px-4 sm:px-[5%] lg:px-[15%] py-8">
       <h2 className="text-3xl font-semibold text-center mb-6">Checkout</h2>
-      
+
       {cartItems.length === 0 ? (
         <p className="text-center text-xl text-gray-600">Your cart is empty.</p>
       ) : (
@@ -167,23 +165,75 @@ const Checkout = () => {
               </div>
             </div>
           ))}
+
           <div className="flex justify-between items-center mt-6 border-t pt-4">
-            <span className="text-2xl font-semibold">Total: </span>
-            <span className="text-2xl font-bold text-amber-500">{totalPrice.toFixed(2)} ETB.</span>
+            <span className="text-2xl font-semibold">Total:</span>
+            <span className="text-2xl font-bold text-amber-500">{totalPrice.toFixed(2)} ETB</span>
+          </div>
+
+          {/* Delivery Form */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-2">Delivery Information</h3>
+
+            <div className="mb-3">
+              <label className="block font-medium mb-1">Campus</label>
+              <select
+                className="select select-bordered w-full"
+                value={campus}
+                onChange={(e) => {
+                  setCampus(e.target.value);
+                  setBuilding('');
+                }}
+              >
+                <option value="">Select Campus</option>
+                {Object.keys(campusOptions).map((campusName) => (
+                  <option key={campusName} value={campusName}>
+                    {campusName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-3">
+              <label className="block font-medium mb-1">Building</label>
+              <select
+                className="select select-bordered w-full"
+                value={building}
+                onChange={(e) => setBuilding(e.target.value)}
+                disabled={!campus}
+              >
+                <option value="">Select Building</option>
+                {campus &&
+                  campusOptions[campus].map((bldg) => (
+                    <option key={bldg} value={bldg}>
+                      {bldg}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div className="mb-3">
+              <label className="block font-medium mb-1">Room Number</label>
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                placeholder="e.g. 204"
+                value={roomNumber}
+                onChange={(e) => setRoomNumber(e.target.value)}
+              />
+            </div>
           </div>
 
           {/* Payment Options */}
           <div className="mt-6 flex flex-col sm:flex-row gap-4">
-            {/* Payment Button - Santim Pay */}
-            <button className="btn bg-white w-full h-14 sm:w-[48%] mb-4 sm:mb-0 flex items-center justify-center gap-2 text-black">
+            <button className="btn bg-white w-full h-14 sm:w-[48%] flex items-center justify-center gap-2 text-black">
               <img src={santimLogo} alt="Santim Pay" className="h-full" />
               Pay with Santim Pay
             </button>
 
-            {/* Payment Button - Chapa */}
             <button
-              onClick={handlePlaceOrder} // Handle order placement
-              className="btn bg-[#0d1b35] w-full h-14 sm:w-[48%] mb-4 sm:mb-0 flex items-center justify-center gap-2 py-0.5 text-white"
+              onClick={handlePlaceOrder}
+              className="btn bg-[#0d1b35] w-full h-14 sm:w-[48%] flex items-center justify-center gap-2 py-0.5 text-white"
             >
               <img src={chapaLogo} alt="Chapa" className="h-full" />
               Pay with Chapa
