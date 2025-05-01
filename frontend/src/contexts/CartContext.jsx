@@ -8,6 +8,7 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   // Load cart from localStorage or API
   useEffect(() => {
@@ -18,7 +19,8 @@ export const CartProvider = ({ children }) => {
         try {
           setLoading(true);
           const response = await axios.get(`/api/cart/${user.id}`);
-          setCart(response.data.cart || storedCart); 
+          setCart(response.data.cart || storedCart);
+        } catch (error) {
           console.error('Error fetching cart:', error);
           setCart(storedCart);
         } finally {
@@ -40,6 +42,23 @@ export const CartProvider = ({ children }) => {
       // Update backend cart
       axios.post(`/api/cart/${user.id}`, { cart: updatedCart });
     }
+    updateCartCount(updatedCart);
+  };
+
+  // Update cart count
+  const updateCartCount = (updatedCart) => {
+    const totalCount = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
+    setCartCount(totalCount);
+  };
+
+  // Clear all items from cart
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem('cart');
+    if (user?.role === 'customer') {
+      axios.post(`/api/cart/${user.id}`, { cart: [] }); // Clear cart on the server
+    }
+    updateCartCount([]);
   };
 
   // Add item to cart
@@ -76,8 +95,13 @@ export const CartProvider = ({ children }) => {
   const decreaseQuantity = (itemId) => {
     const updatedCart = [...cart];
     const item = updatedCart.find((item) => item._id === itemId);
-    if (item && item.quantity > 1) {
-      item.quantity -= 1;
+    if (item) {
+      if (item.quantity > 1) {
+        item.quantity -= 1;
+      } else {
+        // If quantity is 1, remove the item from the cart
+        updatedCart.splice(updatedCart.indexOf(item), 1);
+      }
       updateCart(updatedCart);
     }
   };
@@ -90,7 +114,8 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         increaseQuantity,
         decreaseQuantity,
-        cartCount: cart.length,
+        clearCart,
+        cartCount,
         loading,
       }}
     >
