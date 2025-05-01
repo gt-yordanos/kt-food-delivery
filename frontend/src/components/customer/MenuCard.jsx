@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
-import { FaCartPlus, FaCheckCircle } from 'react-icons/fa';
-import { useCart } from '../../contexts/CartContext';
+import React, { useState, useEffect } from 'react';
+import { FaCartPlus, FaCheckCircle } from 'react-icons/fa'; // Importing icons
+import { useCart } from '../../contexts/CartContext';  // Import useCart hook
 
 const MenuCard = ({ image, name, description, price, item, loading = false }) => {
-  const { addToCart, removeFromCart, cart } = useCart();
+  const [addedToCart, setAddedToCart] = useState(false);
+  const { addToCart, removeFromCart, cart } = useCart();  // Access addToCart and removeFromCart from context
 
-  // Check if the item is already in the cart based on its ID
-  const [addedToCart, setAddedToCart] = useState(
-    item ? cart.some((cartItem) => cartItem._id === item._id) : false
-  );
+  // Guard clause to prevent accessing properties of an undefined item
+  useEffect(() => {
+    if (item) {
+      const isItemInCart = cart.some((cartItem) => cartItem._id === item._id);
+      setAddedToCart(isItemInCart);
+    }
+  }, [cart, item]); // Re-run whenever cart or item._id changes
 
   const handleToggleCart = () => {
     if (addedToCart) {
@@ -20,9 +24,10 @@ const MenuCard = ({ image, name, description, price, item, loading = false }) =>
   };
 
   return (
-    <div className="bg-base-300 rounded-[2rem] overflow-hidden flex flex-col justify-between transition-all duration-300 ease-in-out mx-auto aspect-[4/6] max-w-[20rem] min-w-[12rem] w-full group">
-      
-      {/* Display loading skeleton when loading is true */}
+    <div className="bg-base-300 rounded-[2rem] overflow-hidden flex flex-col justify-between
+                    transition-all duration-300 ease-in-out mx-auto
+                    aspect-[4/6] max-w-[20rem] min-w-[12rem] w-full group">
+
       {loading ? (
         <div className="flex w-52 flex-col gap-4 p-4 mx-auto">
           <div className="skeleton h-36 w-full"></div>
@@ -39,13 +44,13 @@ const MenuCard = ({ image, name, description, price, item, loading = false }) =>
               alt={name}
               className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
             />
+
             {/* Add to Cart Button */}
             <button
               onClick={handleToggleCart}
-              className={`flex items-center btn btn-large lg:btn-sm rounded-full absolute top-3 left-2 transition-all duration-200 ${
-                addedToCart
-                  ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                  : 'bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black'
+              className={`flex items-center btn btn-large lg:btn-sm rounded-full absolute top-3 left-2 transition-all duration-200 ${addedToCart
+                ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                : 'bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black'
               }`}
             >
               {addedToCart ? (
@@ -68,6 +73,7 @@ const MenuCard = ({ image, name, description, price, item, loading = false }) =>
               <p className="text-2xl lg:text-lg font-semibold">{name}</p>
               <p className="text-lg lg:text-xs">{description}</p>
             </div>
+
             <div className="flex items-center justify-between">
               <span className="text-amber-500 font-bold text-xl lg:text-sm">{price} ETB.</span>
               <button className="btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full">

@@ -14,15 +14,20 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     const loadCart = async () => {
       const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+      
+      // Set the initial cart count based on the stored cart
+      setCartCount(storedCart.reduce((sum, item) => sum + item.quantity, 0));
+
       if (user?.role === 'customer') {
         // Fetch cart from backend if user is a customer
         try {
           setLoading(true);
           const response = await axios.get(`/api/cart/${user.id}`);
-          setCart(response.data.cart || storedCart);
+          const backendCart = response.data.cart || storedCart;
+          setCart(backendCart); // Set the cart from backend or localStorage
         } catch (error) {
           console.error('Error fetching cart:', error);
-          setCart(storedCart);
+          setCart(storedCart); // If fetching fails, use stored cart
         } finally {
           setLoading(false);
         }
@@ -58,7 +63,7 @@ export const CartProvider = ({ children }) => {
     if (user?.role === 'customer') {
       axios.post(`/api/cart/${user.id}`, { cart: [] }); // Clear cart on the server
     }
-    updateCartCount([]);
+    updateCartCount([]);  // Reset cart count
   };
 
   // Add item to cart
