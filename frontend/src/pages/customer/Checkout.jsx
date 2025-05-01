@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { FaMinus, FaPlus, FaTrashAlt } from 'react-icons/fa';
 
+// Import logos from the assets folder
+import santimLogo from '../../assets/santimPay.jpg';
+import chapaLogo from '../../assets/chapa.jpg';
+
 const Checkout = () => {
   const location = useLocation();
   const { items } = location.state || {};
@@ -104,14 +108,14 @@ const Checkout = () => {
           {/* Payment Options */}
           <div className="mt-6 flex flex-col sm:flex-row gap-4">
             {/* Payment Button - Santim Pay */}
-            <button className="btn btn-primary w-full sm:w-[48%] mb-4 sm:mb-0 flex items-center justify-center gap-2">
-              <img src="/path/to/santim-logo.png" alt="Santim Pay" className="w-6 h-6" />
+            <button className="btn bg-white w-full h-14 sm:w-[48%] mb-4 sm:mb-0 flex items-center justify-center gap-2 text-black">
+              <img src={santimLogo} alt="Santim Pay" className="h-full" />
               Pay with Santim Pay
             </button>
 
             {/* Payment Button - Chapa */}
-            <button className="btn btn-primary w-full sm:w-[48%] mb-4 sm:mb-0 flex items-center justify-center gap-2">
-              <img src="/path/to/chapa-logo.png" alt="Chapa" className="w-6 h-6" />
+            <button className="btn bg-[#0d1b35] w-full h-14 sm:w-[48%] mb-4 sm:mb-0 flex items-center justify-center gap-2 py-0.5 text-white">
+              <img src={chapaLogo} alt="Chapa" className="h-full" />
               Pay with Chapa
             </button>
           </div>
