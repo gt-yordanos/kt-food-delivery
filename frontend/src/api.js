@@ -63,8 +63,9 @@ const api = {
   getAllRestaurantInfo: `${BASE_URL}/restaurants/`,
 
   // Cart Routes
-  saveCart: '/api/cart',
-  getCart: '/api/cart',
+  saveCart: `${BASE_URL}/api/cart/add`,
+  getCart: `${BASE_URL}/api/cart`,
+  removeFromCart: `${BASE_URL}/api/cart/remove/{menuId}`,
 };
 
 export default api;
