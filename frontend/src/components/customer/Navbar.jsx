@@ -91,7 +91,7 @@ const Navbar = () => {
       {/* Mobile Menu */}
       <ul
         className={`absolute top-full left-0 w-full bg-base-300 text-content shadow-lg md:hidden flex flex-col items-center space-y-6 px-6 py-4 z-50 mt-2 transform transition-all duration-300 ease-in-out ${
-          menuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+          menuOpen ? 'translate-y-0 flex' : 'translate-y-10 hidden'
         }`}
       >
         <li>
