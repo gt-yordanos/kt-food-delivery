@@ -11,7 +11,7 @@ const Hero = () => {
           <img
             src={heroImage}
             alt="Shiro"
-            className="w-80 h-80 object-cover rounded-full shadow-lg"
+            className="w-60 h-60 sm:w-80 sm:h-80 object-cover rounded-full shadow-lg"
           />
         </div>
       </div>
