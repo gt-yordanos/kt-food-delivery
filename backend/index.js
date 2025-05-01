@@ -13,7 +13,7 @@ import menuRoutes from './routes/menu.js';
 import orderRoutes from './routes/order.js';
 import restaurantRoutes from './routes/restaurant.js';
 import restaurantOwnerRoutes from './routes/restaurantOwner.js';
-import cartRoutes from './routes/cartRoutes.js';
+import cartRoutes from './routes/cart.js';
 
 dotenv.config();
 
