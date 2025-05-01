@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FaCartPlus, FaCheckCircle } from 'react-icons/fa'; // Importing icons
-import { useCart } from '../../contexts/CartContext';  // Import useCart hook
+import { useCart } from '../../contexts/CartContext';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 
 const MenuCard = ({ image, name, description, price, item, loading = false }) => {
   const [addedToCart, setAddedToCart] = useState(false);
-  const { addToCart, removeFromCart, cart } = useCart();  // Access addToCart and removeFromCart from context
+  const { addToCart, removeFromCart, cart } = useCart(); // Access addToCart and removeFromCart from context
+  const navigate = useNavigate(); // Initialize useNavigate for navigation
 
   // Guard clause to prevent accessing properties of an undefined item
   useEffect(() => {
@@ -23,11 +25,13 @@ const MenuCard = ({ image, name, description, price, item, loading = false }) =>
     setAddedToCart(!addedToCart);
   };
 
-  return (
-    <div className="bg-base-300 rounded-[2rem] overflow-hidden flex flex-col justify-between
-                    transition-all duration-300 ease-in-out mx-auto
-                    aspect-[4/6] max-w-[20rem] min-w-[12rem] w-full group">
+  const handleOrderNow = () => {
+    // Navigate to checkout with the selected item only (no need to add it to cart)
+    navigate('/checkout', { state: { items: [item] } });
+  };
 
+  return (
+    <div className="bg-base-300 rounded-[2rem] overflow-hidden flex flex-col justify-between transition-all duration-300 ease-in-out mx-auto aspect-[4/6] max-w-[20rem] min-w-[12rem] w-full group">
       {loading ? (
         <div className="flex w-52 flex-col gap-4 p-4 mx-auto">
           <div className="skeleton h-36 w-full"></div>
@@ -76,7 +80,10 @@ const MenuCard = ({ image, name, description, price, item, loading = false }) =>
 
             <div className="flex items-center justify-between">
               <span className="text-amber-500 font-bold text-xl lg:text-sm">{price} ETB.</span>
-              <button className="btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full">
+              <button
+                onClick={handleOrderNow} // Navigate to checkout page with the selected item
+                className="btn btn-large lg:btn-sm bg-base-100 text-amber-500 hover:bg-amber-500 hover:text-black rounded-full"
+              >
                 Order Now
               </button>
             </div>
