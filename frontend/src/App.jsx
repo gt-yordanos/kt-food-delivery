@@ -26,6 +26,7 @@ import SignUp from './pages/customer/SignUp';
 import Profile from './pages/customer/Profile';
 import Cart from './pages/customer/Cart';
 import Checkout from './pages/customer/CheckOut';
+import PaymentVerification from './pages/customer/PaymentVerification';
 
 const App = () => {
   return (
@@ -103,6 +104,8 @@ const App = () => {
             </>
           } 
           />
+
+        <Route path="/verify-payment/:tx_ref" element={<PaymentVerification/>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />

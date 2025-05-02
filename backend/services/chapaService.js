@@ -22,7 +22,7 @@ export const initiateChapaPayment = async (paymentData) => {
         last_name: paymentData.customerLastName,
         tx_ref: paymentData.tx_ref,
         callback_url: `${chapaConfig.baseUrl}/api/payments/chapa/callback`,
-        return_url: `${chapaConfig.baseUrl}/api/payments/chapa/verify/${paymentData.tx_ref}`,
+        // return_url: `${chapaConfig.baseUrl}/api/payments/chapa/verify/${paymentData.tx_ref}`,
         customization: {
           title: 'Food Order',  // Updated to meet the 16 characters limit
           description: 'Payment for your food order',

@@ -1,8 +1,7 @@
-// controllers/order.js
 import { Order } from '../models/Order.js';
 import { Menu } from '../models/Menu.js';
-import { Customer } from '../models/customer.js';
-import { initiateChapaPayment } from '../services/chapaService.js';
+import { Customer } from '../models/Customer.js';
+import { initiateChapaPayment, verifyChapaPayment } from '../services/chapaService.js';
 import { v4 as uuidv4 } from 'uuid';
 
 // Create a new order (status = pending by default)
@@ -19,6 +18,7 @@ export const createOrder = async (req, res) => {
     let totalPrice = 0;
     const orderItems = [];
 
+    // Calculate total price and prepare order items
     for (const item of items) {
       const menu = await Menu.findById(item.menuId);
       if (!menu || !menu.available) {

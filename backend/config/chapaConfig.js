@@ -1,4 +1,4 @@
 export const chapaConfig = {
   chapaSecretKey: process.env.CHAPA_SECRET_KEY,
-  baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+  baseUrl: process.env.BASE_URL
 };
