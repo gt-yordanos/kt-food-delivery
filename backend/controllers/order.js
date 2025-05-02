@@ -1,13 +1,15 @@
+// controllers/order.js
 import { Order } from '../models/Order.js';
 import { Menu } from '../models/Menu.js';
 import { Customer } from '../models/customer.js';
-import { initializeChapaPayment, verifyChapaPayment } from './payment.js';
+import { initiateChapaPayment } from '../services/chapaService.js';
+import { v4 as uuidv4 } from 'uuid';
 
-// Create a new order
+// Create a new order (status = pending by default)
 export const createOrder = async (req, res) => {
   try {
     const customerId = req.id;
-    const { items, campus, building, roomNumber, paymentMethod } = req.body;
+    const { items, campus, building, roomNumber } = req.body;
 
     const customer = await Customer.findById(customerId);
     if (!customer) {
@@ -34,6 +36,8 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    // Create a temporary order with payment status pending
+    const tx_ref = `order-${uuidv4()}`;
     const order = await Order.create({
       customer: customerId,
       items: orderItems,
@@ -42,85 +46,97 @@ export const createOrder = async (req, res) => {
       building,
       roomNumber,
       status: 'pending',
-      paymentMethod,
-      paymentStatus: paymentMethod === 'cash' ? 'success' : 'pending'
+      paymentStatus: 'pending',
+      paymentReference: tx_ref,
     });
 
-    customer.orderHistory.push({
-      orderId: order._id,
-      totalPrice,
-      status: order.status,
+    // Prepare payment data for Chapa
+    const paymentData = {
+      amount: totalPrice.toString(),
+      customerEmail: customer.email,
+      customerFirstName: customer.firstName,
+      customerLastName: customer.lastName,
+      tx_ref: tx_ref,
+    };
+
+    // Initiate Chapa payment
+    const paymentResponse = await initiateChapaPayment(paymentData);
+
+    // Return payment URL to frontend
+    res.status(201).json({
+      order,
+      paymentUrl: paymentResponse.data.checkout_url,
     });
-    await customer.save();
 
-    if (paymentMethod === 'chapa') {
-      try {
-        const paymentResponse = await initializeChapaPayment(order, customer);
-        return res.status(201).json({ 
-          order, 
-          checkoutUrl: paymentResponse.checkoutUrl 
-        });
-      } catch (error) {
-        console.error('Payment initialization error:', error);
-        order.paymentStatus = 'failed';
-        await order.save();
-        return res.status(201).json({ 
-          order,
-          message: 'Order created but payment initialization failed' 
-        });
-      }
-    }
-
-    res.status(201).json(order);
   } catch (error) {
     console.error('Error creating order:', error);
-    res.status(500).json({ message: 'Server error creating order' });
+    res.status(500).json({ message: 'Server error creating order', error: error.message });
   }
 };
 
-// Verify payment (Chapa webhook)
+// Add payment verification endpoint
 export const verifyPayment = async (req, res) => {
   try {
-    const { txRef } = req.params;
-    const paymentData = await verifyChapaPayment(txRef);
-    
-    const order = await Order.findOne({ paymentReference: txRef });
-    if (order) {
-      order.paymentStatus = 'verified';
-      if (order.status === 'pending') {
-        order.status = 'inProgress';
-      }
-      await order.save();
+    const { tx_ref } = req.params;
+
+    // Verify payment with Chapa
+    const paymentVerification = await verifyChapaPayment(tx_ref);
+
+    if (paymentVerification.status !== 'success') {
+      return res.status(400).json({ message: 'Payment verification failed' });
     }
 
-    res.status(200).json({ message: 'Payment verified successfully' });
-  } catch (error) {
-    console.error('Payment verification error:', error);
-    res.status(500).json({ message: 'Error verifying payment' });
-  }
-};
+    // Update order payment status
+    const order = await Order.findOneAndUpdate(
+      { paymentReference: tx_ref },
+      { paymentStatus: 'paid' },
+      { new: true }
+    );
 
-// Payment success redirect
-export const paymentSuccessRedirect = async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const order = await Order.findById(orderId);
-    
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    order.paymentStatus = 'success';
-    if (order.status === 'pending') {
-      order.status = 'inProgress';
+    // Update customer's order history
+    const customer = await Customer.findById(order.customer);
+    if (customer) {
+      const orderHistoryItem = customer.orderHistory.find(
+        (item) => item.orderId.toString() === order._id.toString()
+      );
+      
+      if (orderHistoryItem) {
+        orderHistoryItem.status = order.status;
+      }
+      
+      await customer.save();
     }
-    await order.save();
 
-    // Redirect to frontend success page with order ID
-    res.redirect(`${process.env.FRONTEND_URL}/order-success/${orderId}`);
+    res.json({ message: 'Payment verified successfully', order });
   } catch (error) {
-    console.error('Payment success error:', error);
-    res.redirect(`${process.env.FRONTEND_URL}/payment-error`);
+    console.error('Payment verification error:', error);
+    res.status(500).json({ message: 'Error verifying payment', error: error.message });
+  }
+};
+
+// Payment callback handler (for Chapa webhook)
+export const paymentCallback = async (req, res) => {
+  try {
+    const { tx_ref, status } = req.body;
+
+    if (status !== 'success') {
+      return res.status(400).json({ message: 'Payment failed' });
+    }
+
+    // Update order payment status
+    await Order.findOneAndUpdate(
+      { paymentReference: tx_ref },
+      { paymentStatus: 'paid' }
+    );
+
+    res.status(200).json({ message: 'Payment callback processed' });
+  } catch (error) {
+    console.error('Payment callback error:', error);
+    res.status(500).json({ message: 'Error processing payment callback' });
   }
 };
 
@@ -144,7 +160,7 @@ export const getOrdersByCustomerId = async (req, res) => {
 
     const orders = await Order.find({ customer: customerId })
       .populate('customer', 'firstName lastName')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: 1 });
 
     res.json(orders);
   } catch (error) {

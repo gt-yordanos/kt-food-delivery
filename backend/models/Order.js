@@ -30,15 +30,11 @@ const orderSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'verified', 'success', 'failed'],
+      enum: ['pending', 'paid', 'failed'],
       default: 'pending',
     },
     paymentReference: {
       type: String,
-    },
-    paymentMethod: {
-      type: String,
-      enum: ['chapa', 'santimPay', 'cash'],
     },
     campus: {
       type: String,

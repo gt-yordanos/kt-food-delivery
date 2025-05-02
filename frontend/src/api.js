@@ -59,9 +59,11 @@ const api = {
   getOrdersByStatus: `${BASE_URL}/orders/status/{status}`,
   updateOrderStatus: `${BASE_URL}/orders/{orderId}/status`,
   trackOrder: `${BASE_URL}/orders/track/{orderId}`,
-  verifyPayment: `${BASE_URL}/orders/verify-payment/{txRef}`,
-  paymentSuccessRedirect: `${BASE_URL}/orders/payment-success/{orderId}`,
-
+  
+  // Payment Routes
+  verifyChapaPayment: `${BASE_URL}/orders/payments/chapa/verify/{tx_ref}`,
+  chapaPaymentCallback: `${BASE_URL}/orders/payments/chapa/callback`,
+  
   // Restaurant Routes
   addRestaurant: `${BASE_URL}/restaurants/add`,
   updateRestaurant: `${BASE_URL}/restaurants/update`,
