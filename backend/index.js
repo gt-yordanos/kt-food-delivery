@@ -14,7 +14,6 @@ import orderRoutes from './routes/order.js';
 import restaurantRoutes from './routes/restaurant.js';
 import restaurantOwnerRoutes from './routes/restaurantOwner.js';
 import cartRoutes from './routes/cart.js';
-import paymentRoutes from './routes/payment.js';
 
 dotenv.config();
 

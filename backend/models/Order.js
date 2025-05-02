@@ -11,7 +11,6 @@ const orderItemSchema = new mongoose.Schema({
   quantity: { type: Number, required: true },
 });
 
-// Campus and buildings can be validated in frontend/UI logic
 const orderSchema = new mongoose.Schema(
   {
     customer: {
@@ -28,6 +27,18 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ['pending', 'inProgress', 'completed', 'cancelled'],
       default: 'pending',
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'verified', 'success', 'failed'],
+      default: 'pending',
+    },
+    paymentReference: {
+      type: String,
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['chapa', 'santimPay', 'cash'],
     },
     campus: {
       type: String,
