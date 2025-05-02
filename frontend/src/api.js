@@ -59,6 +59,8 @@ const api = {
   getOrdersByStatus: `${BASE_URL}/orders/status/{status}`,
   updateOrderStatus: `${BASE_URL}/orders/{orderId}/status`,
   trackOrder: `${BASE_URL}/orders/track/{orderId}`,
+  verifyPayment: `${BASE_URL}/orders/verify-payment/{txRef}`,
+  paymentSuccessRedirect: `${BASE_URL}/orders/payment-success/{orderId}`,
 
   // Restaurant Routes
   addRestaurant: `${BASE_URL}/restaurants/add`,
