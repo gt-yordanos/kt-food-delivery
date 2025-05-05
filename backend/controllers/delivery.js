@@ -1,51 +1,87 @@
 import { Order } from '../models/Order.js';
 import { Delivery } from '../models/Delivery.js';
 import { DeliveryPerson } from '../models/DeliveryPerson.js';
-import { Customer } from '../models/Customer.js';
 
-// Create a new delivery
 export const createDelivery = async (req, res) => {
   try {
     const { orderId, deliveryPersonId } = req.body;
 
-    const order = await Order.findById(orderId).populate('customer');
-    if (!order) return res.status(404).json({ message: 'Order not found' });
+    // Validate order exists
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Order not found' 
+      });
+    }
 
+    // Validate order status
     if (order.paymentStatus !== 'paid' || order.status !== 'inProgress') {
-      return res.status(400).json({ message: 'Order must be paid and in progress to assign delivery' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Order must be paid and in progress to assign delivery' 
+      });
     }
 
+    // Validate delivery person exists
     const deliveryPerson = await DeliveryPerson.findById(deliveryPersonId);
-    if (!deliveryPerson) return res.status(404).json({ message: 'Delivery person not found' });
-
-    if (order.campus !== deliveryPerson.campus) {
-      return res.status(400).json({ message: 'Delivery person and order campus must match' });
+    if (!deliveryPerson) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Delivery person not found' 
+      });
     }
 
+    // Validate campus match
+    if (order.campus !== deliveryPerson.campus) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Delivery person and order campus must match' 
+      });
+    }
+
+    // Prevent duplicate deliveries
+    const existingDelivery = await Delivery.findOne({ order: orderId });
+    if (existingDelivery) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'A delivery already exists for this order' 
+      });
+    }
+
+    // Create delivery
     const delivery = await Delivery.create({
       order: order._id,
       deliveryPerson: deliveryPerson._id,
       deliveryStatus: 'pending',
     });
 
-    // Add delivery to deliveryPerson
+    // Update delivery person
     deliveryPerson.deliveries.push(delivery._id);
     await deliveryPerson.save();
 
-    const fullDelivery = await Delivery.findById(delivery._id)
-      .populate({
-        path: 'order',
-        populate: {
-          path: 'customer',
-          select: 'firstName lastName email',
-        },
-      })
-      .populate('deliveryPerson', 'firstName lastName email campus');
+    // Update order status
+    order.status = 'completed';
+    await order.save();
 
-    res.status(201).json({ message: 'Delivery created successfully', delivery: fullDelivery });
+    // Return success response
+    res.status(200).json({
+      success: true,
+      message: 'Delivery created successfully',
+      data: {
+        deliveryId: delivery._id,
+        orderId: order._id,
+        deliveryPersonId: deliveryPerson._id,
+        status: 'pending'
+      }
+    });
+
   } catch (error) {
-    console.error('Create Delivery Error:', error);
-    res.status(500).json({ message: 'Failed to create delivery' });
+    console.error('Delivery creation error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error' 
+    });
   }
 };
 
@@ -64,13 +100,39 @@ export const updateDeliveryStatus = async (req, res) => {
     if (!delivery) return res.status(404).json({ message: 'Delivery not found' });
 
     delivery.deliveryStatus = status;
-    if (status === 'delivered') delivery.deliveredAt = new Date();
-    await delivery.save();
+    if (status === 'delivered') {
+      delivery.deliveredAt = new Date();
+    }
 
+    await delivery.save();
     res.status(200).json({ message: 'Delivery status updated', delivery });
   } catch (error) {
     console.error('Update Delivery Status Error:', error);
     res.status(500).json({ message: 'Failed to update delivery status' });
+  }
+};
+
+// ✅ Customer verifies delivery
+export const verifyDeliveryByCustomer = async (req, res) => {
+  try {
+    const { deliveryId } = req.params;
+
+    const delivery = await Delivery.findById(deliveryId);
+    if (!delivery) {
+      return res.status(404).json({ message: 'Delivery not found' });
+    }
+
+    if (delivery.deliveryStatus !== 'delivered') {
+      return res.status(400).json({ message: 'Cannot verify undelivered order' });
+    }
+
+    delivery.customerVerified = true;
+    await delivery.save();
+
+    res.status(200).json({ message: 'Delivery verified by customer', delivery });
+  } catch (error) {
+    console.error('Customer Verification Error:', error);
+    res.status(500).json({ message: 'Failed to verify delivery' });
   }
 };
 
@@ -134,7 +196,7 @@ export const getDeliveriesByCampus = async (req, res) => {
 // Get deliveries by day
 export const getDeliveriesByDay = async (req, res) => {
   try {
-    const { date } = req.query; // Expecting YYYY-MM-DD
+    const { date } = req.query; // YYYY-MM-DD
     const start = new Date(date);
     const end = new Date(date);
     end.setDate(end.getDate() + 1);
@@ -152,7 +214,7 @@ export const getDeliveriesByDay = async (req, res) => {
 // Get deliveries by hour
 export const getDeliveriesByHour = async (req, res) => {
   try {
-    const { date, hour } = req.query; // Expecting date as YYYY-MM-DD and hour as 0–23
+    const { date, hour } = req.query; // YYYY-MM-DD, hour: 0–23
     const base = new Date(date);
     const start = new Date(base.setHours(hour, 0, 0, 0));
     const end = new Date(base.setHours(hour + 1, 0, 0, 0));

@@ -65,7 +65,6 @@ const Order = () => {
       }
 
       const data = await response.json();
-      
       console.log('Fetched delivery persons for campus', campus, data);
 
       setDeliveryPersons((prev) => ({
@@ -86,21 +85,21 @@ const Order = () => {
   // Fetch delivery persons for each campus of the orders
   useEffect(() => {
     if (orders.length > 0) {
-      const campuses = [...new Set(orders.map(order => order.campus))];
-      campuses.forEach(campus => fetchDeliveryPersons(campus));
+      const campuses = [...new Set(orders.map((order) => order.campus))];
+      campuses.forEach((campus) => fetchDeliveryPersons(campus));
     }
   }, [orders]);
 
   // Improved date formatting function
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { 
-      month: 'short', 
-      day: 'numeric', 
+    const options = {
+      month: 'short',
+      day: 'numeric',
       year: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true 
+      hour12: true,
     };
     return date.toLocaleString('en-US', options);
   };
@@ -136,6 +135,12 @@ const Order = () => {
       setError('Error assigning delivery person: ' + err.message);
       toast.error('Error assigning delivery person: ' + err.message);
     }
+  };
+
+  // Function to copy order ID to clipboard
+  const copyToClipboard = (orderId) => {
+    navigator.clipboard.writeText(orderId);
+    toast.success('Order ID copied to clipboard!');
   };
 
   return (
@@ -179,6 +184,7 @@ const Order = () => {
         <table className="table table-zebra w-full text-xs">
           <thead>
             <tr className="text-xs">
+              <th>Order ID</th>
               <th>Customer</th>
               <th>Items</th>
               <th>Total</th>
@@ -192,18 +198,26 @@ const Order = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="8" className="text-center py-10">
+                <td colSpan="9" className="text-center py-10">
                   <div className="loading loading-spinner loading-sm"></div>
                   <span className="ml-2">Loading...</span>
                 </td>
               </tr>
             ) : orders.length === 0 ? (
               <tr>
-                <td colSpan="8" className="text-center py-10 text-gray-500 text-sm">No orders found.</td>
+                <td colSpan="9" className="text-center py-10 text-gray-500 text-sm">No orders found.</td>
               </tr>
             ) : (
               orders.map((order) => (
                 <tr key={order._id} className="text-xs">
+                  <td className="py-2">
+                    <button
+                      className="btn btn-xs btn-outline"
+                      onClick={() => copyToClipboard(order._id)}
+                    >
+                      Copy ID
+                    </button>
+                  </td>
                   <td className="py-2">{order.customer?.firstName} {order.customer?.lastName}</td>
                   <td className="py-2">
                     <ul className="list-disc pl-4">
@@ -228,10 +242,10 @@ const Order = () => {
                   <td className="py-2">
                     <span
                       className={`badge badge-sm ${
-                        order.status === 'completed' 
-                          ? 'badge-success' 
-                          : order.status === 'inProgress' 
-                          ? 'badge-warning' 
+                        order.status === 'completed'
+                          ? 'badge-success'
+                          : order.status === 'inProgress'
+                          ? 'badge-warning'
                           : 'badge-neutral'
                       }`}
                     >
@@ -240,31 +254,30 @@ const Order = () => {
                   </td>
                   <td className="py-2 whitespace-nowrap">{formatDate(order.createdAt)}</td>
                   <td className="py-2">
-                    {order.status === 'inProgress' && (
-                      <div className="flex flex-col space-y-1">
-                        <select
-                          onChange={(e) => setSelectedDeliveryPerson(e.target.value)}
-                          className="select select-bordered select-sm text-xs"
-                        >
-                          <option value="">Select Delivery</option>
-                          {deliveryPersons[order.campus]?.map((person) => (
-                            <option key={person._id} value={person._id}>
-                              {person.firstName} {person.lastName} ({person.deliveries.length})
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          className="btn btn-primary btn-xs"
-                          onClick={() =>
-                            handleAssignDeliveryPerson(
-                              order._id,
-                              selectedDeliveryPerson
-                            )
-                          }
-                        >
-                          Assign
-                        </button>
-                      </div>
+                    {order.status === 'completed' ? (
+                      <span className="text-sucess">Assigned</span>
+                    ) : (
+                      order.status === 'inProgress' && (
+                        <div className="flex flex-col space-y-1">
+                          <select
+                            onChange={(e) => setSelectedDeliveryPerson(e.target.value)}
+                            className="select select-bordered select-sm text-xs"
+                          >
+                            <option value="">Select Delivery</option>
+                            {deliveryPersons[order.campus]?.map((person) => (
+                              <option key={person._id} value={person._id}>
+                                {person.firstName} {person.lastName} ({person.deliveries.length})
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            className="btn btn-primary btn-xs"
+                            onClick={() => handleAssignDeliveryPerson(order._id, selectedDeliveryPerson)}
+                          >
+                            Assign
+                          </button>
+                        </div>
+                      )
                     )}
                   </td>
                 </tr>

@@ -5,6 +5,7 @@ const deliverySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Order',
     required: true,
+    unique: true, // Ensures one delivery per order
   },
   deliveryPerson: {
     type: mongoose.Schema.Types.ObjectId,
@@ -16,8 +17,10 @@ const deliverySchema = new mongoose.Schema({
     enum: ['pending', 'inProgress', 'delivered'],
     default: 'pending',
   },
-  deliveredAt: {
-    type: Date,
+  deliveredAt: Date,
+  customerVerified: {
+    type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,
@@ -26,5 +29,4 @@ const deliverySchema = new mongoose.Schema({
 });
 
 const Delivery = mongoose.model('Delivery', deliverySchema);
-
 export { Delivery };

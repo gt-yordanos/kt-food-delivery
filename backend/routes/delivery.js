@@ -7,12 +7,13 @@ import {
   getDeliveriesByCampus,
   getDeliveriesByDay,
   getDeliveriesByHour,
+  verifyDeliveryByCustomer,
 } from '../controllers/delivery.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Create a new delivery
+// Create delivery
 router.post(
   '/create',
   authenticateToken,
@@ -20,12 +21,20 @@ router.post(
   createDelivery
 );
 
-// Update delivery status (used by delivery person)
+// Update delivery status
 router.put(
   '/change-status/:deliveryId',
   authenticateToken,
   authorizeRoles(['deliveryPerson']),
   updateDeliveryStatus
+);
+
+// ✅ Customer verifies delivery
+router.put(
+  '/verify/:deliveryId',
+  authenticateToken,
+  authorizeRoles(['customer']),
+  verifyDeliveryByCustomer
 );
 
 // Get delivery by ID
@@ -48,7 +57,7 @@ router.get(
 router.get(
   '/by-campus/:campus',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner', 'restaurantOwner']),
+  authorizeRoles(['admin', 'restaurantOwner']),
   getDeliveriesByCampus
 );
 
@@ -56,7 +65,7 @@ router.get(
 router.get(
   '/by-day',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner', 'restaurantOwner']),
+  authorizeRoles(['admin', 'restaurantOwner']),
   getDeliveriesByDay
 );
 
@@ -64,7 +73,7 @@ router.get(
 router.get(
   '/by-hour',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner', 'restaurantOwner']),
+  authorizeRoles(['admin', 'restaurantOwner']),
   getDeliveriesByHour
 );
 
