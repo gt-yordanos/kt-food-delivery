@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import api from '../../api';
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
-  const [loadingId, setLoadingId] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState('inProgress');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [deliveryPersons, setDeliveryPersons] = useState({});
+  const [selectedDeliveryPerson, setSelectedDeliveryPerson] = useState(null);
 
-  // Function to fetch orders from the API
+  // Fetch orders based on status
   const fetchOrders = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(api.getAllOrders, {
+      const url =
+        selectedStatus === 'all'
+          ? api.getAllOrders
+          : api.getOrdersByStatus.replace('{status}', selectedStatus);
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
         },
       });
 
@@ -21,98 +32,244 @@ const Order = () => {
       }
 
       const data = await response.json();
-      console.log(data); // Log the response data
       if (Array.isArray(data)) {
         setOrders(data);
-        console.log(orders)
       } else {
         setError('Unexpected data format');
       }
     } catch (err) {
       setError('Error: ' + err.message);
+      toast.error('Error: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchOrders(); // Call the fetchOrders function on component mount
-  }, []);
-
-  const handleConfirmOrder = (id) => {
-    setLoadingId(id);
-    setTimeout(() => {
-      setOrders((prev) =>
-        prev.map((order) =>
-          order._id === id ? { ...order, status: 'Confirmed' } : order
-        )
+  // Fetch delivery persons based on campus
+  const fetchDeliveryPersons = async (campus) => {
+    try {
+      const url = api.getActiveDeliveryPersonsByCampus.replace(
+        '{campus}',
+        campus
       );
-      setLoadingId(null);
-    }, 1000);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch delivery persons');
+      }
+
+      const data = await response.json();
+      
+      console.log('Fetched delivery persons for campus', campus, data);
+
+      setDeliveryPersons((prev) => ({
+        ...prev,
+        [campus]: data,
+      }));
+    } catch (err) {
+      setError('Error fetching delivery persons: ' + err.message);
+      toast.error('Error fetching delivery persons: ' + err.message);
+    }
   };
 
-  if (error) {
-    return <div className="alert alert-error">{error}</div>;
-  }
+  // Fetch orders and delivery persons when status or orders change
+  useEffect(() => {
+    fetchOrders();
+  }, [selectedStatus]);
 
-  if (!Array.isArray(orders)) {
-    return <div>Loading or No Orders Found</div>;
-  }
+  // Fetch delivery persons for each campus of the orders
+  useEffect(() => {
+    if (orders.length > 0) {
+      const campuses = [...new Set(orders.map(order => order.campus))];
+      campuses.forEach(campus => fetchDeliveryPersons(campus));
+    }
+  }, [orders]);
+
+  // Improved date formatting function
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true 
+    };
+    return date.toLocaleString('en-US', options);
+  };
+
+  // Handle selecting a delivery person for an order
+  const handleAssignDeliveryPerson = async (orderId, deliveryPersonId) => {
+    if (!deliveryPersonId) {
+      toast.warning('Please select a delivery person');
+      return;
+    }
+
+    try {
+      const response = await fetch(api.createDelivery, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+        },
+        body: JSON.stringify({
+          orderId,
+          deliveryPersonId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to assign delivery person');
+      }
+
+      const data = await response.json();
+      toast.success(data.message);
+      fetchOrders();
+    } catch (err) {
+      setError('Error assigning delivery person: ' + err.message);
+      toast.error('Error assigning delivery person: ' + err.message);
+    }
+  };
 
   return (
     <div className="p-6 bg-base-100 rounded-lg shadow-md h-full">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      
       <h1 className="text-2xl font-bold mb-4">Orders</h1>
+
+      {/* Status Filter */}
+      <div className="mb-4">
+        <label htmlFor="status" className="mr-2 font-semibold">
+          Filter by Status:
+        </label>
+        <select
+          id="status"
+          className="select select-bordered select-sm"
+          value={selectedStatus}
+          onChange={(e) => setSelectedStatus(e.target.value)}
+        >
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="inProgress">In Progress</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+
+      {error && <div className="alert alert-error mb-4 text-sm">{error}</div>}
+
       <div className="overflow-x-auto">
-        <table className="table table-zebra w-full">
+        <table className="table table-zebra w-full text-xs">
           <thead>
-            <tr>
+            <tr className="text-xs">
               <th>Customer</th>
               <th>Items</th>
               <th>Total</th>
+              <th>Payment</th>
+              <th>Campus</th>
               <th>Status</th>
-              <th>Action</th>
+              <th>Order Time</th>
+              <th>Assign Delivery</th>
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
-              <tr key={order._id}>
-                <td>{order.customerName}</td>
-                <td>
-                  <ul className="list-disc pl-4">
-                    {order.items.map((item, index) => (
-                      <li key={index}>{item.name}</li>
-                    ))}
-                  </ul>
-                </td>
-                <td>{order.totalPrice}</td>
-                <td>
-                  <span
-                    className={`badge ${
-                      order.status === 'Confirmed'
-                        ? 'badge-success'
-                        : order.status === 'Shipped'
-                        ? 'badge-info'
-                        : 'badge-warning'
-                    }`}
-                  >
-                    {order.status}
-                  </span>
-                </td>
-                <td>
-                  {order.status === 'inProgress' && (
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => handleConfirmOrder(order._id)}
-                      disabled={loadingId === order._id}
-                    >
-                      {loadingId === order._id ? (
-                        <span className="loading loading-spinner loading-sm"></span>
-                      ) : (
-                        'Confirm'
-                      )}
-                    </button>
-                  )}
+            {loading ? (
+              <tr>
+                <td colSpan="8" className="text-center py-10">
+                  <div className="loading loading-spinner loading-sm"></div>
+                  <span className="ml-2">Loading...</span>
                 </td>
               </tr>
-            ))}
+            ) : orders.length === 0 ? (
+              <tr>
+                <td colSpan="8" className="text-center py-10 text-gray-500 text-sm">No orders found.</td>
+              </tr>
+            ) : (
+              orders.map((order) => (
+                <tr key={order._id} className="text-xs">
+                  <td className="py-2">{order.customer?.firstName} {order.customer?.lastName}</td>
+                  <td className="py-2">
+                    <ul className="list-disc pl-4">
+                      {order.items.map((item, index) => (
+                        <li key={index} className="py-0.5">
+                          {item.name} x {item.quantity}
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td className="py-2">{order.totalPrice?.toLocaleString()} ETB</td>
+                  <td className="py-2">
+                    <span
+                      className={`badge badge-sm ${
+                        order.paymentStatus === 'paid' ? 'badge-success' : 'badge-error'
+                      }`}
+                    >
+                      {order.paymentStatus}
+                    </span>
+                  </td>
+                  <td className="py-2">{order.campus}</td>
+                  <td className="py-2">
+                    <span
+                      className={`badge badge-sm ${
+                        order.status === 'completed' 
+                          ? 'badge-success' 
+                          : order.status === 'inProgress' 
+                          ? 'badge-warning' 
+                          : 'badge-neutral'
+                      }`}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="py-2 whitespace-nowrap">{formatDate(order.createdAt)}</td>
+                  <td className="py-2">
+                    {order.status === 'inProgress' && (
+                      <div className="flex flex-col space-y-1">
+                        <select
+                          onChange={(e) => setSelectedDeliveryPerson(e.target.value)}
+                          className="select select-bordered select-sm text-xs"
+                        >
+                          <option value="">Select Delivery</option>
+                          {deliveryPersons[order.campus]?.map((person) => (
+                            <option key={person._id} value={person._id}>
+                              {person.firstName} {person.lastName} ({person.deliveries.length})
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          className="btn btn-primary btn-xs"
+                          onClick={() =>
+                            handleAssignDeliveryPerson(
+                              order._id,
+                              selectedDeliveryPerson
+                            )
+                          }
+                        >
+                          Assign
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

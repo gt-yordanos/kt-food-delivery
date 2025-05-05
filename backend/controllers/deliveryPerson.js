@@ -169,17 +169,28 @@ export const getDeliveryPersonsByCampusWithActiveDeliveries = async (req, res) =
   try {
     const { campus } = req.params;
 
+    // Find delivery persons by campus
     const deliveryPersons = await DeliveryPerson.find({ campus })
       .populate({
         path: 'deliveries',
-        match: { status: { $ne: 'completed' } }, // only deliveries not completed
+        match: { status: { $ne: 'completed' } }, // Only include incomplete deliveries
       });
 
+    // If no delivery persons found for the campus
     if (deliveryPersons.length === 0) {
       return res.status(404).json({ message: 'No delivery persons found for this campus' });
     }
 
-    res.status(200).json(deliveryPersons);
+    // Map through each delivery person and calculate the count of incomplete deliveries
+    const result = deliveryPersons.map((deliveryPerson) => {
+      return {
+        ...deliveryPerson._doc,
+        incompleteDeliveriesCount: deliveryPerson.deliveries.length, // Count of incomplete deliveries
+      };
+    });
+
+    // Return the response with the augmented data
+    res.status(200).json(result);
   } catch (error) {
     console.error('Error fetching delivery persons by campus:', error);
     res.status(500).json({ message: 'Failed to fetch delivery persons by campus' });
