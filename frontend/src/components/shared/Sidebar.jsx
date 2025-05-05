@@ -32,7 +32,7 @@ const Sidebar = ({ links }) => {
 
   return (
     <div
-      className={`h-screen z-30 bg-base-300 p-2 transition-all duration-300 ${collapsed ? 'w-24' : 'w-52'}`}
+      className={`h-screen z-30 bg-base-300 p-2 transition-all duration-300 ${collapsed ? 'w-24' : 'w-56'}`}
       style={{ transition: 'width 0.3s ease' }}
     >
       {/* Logo Section */}

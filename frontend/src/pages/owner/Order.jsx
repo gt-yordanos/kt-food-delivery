@@ -5,7 +5,7 @@ import api from '../../api';
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState('inProgress');
+  const [selectedStatus, setSelectedStatus] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [deliveryPersons, setDeliveryPersons] = useState({});
@@ -212,7 +212,7 @@ const Order = () => {
                 <tr key={order._id} className="text-xs">
                   <td className="py-2">
                     <button
-                      className="btn btn-xs btn-outline"
+                      className="btn btn-xs text-[9px] btn-outline hover:bg-emerald-500 hover:text-black"
                       onClick={() => copyToClipboard(order._id)}
                     >
                       Copy ID
