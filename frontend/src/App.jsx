@@ -35,9 +35,9 @@ const App = () => {
       <Router>
         <Routes>
           {/* Public Routes */}
-          <Route path="/admin/login" element={<ProtectedRoute><Login loginApi={api.loginAdmin} redirectLink="/admin/dashboard" /></ProtectedRoute>} />
-          <Route path="/owner/login" element={<ProtectedRoute><Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" /></ProtectedRoute>} />
-          <Route path="/delivery-person/login" element={<ProtectedRoute><Login loginApi={api.loginRestaurantOwner} redirectLink="/delivery-person" /></ProtectedRoute>} />
+          <Route path="/admin/login" element={<Login loginApi={api.loginAdmin} redirectLink="/admin/dashboard" />} />
+          <Route path="/owner/login" element={<Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" />} />
+          <Route path="/delivery-person/login" element={<Login loginApi={api.loginRestaurantOwner} redirectLink="/delivery-person" />} />
           <Route path="/unauthorized" element={<Unauthorized/>} />
           {/* Customer*/}
           <Route path="/login" 
