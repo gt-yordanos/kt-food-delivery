@@ -1,3 +1,4 @@
+// Delivery Routes
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const api = {
@@ -44,6 +45,7 @@ const api = {
   getDeliveriesByHour: `${BASE_URL}/delivery/by-hour?date={date}&hour={hour}`,
   getDeliveriesByOrderId: `${BASE_URL}/delivery/order/{orderId}`,
   getDeliveriesByStatus: `${BASE_URL}/delivery/status/{status}`,
+  getAllDeliveries: `${BASE_URL}/delivery/all`,  // New route added here
 
   // Menu Routes
   addMenuItem: `${BASE_URL}/menu`,

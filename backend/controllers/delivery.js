@@ -125,7 +125,7 @@ export const getAllDeliveries = async (req, res) => {
     const deliveries = await Delivery.find()
       .populate('order')
       .populate('deliveryPerson')
-      .populate('customer');  // Populate customer details as well
+      .populate('customer');
 
     res.status(200).json(deliveries);
   } catch (error) {
@@ -190,7 +190,8 @@ export const getDeliveriesByPerson = async (req, res) => {
 
     const deliveries = await Delivery.find({ deliveryPerson: deliveryPersonId })
       .populate('order')
-      .populate('customer')  // Populate customer in deliveries
+      .populate('customer')
+      .populate('deliveryPerson')
       .sort({ createdAt: -1 });
 
     res.status(200).json(deliveries);

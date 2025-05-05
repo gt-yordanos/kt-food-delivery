@@ -33,9 +33,7 @@ const Delivery = () => {
 
   // Fetch deliveries when filters change
   useEffect(() => {
-    if (filters.campus || filters.person || filters.orderId || filters.status) {
-      fetchDeliveries();
-    }
+    fetchDeliveries();
   }, [filters]);
 
   const fetchDeliveries = async () => {
@@ -43,6 +41,7 @@ const Delivery = () => {
     try {
       let response;
 
+      // Check if any filter is applied, if not, fetch all deliveries
       if (filters.orderId) {
         const url = api.getDeliveriesByOrderId.replace('{orderId}', filters.orderId);
         response = await axios.get(url, {
@@ -75,6 +74,14 @@ const Delivery = () => {
           },
         });
         setDeliveries(Array.isArray(response.data) ? response.data : []);
+      } else {
+        // If no filters are selected, fetch all deliveries
+        response = await axios.get(api.getAllDeliveries, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
+        setDeliveries(response.data || []);
       }
     } catch (error) {
       console.error('Error fetching deliveries:', error);
@@ -87,15 +94,17 @@ const Delivery = () => {
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
 
-    const newFilters = {
-      campus: '',
-      person: '',
-      orderId: '',
-      status: '',
-    };
-    newFilters[name] = value;
+    // Clear other filters if one is selected
+    setFilters((prevFilters) => {
+      const newFilters = { ...prevFilters, [name]: value };
 
-    setFilters(newFilters);
+      if (name !== 'campus') newFilters.campus = ''; // Clear campus when other filters are selected
+      if (name !== 'person') newFilters.person = ''; // Clear person when other filters are selected
+      if (name !== 'orderId') newFilters.orderId = ''; // Clear orderId when other filters are selected
+      if (name !== 'status') newFilters.status = ''; // Clear status when other filters are selected
+
+      return newFilters;
+    });
   };
 
   return (
@@ -158,7 +167,7 @@ const Delivery = () => {
       <div className="overflow-x-auto">
         <table className="table table-zebra table-sm w-full">
           <thead>
-            <tr>
+            <tr className="text-xs">
               <th>Customer Name</th>
               <th>Delivery Person</th>
               <th>Campus</th>
@@ -170,7 +179,7 @@ const Delivery = () => {
               <th>Customer Verified</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-xs">
             {loading ? (
               <tr>
                 <td colSpan="9" className="text-center">
@@ -182,7 +191,7 @@ const Delivery = () => {
                 <tr key={item._id}>
                   <td>{item.customer?.firstName} {item.customer?.lastName}</td>
                   <td>{item.deliveryPerson?.firstName} {item.deliveryPerson?.lastName}</td>
-                  <td>{item.deliveryPerson?.campus}</td>
+                  <td>{item.deliveryPerson?.campus}</td> {/* Make sure this is populated in the response */}
                   <td>{item.order?.building}</td>
                   <td>{item.order?.roomNumber}</td>
                   <td>{item.customer?.phoneNumber}</td>
@@ -210,9 +219,10 @@ const Delivery = () => {
             ) : (
               <tr>
                 <td colSpan="9" className="text-center">
+                  {/* Show message only when no filters are applied and no deliveries are available */}
                   {filters.campus || filters.person || filters.orderId || filters.status
                     ? 'No deliveries found matching your criteria'
-                    : 'Select a filter to view deliveries'}
+                    : 'No deliveries available'}
                 </td>
               </tr>
             )}

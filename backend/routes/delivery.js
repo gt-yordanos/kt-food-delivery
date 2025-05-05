@@ -40,6 +40,14 @@ router.put(
   verifyDeliveryByCustomer
 );
 
+// Get all deliveries
+router.get(
+  '/all',
+  authenticateToken,
+  authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']),
+  getAllDeliveries
+);
+
 // Get delivery by ID
 router.get(
   '/:deliveryId',
@@ -94,14 +102,6 @@ router.get(
   authenticateToken,
   authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']),
   getDeliveriesByStatus
-);
-
-// Get all deliveries
-router.get(
-  '/all',
-  authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']),  // Ensure proper authorization
-  getAllDeliveries
 );
 
 export default router;
