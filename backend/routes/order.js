@@ -15,7 +15,7 @@ import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.
 const router = express.Router();
 
 router.post('/', authenticateToken, authorizeRoles(['customer']), createOrder);
-router.get('/', authenticateToken, authorizeRoles(['admin']), getAllOrders);
+router.get('/', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllOrders);
 router.get('/customer/:customerId', authenticateToken, authorizeRoles(['restaurantOwner', 'customer']), getOrdersByCustomerId);
 router.get('/status/:status', authenticateToken, authorizeRoles(['restaurantOwner']), getOrdersByStatus);
 router.patch('/:orderId/status', authenticateToken, authorizeRoles(['restaurantOwner']), updateOrderStatus);

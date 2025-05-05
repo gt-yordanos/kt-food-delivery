@@ -163,3 +163,25 @@ export const searchDeliveryPerson = async (req, res) => {
     res.status(500).json({ message: 'Failed to search delivery persons' });
   }
 };
+
+// Get delivery persons by campus with incomplete deliveries
+export const getDeliveryPersonsByCampusWithActiveDeliveries = async (req, res) => {
+  try {
+    const { campus } = req.params;
+
+    const deliveryPersons = await DeliveryPerson.find({ campus })
+      .populate({
+        path: 'deliveries',
+        match: { status: { $ne: 'completed' } }, // only deliveries not completed
+      });
+
+    if (deliveryPersons.length === 0) {
+      return res.status(404).json({ message: 'No delivery persons found for this campus' });
+    }
+
+    res.status(200).json(deliveryPersons);
+  } catch (error) {
+    console.error('Error fetching delivery persons by campus:', error);
+    res.status(500).json({ message: 'Failed to fetch delivery persons by campus' });
+  }
+};

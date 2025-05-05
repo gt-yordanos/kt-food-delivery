@@ -8,7 +8,7 @@ export const initiateChapaPayment = async (paymentData) => {
   try {
     // Log Chapa API URL and Authorization Key
     console.log('Chapa API URL:', CHAPA_API_URL);
-    console.log('Chapa Auth Key:', CHAPA_AUTH_KEY); // NOTE: Be careful logging sensitive data like API keys in production
+    console.log('Chapa Auth Key:', CHAPA_AUTH_KEY);
 
     console.log('Payment Data:', paymentData);
 

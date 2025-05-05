@@ -1,46 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../../api';
 
 const Order = () => {
-  const [orders, setOrders] = useState([
-    {
-      id: 1,
-      orderId: 'ORD1001',
-      customerName: 'John Doe',
-      items: ['Laptop', 'Mouse'],
-      totalAmount: '$1200',
-      status: 'Processing',
-    },
-    {
-      id: 2,
-      orderId: 'ORD1002',
-      customerName: 'Sara Johnson',
-      items: ['Smartphone'],
-      totalAmount: '$699',
-      status: 'Confirmed',
-    },
-    {
-      id: 3,
-      orderId: 'ORD1003',
-      customerName: 'Abdul Rahman',
-      items: ['Headphones', 'Charger'],
-      totalAmount: '$150',
-      status: 'Shipped',
-    },
-  ]);
-
+  const [orders, setOrders] = useState([]);
   const [loadingId, setLoadingId] = useState(null);
+  const [error, setError] = useState(null);
+
+  // Function to fetch orders from the API
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch(api.getAllOrders, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders. Status: ' + response.status);
+      }
+
+      const data = await response.json();
+      console.log(data); // Log the response data
+      if (Array.isArray(data)) {
+        setOrders(data);
+        console.log(orders)
+      } else {
+        setError('Unexpected data format');
+      }
+    } catch (err) {
+      setError('Error: ' + err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders(); // Call the fetchOrders function on component mount
+  }, []);
 
   const handleConfirmOrder = (id) => {
     setLoadingId(id);
     setTimeout(() => {
       setOrders((prev) =>
         prev.map((order) =>
-          order.id === id ? { ...order, status: 'Confirmed' } : order
+          order._id === id ? { ...order, status: 'Confirmed' } : order
         )
       );
       setLoadingId(null);
     }, 1000);
   };
+
+  if (error) {
+    return <div className="alert alert-error">{error}</div>;
+  }
+
+  if (!Array.isArray(orders)) {
+    return <div>Loading or No Orders Found</div>;
+  }
 
   return (
     <div className="p-6 bg-base-100 rounded-lg shadow-md h-full">
@@ -49,7 +64,6 @@ const Order = () => {
         <table className="table table-zebra w-full">
           <thead>
             <tr>
-              <th>Order ID</th>
               <th>Customer</th>
               <th>Items</th>
               <th>Total</th>
@@ -59,17 +73,16 @@ const Order = () => {
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id}>
-                <td>{order.orderId}</td>
+              <tr key={order._id}>
                 <td>{order.customerName}</td>
                 <td>
                   <ul className="list-disc pl-4">
                     {order.items.map((item, index) => (
-                      <li key={index}>{item}</li>
+                      <li key={index}>{item.name}</li>
                     ))}
                   </ul>
                 </td>
-                <td>{order.totalAmount}</td>
+                <td>{order.totalPrice}</td>
                 <td>
                   <span
                     className={`badge ${
@@ -84,13 +97,13 @@ const Order = () => {
                   </span>
                 </td>
                 <td>
-                  {order.status === 'Processing' && (
+                  {order.status === 'inProgress' && (
                     <button
                       className="btn btn-primary btn-sm"
-                      onClick={() => handleConfirmOrder(order.id)}
-                      disabled={loadingId === order.id}
+                      onClick={() => handleConfirmOrder(order._id)}
+                      disabled={loadingId === order._id}
                     >
-                      {loadingId === order.id ? (
+                      {loadingId === order._id ? (
                         <span className="loading loading-spinner loading-sm"></span>
                       ) : (
                         'Confirm'

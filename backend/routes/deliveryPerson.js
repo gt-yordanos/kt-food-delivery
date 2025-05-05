@@ -5,7 +5,8 @@ import {
   updateDeliveryPerson, 
   deleteDeliveryPerson, 
   getAllDeliveryPersons, 
-  searchDeliveryPerson 
+  searchDeliveryPerson,
+  getDeliveryPersonsByCampusWithActiveDeliveries 
 } from '../controllers/deliveryPerson.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
@@ -17,5 +18,6 @@ router.put('/update/:deliveryPersonId', authenticateToken, authorizeRoles(['admi
 router.delete('/delete/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), deleteDeliveryPerson);
 router.get('/all', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllDeliveryPersons);
 router.get('/search', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), searchDeliveryPerson);
+router.get('/campus/:campus/active-deliveries', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getDeliveryPersonsByCampusWithActiveDeliveries);
 
 export default router;

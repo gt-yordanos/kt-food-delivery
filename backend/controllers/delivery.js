@@ -1,76 +1,168 @@
+import { Order } from '../models/Order.js';
 import { Delivery } from '../models/Delivery.js';
+import { DeliveryPerson } from '../models/DeliveryPerson.js';
+import { Customer } from '../models/Customer.js';
 
-// Create a delivery (Assign a delivery person) - Only Admin or Restaurant Owner
+// Create a new delivery
 export const createDelivery = async (req, res) => {
   try {
     const { orderId, deliveryPersonId } = req.body;
 
-    const existingDelivery = await Delivery.findOne({ order: orderId });
-    if (existingDelivery) {
-      return res.status(400).json({ message: 'Delivery already assigned for this order' });
+    const order = await Order.findById(orderId).populate('customer');
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.paymentStatus !== 'paid' || order.status !== 'inProgress') {
+      return res.status(400).json({ message: 'Order must be paid and in progress to assign delivery' });
     }
 
-    const newDelivery = new Delivery({
-      order: orderId,
-      deliveryPerson: deliveryPersonId,
+    const deliveryPerson = await DeliveryPerson.findById(deliveryPersonId);
+    if (!deliveryPerson) return res.status(404).json({ message: 'Delivery person not found' });
+
+    if (order.campus !== deliveryPerson.campus) {
+      return res.status(400).json({ message: 'Delivery person and order campus must match' });
+    }
+
+    const delivery = await Delivery.create({
+      order: order._id,
+      deliveryPerson: deliveryPerson._id,
+      deliveryStatus: 'pending',
     });
 
-    await newDelivery.save();
-    res.status(201).json({ message: 'Delivery created successfully', delivery: newDelivery });
+    // Add delivery to deliveryPerson
+    deliveryPerson.deliveries.push(delivery._id);
+    await deliveryPerson.save();
+
+    const fullDelivery = await Delivery.findById(delivery._id)
+      .populate({
+        path: 'order',
+        populate: {
+          path: 'customer',
+          select: 'firstName lastName email',
+        },
+      })
+      .populate('deliveryPerson', 'firstName lastName email campus');
+
+    res.status(201).json({ message: 'Delivery created successfully', delivery: fullDelivery });
   } catch (error) {
-    console.error(error);
+    console.error('Create Delivery Error:', error);
     res.status(500).json({ message: 'Failed to create delivery' });
   }
 };
 
-// Get delivery details (Admin or Restaurant Owner)
-export const getDeliveryDetails = async (req, res) => {
+// Update delivery status
+export const updateDeliveryStatus = async (req, res) => {
   try {
-    const { orderId } = req.params;
+    const { deliveryId } = req.params;
+    const { status } = req.body;
 
-    const delivery = await Delivery.findOne({ order: orderId }).populate('deliveryPerson', 'name');
-
-    if (!delivery) {
-      return res.status(404).json({ message: 'No delivery found for this order' });
+    const allowedStatuses = ['pending', 'inProgress', 'delivered'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid delivery status' });
     }
 
-    res.status(200).json(delivery);
+    const delivery = await Delivery.findById(deliveryId);
+    if (!delivery) return res.status(404).json({ message: 'Delivery not found' });
+
+    delivery.deliveryStatus = status;
+    if (status === 'delivered') delivery.deliveredAt = new Date();
+    await delivery.save();
+
+    res.status(200).json({ message: 'Delivery status updated', delivery });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to get delivery details' });
+    console.error('Update Delivery Status Error:', error);
+    res.status(500).json({ message: 'Failed to update delivery status' });
   }
 };
 
-// Change delivery status (Only Delivery Person)
-export const changeDeliveryStatus = async (req, res) => {
+// Get delivery by ID
+export const getDeliveryById = async (req, res) => {
   try {
     const { deliveryId } = req.params;
-    const { deliveryStatus } = req.body;
-    const deliveryPersonId = req.user._id;
 
-    const delivery = await Delivery.findById(deliveryId);
+    const delivery = await Delivery.findById(deliveryId)
+      .populate({
+        path: 'order',
+        populate: {
+          path: 'customer',
+        },
+      })
+      .populate('deliveryPerson');
 
-    if (!delivery) {
-      return res.status(404).json({ message: 'Delivery not found' });
-    }
+    if (!delivery) return res.status(404).json({ message: 'Delivery not found' });
 
-    // Ensure only the assigned delivery person can update the status
-    if (delivery.deliveryPerson.toString() !== deliveryPersonId.toString()) {
-      return res.status(403).json({ message: 'Unauthorized to update this delivery' });
-    }
-
-    let updateFields = { deliveryStatus };
-
-    // If status is changed to 'delivered', update deliveredAt timestamp
-    if (deliveryStatus === 'delivered') {
-      updateFields.deliveredAt = new Date();
-    }
-
-    const updatedDelivery = await Delivery.findByIdAndUpdate(deliveryId, updateFields, { new: true });
-
-    res.status(200).json({ message: 'Delivery status changed successfully', delivery: updatedDelivery });
+    res.status(200).json(delivery);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to change delivery status' });
+    console.error('Get Delivery By ID Error:', error);
+    res.status(500).json({ message: 'Failed to fetch delivery' });
+  }
+};
+
+// Get deliveries by delivery person
+export const getDeliveriesByPerson = async (req, res) => {
+  try {
+    const { deliveryPersonId } = req.params;
+
+    const deliveries = await Delivery.find({ deliveryPerson: deliveryPersonId })
+      .populate('order')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get Deliveries By Person Error:', error);
+    res.status(500).json({ message: 'Failed to fetch deliveries' });
+  }
+};
+
+// Get deliveries by campus
+export const getDeliveriesByCampus = async (req, res) => {
+  try {
+    const { campus } = req.params;
+
+    const deliveryPersons = await DeliveryPerson.find({ campus }).select('_id');
+    const deliveryPersonIds = deliveryPersons.map(dp => dp._id);
+
+    const deliveries = await Delivery.find({ deliveryPerson: { $in: deliveryPersonIds } })
+      .populate('order deliveryPerson');
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get Deliveries By Campus Error:', error);
+    res.status(500).json({ message: 'Failed to fetch campus deliveries' });
+  }
+};
+
+// Get deliveries by day
+export const getDeliveriesByDay = async (req, res) => {
+  try {
+    const { date } = req.query; // Expecting YYYY-MM-DD
+    const start = new Date(date);
+    const end = new Date(date);
+    end.setDate(end.getDate() + 1);
+
+    const deliveries = await Delivery.find({ createdAt: { $gte: start, $lt: end } })
+      .populate('order deliveryPerson');
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get Deliveries By Day Error:', error);
+    res.status(500).json({ message: 'Failed to fetch deliveries for the day' });
+  }
+};
+
+// Get deliveries by hour
+export const getDeliveriesByHour = async (req, res) => {
+  try {
+    const { date, hour } = req.query; // Expecting date as YYYY-MM-DD and hour as 0–23
+    const base = new Date(date);
+    const start = new Date(base.setHours(hour, 0, 0, 0));
+    const end = new Date(base.setHours(hour + 1, 0, 0, 0));
+
+    const deliveries = await Delivery.find({ createdAt: { $gte: start, $lt: end } })
+      .populate('order deliveryPerson');
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get Deliveries By Hour Error:', error);
+    res.status(500).json({ message: 'Failed to fetch deliveries for the hour' });
   }
 };

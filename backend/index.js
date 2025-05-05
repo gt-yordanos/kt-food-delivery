@@ -14,6 +14,7 @@ import orderRoutes from './routes/order.js';
 import restaurantRoutes from './routes/restaurant.js';
 import restaurantOwnerRoutes from './routes/restaurantOwner.js';
 import cartRoutes from './routes/cart.js';
+import { checkPendingPayments } from './services/paymentChecker.js';
 
 dotenv.config();
 
@@ -34,6 +35,10 @@ app.use(
 
 connectDB();
 app.use(express.json());
+
+setInterval(() => {
+  checkPendingPayments();
+}, 10000);
 
 // Register routes
 app.use('/api/admin', adminRoutes);
