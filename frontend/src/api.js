@@ -25,11 +25,6 @@ const api = {
   searchRestaurantOwner: `${BASE_URL}/restaurant-owners/search`,
   deleteRestaurantOwner: `${BASE_URL}/restaurant-owners/delete/{ownerId}`,
 
-  // Delivery Routes
-  createDelivery: `${BASE_URL}/delivery/create`,
-  getDeliveryDetails: `${BASE_URL}/delivery/details/{orderId}`,
-  changeDeliveryStatus: `${BASE_URL}/delivery/change-status/{deliveryId}`,
-
   // Delivery Person Routes
   addDeliveryPerson: `${BASE_URL}/delivery-persons/add`,
   loginDeliveryPerson: `${BASE_URL}/delivery-persons/login`,
@@ -37,6 +32,16 @@ const api = {
   deleteDeliveryPerson: `${BASE_URL}/delivery-persons/delete/{deliveryPersonId}`,
   getAllDeliveryPersons: `${BASE_URL}/delivery-persons/all`,
   searchDeliveryPerson: `${BASE_URL}/delivery-persons/search`,
+  getActiveDeliveryPersonsByCampus: `${BASE_URL}/delivery-persons/campus/{campus}/active-deliveries`,
+
+  // Delivery Routes
+  createDelivery: `${BASE_URL}/delivery/create`,
+  updateDeliveryStatus: `${BASE_URL}/delivery/change-status/{deliveryId}`,
+  getDeliveryById: `${BASE_URL}/delivery/{deliveryId}`,
+  getDeliveriesByPerson: `${BASE_URL}/delivery/by-person/{deliveryPersonId}`,
+  getDeliveriesByCampus: `${BASE_URL}/delivery/by-campus/{campus}`,
+  getDeliveriesByDay: `${BASE_URL}/delivery/by-day?date={date}`, // Format: YYYY-MM-DD
+  getDeliveriesByHour: `${BASE_URL}/delivery/by-hour?date={date}&hour={hour}`, // hour: 0-23
 
   // Menu Routes
   addMenuItem: `${BASE_URL}/menu`,
@@ -59,11 +64,11 @@ const api = {
   getOrdersByStatus: `${BASE_URL}/orders/status/{status}`,
   updateOrderStatus: `${BASE_URL}/orders/{orderId}/status`,
   trackOrder: `${BASE_URL}/orders/track/{orderId}`,
-  
+
   // Payment Routes
   verifyChapaPayment: `${BASE_URL}/orders/payments/chapa/verify/{tx_ref}`,
   chapaPaymentCallback: `${BASE_URL}/orders/payments/chapa/callback`,
-  
+
   // Restaurant Routes
   addRestaurant: `${BASE_URL}/restaurants/add`,
   updateRestaurant: `${BASE_URL}/restaurants/update`,
