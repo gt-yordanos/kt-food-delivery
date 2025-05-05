@@ -78,6 +78,6 @@ router.get(
   getDeliveriesByHour
 );
 
-app.get('/deliveries/order/:orderId', authenticateToken,
+router.get('/order/:orderId', authenticateToken,
   authorizeRoles(['admin', 'restaurantOwner']), getDeliveriesByOrderId);
 export default router;

@@ -12,6 +12,11 @@ const deliverySchema = new mongoose.Schema({
     ref: 'DeliveryPerson',
     required: true,
   },
+  customer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Customer',
+    required: true,
+  },
   deliveryStatus: {
     type: String,
     enum: ['pending', 'inProgress', 'delivered'],
