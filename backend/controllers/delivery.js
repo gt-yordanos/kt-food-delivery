@@ -9,7 +9,7 @@ export const createDelivery = async (req, res) => {
     const { orderId, deliveryPersonId } = req.body;
 
     // Validate order exists and populate customer
-    const order = await Order.findById(orderId).populate('customer');  // Populate customer here
+    const order = await Order.findById(orderId).populate('customer');
     if (!order) {
       return res.status(404).json({ 
         success: false,
@@ -52,13 +52,13 @@ export const createDelivery = async (req, res) => {
     }
 
     // Access customer data from the populated order
-    const customer = order.customer;  // Access the customer from the populated order
+    const customer = order.customer;
 
     // Create delivery
     const delivery = await Delivery.create({
       order: order._id,
       deliveryPerson: deliveryPerson._id,
-      customer: customer._id,  // Explicitly associate the customer
+      customer: customer._id,
       deliveryStatus: 'pending',
     });
 
@@ -67,7 +67,7 @@ export const createDelivery = async (req, res) => {
     await deliveryPerson.save();
 
     // Update order status
-    order.status = 'completed';  // Mark the order as completed
+    order.status = 'completed';
     await order.save();
 
     // Return success response
@@ -78,7 +78,7 @@ export const createDelivery = async (req, res) => {
         deliveryId: delivery._id,
         orderId: order._id,
         deliveryPersonId: deliveryPerson._id,
-        customerId: customer._id,  // Include customer ID in the response
+        customerId: customer._id,
         status: 'pending'
       }
     });
@@ -118,6 +118,22 @@ export const updateDeliveryStatus = async (req, res) => {
     res.status(500).json({ message: 'Failed to update delivery status' });
   }
 };
+
+// Get all deliveries
+export const getAllDeliveries = async (req, res) => {
+  try {
+    const deliveries = await Delivery.find()
+      .populate('order')
+      .populate('deliveryPerson')
+      .populate('customer');  // Populate customer details as well
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get All Deliveries Error:', error);
+    res.status(500).json({ message: 'Failed to fetch deliveries' });
+  }
+};
+
 
 // ✅ Customer verifies delivery
 export const verifyDeliveryByCustomer = async (req, res) => {
