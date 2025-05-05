@@ -1,12 +1,12 @@
 import React from 'react'
 import Navbar from '../../components/DeliveryPerson/Navbar'
 
-const DeliveryPerson = () => {
+const DeliveryPersonPage = () => {
   return (
-    <div>
+    <>
       <Navbar/>
-    </div>
+    </>
   )
 }
 
-export default DeliveryPerson
+export default DeliveryPersonPage

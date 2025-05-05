@@ -11,12 +11,12 @@ const Login = ({ loginApi, redirectLink }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
-  const { loading, login, user } = useAuth();
+  const { loading, login, user } = useAuth(); // Make sure user is from context
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Check user role and navigate accordingly
   useEffect(() => {
-    // If user is already logged in and their role matches, redirect to the appropriate page
     if (user) {
       switch (user.role) {
         case 'admin':
@@ -59,23 +59,7 @@ const Login = ({ loginApi, redirectLink }) => {
       if (response.data?.token) {
         login(response.data.token);
         toast.success('Login successful!');
-        // Redirect based on user role after login
-        switch (response.data.user.role) {
-          case 'admin':
-            navigate('/admin/dashboard');
-            break;
-          case 'restaurantOwner':
-            navigate('/owner/dashboard');
-            break;
-          case 'deliveryPerson':
-            navigate('/delivery-person');
-            break;
-          case 'customer':
-            navigate('/');
-            break;
-          default:
-            break;
-        }
+        navigate(redirectLink);
       } else {
         throw new Error('Invalid credentials or server error');
       }

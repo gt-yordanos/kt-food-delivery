@@ -1,87 +1,114 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaUserAlt, FaBox, FaSignOutAlt } from 'react-icons/fa';
+import { UserRound } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import axios from 'axios';
+import api from '../../api';
+import ThemeToggle from '../shared/ThemeToggle';
 
 const Navbar = () => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const [customerData, setCustomerData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [campusName, setCampusName] = useState('');
 
-  const handleDrawerToggle = () => {
-    setDrawerOpen(!drawerOpen);
+  const isDeliveryPerson = user?.role === 'deliveryPerson';
+
+  useEffect(() => {
+    const fetchCustomerData = async () => {
+      if (isDeliveryPerson && user?.id) {
+        setLoading(true);
+        try {
+          const headers = getAuthHeader();
+          const response = await axios.get(
+            api.getDeliveryPersonById.replace('{deliveryPersonId}', user.id),
+            { headers }
+          );
+          setCustomerData(response.data);
+
+          if (response.data?.campus) {
+            setCampusName(response.data.campus);
+          }
+        } catch (error) {
+          console.error('Failed to fetch delivery person data:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchCustomerData();
+  }, [isDeliveryPerson, user?.id]);
+
+  const getAuthHeader = () => {
+    const token = localStorage.getItem('authToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const getAvatarContent = () => {
+    if (isDeliveryPerson && customerData?.firstName) {
+      return customerData.firstName.charAt(0).toUpperCase();
+    }
+    return <UserRound className="w-6 h-6" />;
+  };
+
+  const getWelcomeName = () => {
+    if (isDeliveryPerson && customerData?.firstName) {
+      return customerData.firstName;
+    }
+    return 'KT Delivery Person';
   };
 
   return (
-    <div className="navbar bg-base-200 fixed top-0 left-0 w-full z-10">
-      {/* Mobile Drawer Button */}
-      <div className="flex-1 lg:hidden">
-        <button
-          className="btn btn-ghost text-2xl"
-          onClick={handleDrawerToggle}
-        >
-          ☰
-        </button>
+    <div className="py-2 px-4 sm:px-[5%] lg:px-[15%] bg-base-300 shadow-md fixed top-0 left-0 w-full z-50 relative h-[72px] flex items-center">
+      
+      {/* Left Section */}
+      <div className="absolute left-4 sm:left-[5%] lg:left-[15%]">
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-full text-xl font-extrabold shadow-lg">
+          KT Delivery Person
+        </div>
       </div>
 
-      {/* Navbar Center (Logo and Title) */}
-      <div className="flex-1 hidden lg:flex justify-center items-center">
-        <span className="text-2xl font-bold">Delivery</span>
+      {/* Center Section */}
+      <div className="mx-auto">
+        <div className="bg-gradient-to-r from-green-400 to-teal-500 text-white px-4 py-2 rounded-full text-lg font-semibold shadow-md">
+          Campus: {campusName || 'Not Available'}
+        </div>
       </div>
 
-      {/* Desktop Navbar Links */}
-      <div className="flex-none hidden lg:flex gap-4">
-        <Link to="/home" className="btn btn-ghost">
-          <FaHome className="mr-2" />
-          Home
-        </Link>
-        <Link to="/profile" className="btn btn-ghost">
-          <FaUserAlt className="mr-2" />
-          Profile
-        </Link>
-        <Link to="/orders" className="btn btn-ghost">
-          <FaBox className="mr-2" />
-          Orders
-        </Link>
-        <button className="btn btn-ghost">
-          <FaSignOutAlt className="mr-2" />
-          Logout
-        </button>
-      </div>
-
-      {/* Mobile Drawer Menu */}
-      <div
-        className={`drawer ${drawerOpen ? 'drawer-open' : ''} lg:hidden`}
-      >
-        <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content">
-          {/* Mobile Menu content (will appear when drawer is open) */}
-          <div className="drawer-side">
-            <label htmlFor="my-drawer" className="drawer-overlay"></label>
-            <ul className="menu p-4 w-60 bg-base-100 text-base-content">
-              <li>
-                <Link to="/home" className="btn btn-ghost">
-                  <FaHome className="mr-2" />
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/profile" className="btn btn-ghost">
-                  <FaUserAlt className="mr-2" />
-                  Profile
-                </Link>
-              </li>
-              <li>
-                <Link to="/orders" className="btn btn-ghost">
-                  <FaBox className="mr-2" />
-                  Orders
-                </Link>
-              </li>
-              <li>
-                <button className="btn btn-ghost">
-                  <FaSignOutAlt className="mr-2" />
-                  Logout
-                </button>
-              </li>
-            </ul>
+      {/* Right Section */}
+      <div className="absolute right-4 sm:right-[5%] lg:right-[15%] flex items-center gap-4">
+        <div className="dropdown dropdown-end">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-ghost btn-circle avatar bg-amber-500 hover:bg-amber-600 text-black"
+          >
+            {getAvatarContent()}
           </div>
+          <ul
+            tabIndex={0}
+            className="mt-6 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-300 rounded-box w-52"
+          >
+            {isDeliveryPerson && (
+              <>
+                <li className="menu-title">
+                  <span>Welcome, {getWelcomeName()}</span>
+                </li>
+                <li>
+                  <Link to="/profile" className="justify-between">
+                    Profile
+                  </Link>
+                </li>
+                <li>
+                  <button onClick={logout}>Logout</button>
+                </li>
+                <li>
+                  <ThemeToggle />
+                </li>
+              </>
+            )}
+          </ul>
         </div>
       </div>
     </div>

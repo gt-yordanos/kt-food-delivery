@@ -3,6 +3,7 @@ import {
   addDeliveryPerson, 
   loginDeliveryPerson, 
   updateDeliveryPerson, 
+  getDeliveryPersonById,
   deleteDeliveryPerson, 
   getAllDeliveryPersons, 
   searchDeliveryPerson,
@@ -14,8 +15,9 @@ const router = express.Router();
 
 router.post('/add', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), addDeliveryPerson);
 router.post('/login', loginDeliveryPerson);
-router.put('/update/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), updateDeliveryPerson);
+router.put('/update/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']), updateDeliveryPerson);
 router.delete('/delete/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), deleteDeliveryPerson);
+router.get('/get/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']), getDeliveryPersonById);
 router.get('/all', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllDeliveryPersons);
 router.get('/search', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), searchDeliveryPerson);
 router.get('/campus/:campus/active-deliveries', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getDeliveryPersonsByCampusWithActiveDeliveries);

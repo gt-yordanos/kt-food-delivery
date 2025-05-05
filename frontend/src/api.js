@@ -34,6 +34,7 @@ const api = {
   getAllDeliveryPersons: `${BASE_URL}/delivery-persons/all`,
   searchDeliveryPerson: `${BASE_URL}/delivery-persons/search`,
   getActiveDeliveryPersonsByCampus: `${BASE_URL}/delivery-persons/campus/{campus}/active-deliveries`,
+  getDeliveryPersonById: `${BASE_URL}/delivery-persons/get/{deliveryPersonId}`,
 
   // Delivery Routes
   createDelivery: `${BASE_URL}/delivery/create`,

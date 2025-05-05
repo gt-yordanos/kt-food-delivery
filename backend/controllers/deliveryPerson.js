@@ -73,6 +73,25 @@ export const loginDeliveryPerson = async (req, res) => {
   }
 };
 
+// Get a single delivery person by ID
+export const getDeliveryPersonById = async (req, res) => {
+  try {
+    const { deliveryPersonId } = req.params;
+
+    // Find the delivery person by ID
+    const deliveryPerson = await DeliveryPerson.findById(deliveryPersonId).populate('deliveries'); // Optionally populate the deliveries
+
+    if (!deliveryPerson) {
+      return res.status(404).json({ message: 'Delivery person not found' });
+    }
+
+    res.status(200).json(deliveryPerson);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch delivery person' });
+  }
+};
+
 // Update delivery person (Admin & RestaurantOwner)
 export const updateDeliveryPerson = async (req, res) => {
   try {
