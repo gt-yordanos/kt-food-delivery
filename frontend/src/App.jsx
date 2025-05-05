@@ -28,6 +28,7 @@ import Cart from './pages/customer/Cart';
 import Checkout from './pages/customer/CheckOut';
 import PaymentVerification from './pages/customer/PaymentVerification';
 import DeliveryPerson from './pages/shared/DeliveryPerson';
+import Unauthorized from './pages/shared/Unauthorized';
 
 const App = () => {
   return (
@@ -37,7 +38,7 @@ const App = () => {
           <Route path="/admin/login" element={<ProtectedRoute><Login loginApi={api.loginAdmin} redirectLink="/admin/dashboard" /></ProtectedRoute>} />
           <Route path="/owner/login" element={<ProtectedRoute><Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" /></ProtectedRoute>} />
           <Route path="/delivery-person/login" element={<ProtectedRoute><Login loginApi={api.loginRestaurantOwner} redirectLink="/delivery-person" /></ProtectedRoute>} />
-
+          <Route path="/unauthorized" element={<Unauthorized/>} />
           {/* Customer*/}
           <Route path="/login" 
           element={
