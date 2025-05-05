@@ -10,12 +10,25 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <div>Loading...</div>;
   }
 
-  // If user is not logged in, redirect to the appropriate login page based on the route
+  // If the user is logged in, redirect to the appropriate dashboard based on the role
+  if (user) {
+    if (location.pathname === `/admin/login` && user.role === 'admin') {
+      return <Navigate to="/admin/dashboard" />;
+    } else if (location.pathname === `/owner/login` && user.role === 'restaurantOwner') {
+      return <Navigate to="/owner/dashboard" />;
+    } else if (location.pathname === `/delivery-person/login` && user.role === 'deliveryPerson') {
+      return <Navigate to="/delivery-person" />;
+    }
+  }
+
+  // If the user is not logged in, redirect to the appropriate login page based on the route
   if (!user) {
     if (location.pathname.startsWith('/admin')) {
       return <Navigate to="/admin/login" state={{ from: location }} />;
     } else if (location.pathname.startsWith('/owner')) {
       return <Navigate to="/owner/login" state={{ from: location }} />;
+    } else if (location.pathname.startsWith('/delivery-person')) {
+      return <Navigate to="/delivery-person/login" state={{ from: location }} />;
     } else {
       return <Navigate to="/login" state={{ from: location }} />;
     }

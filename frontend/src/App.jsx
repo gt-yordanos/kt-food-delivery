@@ -27,14 +27,16 @@ import Profile from './pages/customer/Profile';
 import Cart from './pages/customer/Cart';
 import Checkout from './pages/customer/CheckOut';
 import PaymentVerification from './pages/customer/PaymentVerification';
+import DeliveryPerson from './pages/shared/DeliveryPerson';
 
 const App = () => {
   return (
       <Router>
         <Routes>
           {/* Public Routes */}
-          <Route path="/admin/login" element={<Login loginApi={api.loginAdmin} redirectLink="/admin/dashboard" />} />
-          <Route path="/owner/login" element={<Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" />} />
+          <Route path="/admin/login" element={<ProtectedRoute><Login loginApi={api.loginAdmin} redirectLink="/admin/dashboard" /></ProtectedRoute>} />
+          <Route path="/owner/login" element={<ProtectedRoute><Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" /></ProtectedRoute>} />
+          <Route path="/delivery-person/login" element={<ProtectedRoute><Login loginApi={api.loginRestaurantOwner} redirectLink="/delivery-person" /></ProtectedRoute>} />
 
           {/* Customer*/}
           <Route path="/login" 
@@ -123,6 +125,9 @@ const App = () => {
           <Route path="/owner/delivery-people" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageDeliveryPeople /></OwnerLayout></ProtectedRoute>} />
           <Route path="/owner/delivery" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageDelivery /></OwnerLayout></ProtectedRoute>} />
           <Route path="/owner/orders" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageOrder /></OwnerLayout></ProtectedRoute>} />
+
+          {/* DekiveryPerson Routes */}
+          <Route path="/delivery-person" element={<ProtectedRoute requiredRole="deliveryPerson"><DeliveryPerson/></ProtectedRoute>} />
         </Routes>
       </Router>
   );
