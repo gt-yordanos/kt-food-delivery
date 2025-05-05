@@ -40,9 +40,10 @@ const api = {
   getDeliveryById: `${BASE_URL}/delivery/{deliveryId}`,
   getDeliveriesByPerson: `${BASE_URL}/delivery/by-person/{deliveryPersonId}`,
   getDeliveriesByCampus: `${BASE_URL}/delivery/by-campus/{campus}`,
-  getDeliveriesByDay: `${BASE_URL}/delivery/by-day?date={date}`, // Format: YYYY-MM-DD
-  getDeliveriesByHour: `${BASE_URL}/delivery/by-hour?date={date}&hour={hour}`, // hour: 0-23
-  getDeliveriesByOrderId: `${BASE_URL}/delivery/order/{orderId}`, // Newly added route to search by order ID
+  getDeliveriesByDay: `${BASE_URL}/delivery/by-day?date={date}`,
+  getDeliveriesByHour: `${BASE_URL}/delivery/by-hour?date={date}&hour={hour}`,
+  getDeliveriesByOrderId: `${BASE_URL}/delivery/order/{orderId}`,
+  getDeliveriesByStatus: `${BASE_URL}/delivery/status/{status}`,
 
   // Menu Routes
   addMenuItem: `${BASE_URL}/menu`,

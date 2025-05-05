@@ -1,13 +1,15 @@
 import { Order } from '../models/Order.js';
 import { Delivery } from '../models/Delivery.js';
 import { DeliveryPerson } from '../models/DeliveryPerson.js';
+import { Customer } from '../models/Customer.js';
+import mongoose from 'mongoose';
 
 export const createDelivery = async (req, res) => {
   try {
     const { orderId, deliveryPersonId } = req.body;
 
-    // Validate order exists
-    const order = await Order.findById(orderId);
+    // Validate order exists and populate customer
+    const order = await Order.findById(orderId).populate('customer');  // Populate customer here
     if (!order) {
       return res.status(404).json({ 
         success: false,
@@ -49,19 +51,23 @@ export const createDelivery = async (req, res) => {
       });
     }
 
+    // Access customer data from the populated order
+    const customer = order.customer;  // Access the customer from the populated order
+
     // Create delivery
     const delivery = await Delivery.create({
       order: order._id,
       deliveryPerson: deliveryPerson._id,
+      customer: customer._id,  // Explicitly associate the customer
       deliveryStatus: 'pending',
     });
 
-    // Update delivery person
+    // Update delivery person (Add the new delivery to the delivery person's deliveries)
     deliveryPerson.deliveries.push(delivery._id);
     await deliveryPerson.save();
 
     // Update order status
-    order.status = 'completed';
+    order.status = 'completed';  // Mark the order as completed
     await order.save();
 
     // Return success response
@@ -72,6 +78,7 @@ export const createDelivery = async (req, res) => {
         deliveryId: delivery._id,
         orderId: order._id,
         deliveryPersonId: deliveryPerson._id,
+        customerId: customer._id,  // Include customer ID in the response
         status: 'pending'
       }
     });
@@ -145,10 +152,11 @@ export const getDeliveryById = async (req, res) => {
       .populate({
         path: 'order',
         populate: {
-          path: 'customer',
+          path: 'customer', // This ensures the customer data is populated within the order
         },
       })
-      .populate('deliveryPerson');
+      .populate('deliveryPerson')
+      .populate('customer');  // Explicitly populate customer here as well
 
     if (!delivery) return res.status(404).json({ message: 'Delivery not found' });
 
@@ -166,6 +174,7 @@ export const getDeliveriesByPerson = async (req, res) => {
 
     const deliveries = await Delivery.find({ deliveryPerson: deliveryPersonId })
       .populate('order')
+      .populate('customer')  // Populate customer in deliveries
       .sort({ createdAt: -1 });
 
     res.status(200).json(deliveries);
@@ -184,7 +193,8 @@ export const getDeliveriesByCampus = async (req, res) => {
     const deliveryPersonIds = deliveryPersons.map(dp => dp._id);
 
     const deliveries = await Delivery.find({ deliveryPerson: { $in: deliveryPersonIds } })
-      .populate('order deliveryPerson');
+      .populate('order deliveryPerson')
+      .populate('customer');  // Populate customer here as well
 
     res.status(200).json(deliveries);
   } catch (error) {
@@ -202,7 +212,8 @@ export const getDeliveriesByDay = async (req, res) => {
     end.setDate(end.getDate() + 1);
 
     const deliveries = await Delivery.find({ createdAt: { $gte: start, $lt: end } })
-      .populate('order deliveryPerson');
+      .populate('order deliveryPerson')
+      .populate('customer');  // Populate customer here as well
 
     res.status(200).json(deliveries);
   } catch (error) {
@@ -220,7 +231,8 @@ export const getDeliveriesByHour = async (req, res) => {
     const end = new Date(base.setHours(hour + 1, 0, 0, 0));
 
     const deliveries = await Delivery.find({ createdAt: { $gte: start, $lt: end } })
-      .populate('order deliveryPerson');
+      .populate('order deliveryPerson')
+      .populate('customer');  // Populate customer here as well
 
     res.status(200).json(deliveries);
   } catch (error) {
@@ -232,16 +244,24 @@ export const getDeliveriesByHour = async (req, res) => {
 // Get deliveries by orderId
 export const getDeliveriesByOrderId = async (req, res) => {
   try {
-    const { orderId } = req.params;
+    let { orderId } = req.params;
+
+    // If orderId is a string and looks like a valid ObjectId, cast it
+    if (mongoose.Types.ObjectId.isValid(orderId)) {
+      orderId = mongoose.Types.ObjectId(orderId);
+    } else {
+      return res.status(400).json({ message: 'Invalid Order ID format' });
+    }
 
     const delivery = await Delivery.findOne({ order: orderId })
       .populate({
         path: 'order',
         populate: {
-          path: 'customer',
+          path: 'customer', // Populate the customer inside order
         },
       })
-      .populate('deliveryPerson');
+      .populate('deliveryPerson')
+      .populate('customer');  // Populate customer here as well
 
     if (!delivery) {
       return res.status(404).json({ message: 'Delivery not found for this order ID' });
@@ -251,5 +271,39 @@ export const getDeliveriesByOrderId = async (req, res) => {
   } catch (error) {
     console.error('Get Deliveries By Order ID Error:', error);
     res.status(500).json({ message: 'Failed to fetch delivery for the provided order ID' });
+  }
+};
+
+// Get deliveries by status
+export const getDeliveriesByStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+
+    // Validate the status
+    const allowedStatuses = ['pending', 'inProgress', 'delivered'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid delivery status' });
+    }
+
+    // Find deliveries with the given status
+    const deliveries = await Delivery.find({ deliveryStatus: status })
+      .populate({
+        path: 'order',
+        populate: {
+          path: 'customer', // Populate the customer inside order
+        },
+      })
+      .populate('deliveryPerson')
+      .populate('customer');  // Explicitly populate customer here as well
+
+    // Check if deliveries exist for the given status
+    if (!deliveries || deliveries.length === 0) {
+      return res.status(404).json({ message: 'No deliveries found for this status' });
+    }
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get Deliveries By Status Error:', error);
+    res.status(500).json({ message: 'Failed to fetch deliveries by status' });
   }
 };

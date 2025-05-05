@@ -1,81 +1,101 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';  // Import axios
-import api from '../../api';  // Assuming api.js contains your endpoints
+import axios from 'axios';
+import api from '../../api';
 
 const Delivery = () => {
-  const [deliveries, setDeliveries] = useState([]); // Default state to an empty array
+  const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deliveryPersons, setDeliveryPersons] = useState([]);
   const [filters, setFilters] = useState({
     campus: '',
     person: '',
     orderId: '',
+    status: '',
   });
-  const [loadingId, setLoadingId] = useState(null);
 
+  // Fetch delivery persons
   useEffect(() => {
-    if (filters.campus || filters.person || filters.orderId) {
+    const fetchDeliveryPersons = async () => {
+      try {
+        const response = await axios.get(api.getAllDeliveryPersons, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
+        setDeliveryPersons(response.data);
+      } catch (error) {
+        console.error('Error fetching delivery persons:', error);
+      }
+    };
+
+    fetchDeliveryPersons();
+  }, []);
+
+  // Fetch deliveries when filters change
+  useEffect(() => {
+    if (filters.campus || filters.person || filters.orderId || filters.status) {
       fetchDeliveries();
     }
   }, [filters]);
 
-  // Fetch deliveries based on current filters
   const fetchDeliveries = async () => {
     setLoading(true);
     try {
-      let url = api.getDeliveriesByCampus.replace('{campus}', filters.campus || 'CVM'); // Default campus to CVM if none selected
+      let response;
+
       if (filters.orderId) {
-        url = api.getDeliveriesByOrderId.replace('{orderId}', filters.orderId);
+        const url = api.getDeliveriesByOrderId.replace('{orderId}', filters.orderId);
+        response = await axios.get(url, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
+        setDeliveries(response.data ? [response.data] : []);
       } else if (filters.person) {
-        url = api.getDeliveriesByPerson.replace('{deliveryPersonId}', filters.person);
+        const url = api.getDeliveriesByPerson.replace('{deliveryPersonId}', filters.person);
+        response = await axios.get(url, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
+        setDeliveries(Array.isArray(response.data) ? response.data : []);
+      } else if (filters.campus) {
+        const url = api.getDeliveriesByCampus.replace('{campus}', filters.campus);
+        response = await axios.get(url, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
+        setDeliveries(Array.isArray(response.data) ? response.data : []);
+      } else if (filters.status) {
+        const url = api.getDeliveriesByStatus.replace('{status}', filters.status);
+        response = await axios.get(url, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
+        setDeliveries(Array.isArray(response.data) ? response.data : []);
       }
-
-      // Use axios for API request with Authorization
-      const response = await axios.get(url, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Assuming token is stored in localStorage
-        },
-      });
-
-      // Ensure response data is an array
-      const deliveriesData = Array.isArray(response.data) ? response.data : [];
-      console.log("Fetched Deliveries:", deliveriesData); // Log the fetched data
-      setDeliveries(deliveriesData);
     } catch (error) {
       console.error('Error fetching deliveries:', error);
+      setDeliveries([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle status update for a delivery
-  const handleStatusUpdate = async (id) => {
-    setLoadingId(id);
-    try {
-      const response = await axios.put(
-        api.updateDeliveryStatus.replace('{deliveryId}', id),
-        { status: 'Delivered' },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Token for authorization
-          },
-        }
-      );
-
-      const updatedDelivery = response.data;  // Updated delivery data from the server
-      setDeliveries((prev) =>
-        prev.map((item) => (item._id === id ? { ...item, status: 'Delivered' } : item))
-      );
-    } catch (error) {
-      console.error('Error updating status:', error);
-    } finally {
-      setLoadingId(null);
-    }
-  };
-
-  // Handle input changes for filters
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+
+    const newFilters = {
+      campus: '',
+      person: '',
+      orderId: '',
+      status: '',
+    };
+    newFilters[name] = value;
+
+    setFilters(newFilters);
   };
 
   return (
@@ -89,7 +109,7 @@ const Delivery = () => {
             name="campus"
             value={filters.campus}
             onChange={handleFilterChange}
-            className="select select-bordered"
+            className="select select-bordered select-sm"
           >
             <option value="">Select Campus</option>
             <option value="CVM">CVM</option>
@@ -97,14 +117,19 @@ const Delivery = () => {
             <option value="HiT">HiT</option>
           </select>
 
-          <input
-            type="text"
+          <select
             name="person"
             value={filters.person}
             onChange={handleFilterChange}
-            placeholder="Delivery Person ID"
-            className="input input-bordered"
-          />
+            className="select select-bordered select-sm"
+          >
+            <option value="">Select Delivery Person</option>
+            {deliveryPersons.map((person) => (
+              <option key={person._id} value={person._id}>
+                {person.firstName} {person.lastName} ({person.campus})
+              </option>
+            ))}
+          </select>
 
           <input
             type="text"
@@ -112,70 +137,84 @@ const Delivery = () => {
             value={filters.orderId}
             onChange={handleFilterChange}
             placeholder="Order ID"
-            className="input input-bordered"
+            className="input input-bordered input-sm"
           />
 
-          <button
-            onClick={fetchDeliveries}
-            className="btn btn-primary"
-            disabled={loading}
+          <select
+            name="status"
+            value={filters.status}
+            onChange={handleFilterChange}
+            className="select select-bordered select-sm"
           >
-            {loading ? 'Loading...' : 'Filter'}
-          </button>
+            <option value="">Select Status</option>
+            <option value="delivered">Delivered</option>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+          </select>
         </div>
       </div>
 
       {/* Delivery Table */}
       <div className="overflow-x-auto">
-        <table className="table table-zebra w-full">
+        <table className="table table-zebra table-sm w-full">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Address</th>
+              <th>Customer Name</th>
+              <th>Delivery Person</th>
+              <th>Campus</th>
+              <th>Building</th>
+              <th>Dorm Number</th>
+              <th>Phone Number</th>
+              <th>Items</th>
               <th>Status</th>
-              <th>Action</th>
+              <th>Customer Verified</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="5" className="text-center">
-                  Loading deliveries...
+                <td colSpan="9" className="text-center">
+                  <span className="loading loading-spinner loading-lg"></span>
                 </td>
               </tr>
-            ) : (
+            ) : deliveries.length > 0 ? (
               deliveries.map((item) => (
-                <tr key={item._id}> {/* Use _id or a unique identifier */}
-                  <td>{item.order?.orderId}</td>
-                  <td>{item.order?.customerName}</td>
-                  <td>{item.order?.deliveryAddress}</td>
+                <tr key={item._id}>
+                  <td>{item.customer?.firstName} {item.customer?.lastName}</td>
+                  <td>{item.deliveryPerson?.firstName} {item.deliveryPerson?.lastName}</td>
+                  <td>{item.deliveryPerson?.campus}</td>
+                  <td>{item.order?.building}</td>
+                  <td>{item.order?.roomNumber}</td>
+                  <td>{item.customer?.phoneNumber}</td>
+                  <td>
+                    {item.order?.items?.map((orderItem, index) => (
+                      <div key={index}>{orderItem.name} (x{orderItem.quantity})</div>
+                    ))}
+                  </td>
                   <td>
                     <span
-                      className={`badge ${
-                        item.deliveryStatus === 'Delivered' ? 'badge-success' : 'badge-warning'
-                      }`}
+                      className={`badge ${item.deliveryStatus === 'delivered' ? 'badge-success' : 'badge-warning'}`}
                     >
                       {item.deliveryStatus}
                     </span>
                   </td>
                   <td>
-                    {item.deliveryStatus !== 'Delivered' && (
-                      <button
-                        className="btn btn-success btn-sm"
-                        onClick={() => handleStatusUpdate(item._id)} // Use _id or the unique identifier
-                        disabled={loadingId === item._id}
-                      >
-                        {loadingId === item._id ? (
-                          <span className="loading loading-spinner loading-sm"></span>
-                        ) : (
-                          'Mark Delivered'
-                        )}
-                      </button>
-                    )}
+                    <span
+                      className={`badge ${item.customerVerified ? 'badge-success' : 'badge-error'}`}
+                    >
+                      {item.customerVerified ? 'Verified' : 'Not Verified'}
+                    </span>
                   </td>
                 </tr>
               ))
+            ) : (
+              <tr>
+                <td colSpan="9" className="text-center">
+                  {filters.campus || filters.person || filters.orderId || filters.status
+                    ? 'No deliveries found matching your criteria'
+                    : 'Select a filter to view deliveries'}
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

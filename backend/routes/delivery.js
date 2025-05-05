@@ -8,7 +8,8 @@ import {
   getDeliveriesByDay,
   getDeliveriesByHour,
   verifyDeliveryByCustomer,
-  getDeliveriesByOrderId
+  getDeliveriesByOrderId,
+  getDeliveriesByStatus,
 } from '../controllers/delivery.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
@@ -78,6 +79,20 @@ router.get(
   getDeliveriesByHour
 );
 
-router.get('/order/:orderId', authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']), getDeliveriesByOrderId);
+// Get deliveries by orderId
+router.get(
+  '/order/:orderId',
+  authenticateToken,
+  authorizeRoles(['admin', 'restaurantOwner']),
+  getDeliveriesByOrderId
+);
+
+// Get deliveries by status (new route)
+router.get(
+  '/status/:status',
+  authenticateToken,
+  authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']),
+  getDeliveriesByStatus
+);
+
 export default router;
