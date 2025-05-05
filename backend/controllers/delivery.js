@@ -228,3 +228,28 @@ export const getDeliveriesByHour = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch deliveries for the hour' });
   }
 };
+
+// Get deliveries by orderId
+export const getDeliveriesByOrderId = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const delivery = await Delivery.findOne({ order: orderId })
+      .populate({
+        path: 'order',
+        populate: {
+          path: 'customer',
+        },
+      })
+      .populate('deliveryPerson');
+
+    if (!delivery) {
+      return res.status(404).json({ message: 'Delivery not found for this order ID' });
+    }
+
+    res.status(200).json(delivery);
+  } catch (error) {
+    console.error('Get Deliveries By Order ID Error:', error);
+    res.status(500).json({ message: 'Failed to fetch delivery for the provided order ID' });
+  }
+};

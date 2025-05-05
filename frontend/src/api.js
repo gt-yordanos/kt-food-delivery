@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL;
+import { BASE_URL } from './config'; // Adjust the import if necessary
 
 const api = {
   // Admin Routes
@@ -42,6 +42,7 @@ const api = {
   getDeliveriesByCampus: `${BASE_URL}/delivery/by-campus/{campus}`,
   getDeliveriesByDay: `${BASE_URL}/delivery/by-day?date={date}`, // Format: YYYY-MM-DD
   getDeliveriesByHour: `${BASE_URL}/delivery/by-hour?date={date}&hour={hour}`, // hour: 0-23
+  getDeliveriesByOrderId: `${BASE_URL}/deliveries/order/{orderId}`, // Newly added route to search by order ID
 
   // Menu Routes
   addMenuItem: `${BASE_URL}/menu`,
