@@ -12,7 +12,8 @@ import {
   getDeliveriesByOrderId,
   getDeliveriesByStatus,
   getDeliveriesByPersonAndStatus,
-  getDeliveriesByPersonStatusAndVerification
+  getDeliveriesByPersonStatusAndVerification,
+  getDeliveriesByPersonAndCustomerVerification
 } from '../controllers/delivery.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
@@ -113,4 +114,6 @@ router.get('/by-person-status/:status', authenticateToken, authorizeRoles(['deli
 router.get('/by-person-status-verification/:status/:customerVerified', authenticateToken, authorizeRoles(['deliveryPerson']), getDeliveriesByPersonStatusAndVerification);
 
 // Get deliveries by delivery person ID and customer verification status
-router.get('/by-person-verification/:customerVerified', authenticateToken, authorizeRoles(['deliveryPerson']), getDeliveriesByPersonAndCustomerVerification);  // New route
+router.get('/by-person-verification/:customerVerified', authenticateToken, authorizeRoles(['deliveryPerson']), getDeliveriesByPersonAndCustomerVerification);
+
+export default router;

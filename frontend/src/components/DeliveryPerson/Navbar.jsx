@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { UserRound } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import ThemeToggle from '../shared/ThemeToggle';
+import ktLogo from '../../assets/ktLogo.png';
 import axios from 'axios';
 import api from '../../api';
-import ThemeToggle from '../shared/ThemeToggle';
 
-const Navbar = () => {
+const Navbar = ({ filters, setFilters }) => {
   const { user, logout } = useAuth();
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -17,6 +17,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchCustomerData = async () => {
       if (isDeliveryPerson && user?.id) {
+        console.log('User ID:', user.id);
         setLoading(true);
         try {
           const headers = getAuthHeader();
@@ -59,24 +60,43 @@ const Navbar = () => {
     return 'KT Delivery Person';
   };
 
+  useEffect(() => {
+    // Whenever filters change, automatically apply them
+    setFilters(filters);
+  }, [filters, setFilters]);
+
   return (
     <div className="py-2 px-4 sm:px-[5%] lg:px-[15%] bg-base-300 shadow-md fixed top-0 left-0 w-full z-50 relative h-[72px] flex items-center">
-      
-      {/* Left Section */}
-      <div className="absolute left-4 sm:left-[5%] lg:left-[15%]">
-        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-full text-xl font-extrabold shadow-lg">
-          KT Delivery Person
-        </div>
+      {/* Left Section: Logo */}
+      <div className="absolute left-4 sm:left-[5%] lg:left-[15%] flex items-center gap-2">
+        <img src={ktLogo} alt="KT Logo" className="h-10 w-10" />
       </div>
 
-      {/* Center Section */}
-      <div className="mx-auto">
-        <div className="bg-gradient-to-r from-green-400 to-teal-500 text-white px-4 py-2 rounded-full text-lg font-semibold shadow-md">
-          Campus: {campusName || 'Not Available'}
-        </div>
+      {/* Center Section: Filter Inputs for Delivery Status and Customer Verification */}
+      <div className="mx-auto flex items-center gap-2 sm:gap-4 md:gap-6">
+        <select
+          value={filters.deliveryStatus}
+          onChange={(e) => setFilters({ ...filters, deliveryStatus: e.target.value })}
+          className="select select-bordered px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm w-[120px] sm:w-[150px]"
+        >
+          <option value="">Select Status</option>
+          <option value="pending">Pending</option>
+          <option value="inProgress">In Progress</option>
+          <option value="delivered">Delivered</option>
+        </select>
+
+        <select
+          value={filters.customerVerified}
+          onChange={(e) => setFilters({ ...filters, customerVerified: e.target.value })}
+          className="select select-bordered px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm w-[145px] sm:w-[200px]"
+        >
+          <option value="">Select Verification</option>
+          <option value="true">Verified</option>
+          <option value="false">Not Verified</option>
+        </select>
       </div>
 
-      {/* Right Section */}
+      {/* Right Section: Profile Dropdown */}
       <div className="absolute right-4 sm:right-[5%] lg:right-[15%] flex items-center gap-4">
         <div className="dropdown dropdown-end">
           <div
@@ -90,24 +110,24 @@ const Navbar = () => {
             tabIndex={0}
             className="mt-6 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-300 rounded-box w-52"
           >
-            {isDeliveryPerson && (
-              <>
-                <li className="menu-title">
-                  <span>Welcome, {getWelcomeName()}</span>
-                </li>
-                <li>
-                  <Link to="/profile" className="justify-between">
-                    Profile
-                  </Link>
-                </li>
-                <li>
-                  <button onClick={logout}>Logout</button>
-                </li>
-                <li>
-                  <ThemeToggle />
-                </li>
-              </>
-            )}
+            <li className="menu-title">
+              <span>Welcome, {getWelcomeName()}</span>
+            </li>
+            <li>
+              <span>KT Delivery Person</span>
+            </li>
+            <li>
+              <span>Campus: {campusName || 'Not Available'}</span>
+            </li>
+            <li>
+              <button onClick={logout}>Logout</button>
+            </li>
+            <li>
+              <div className="flex items-center">
+                <span>Theme</span>
+                <ThemeToggle />
+              </div>
+            </li>
           </ul>
         </div>
       </div>
