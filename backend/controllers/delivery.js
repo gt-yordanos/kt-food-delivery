@@ -324,3 +324,106 @@ export const getDeliveriesByStatus = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch deliveries by status' });
   }
 };
+
+// Get deliveries by delivery person ID and status
+export const getDeliveriesByPersonAndStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+    const deliveryPersonId = req.id;  // Use the authenticated delivery person's ID from the token
+
+    const allowedStatuses = ['pending', 'inProgress', 'delivered'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid delivery status' });
+    }
+
+    const deliveries = await Delivery.find({ 
+      deliveryPerson: deliveryPersonId, 
+      deliveryStatus: status 
+    })
+      .populate('order')
+      .populate('customer')
+      .populate('deliveryPerson')
+      .sort({ createdAt: -1 });
+
+    if (!deliveries || deliveries.length === 0) {
+      return res.status(404).json({ message: 'No deliveries found for this person with the specified status' });
+    }
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get Deliveries By Person And Status Error:', error);
+    res.status(500).json({ message: 'Failed to fetch deliveries by person and status' });
+  }
+};
+
+// Get deliveries by delivery person, status, and customerVerified
+export const getDeliveriesByPersonStatusAndVerification = async (req, res) => {
+  try {
+    const { status, customerVerified } = req.params;
+    const deliveryPersonId = req.id;  // Use the authenticated delivery person's ID from the token
+
+    // Validate the status
+    const allowedStatuses = ['pending', 'inProgress', 'delivered'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid delivery status' });
+    }
+
+    // Validate customerVerified value
+    const isVerified = customerVerified === 'true' ? true : customerVerified === 'false' ? false : null;
+    if (isVerified === null) {
+      return res.status(400).json({ message: 'Invalid customerVerified value, must be "true" or "false"' });
+    }
+
+    // Find deliveries based on the criteria
+    const deliveries = await Delivery.find({
+      deliveryPerson: deliveryPersonId,
+      deliveryStatus: status,
+      customerVerified: isVerified,
+    })
+      .populate('order')
+      .populate('customer')
+      .populate('deliveryPerson')
+      .sort({ createdAt: -1 });
+
+    if (!deliveries || deliveries.length === 0) {
+      return res.status(404).json({ message: 'No deliveries found for the given filters' });
+    }
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get Deliveries By Person, Status, and Verification Error:', error);
+    res.status(500).json({ message: 'Failed to fetch deliveries by person, status, and verification' });
+  }
+};
+// Get deliveries by delivery person ID and customer verification status
+export const getDeliveriesByPersonAndCustomerVerification = async (req, res) => {
+  try {
+    const { customerVerified } = req.params;
+    const deliveryPersonId = req.id;  // Use the authenticated delivery person's ID from the token
+
+    // Validate customerVerified value
+    const isVerified = customerVerified === 'true' ? true : customerVerified === 'false' ? false : null;
+    if (isVerified === null) {
+      return res.status(400).json({ message: 'Invalid customerVerified value, must be "true" or "false"' });
+    }
+
+    // Find deliveries based on the criteria
+    const deliveries = await Delivery.find({
+      deliveryPerson: deliveryPersonId,
+      customerVerified: isVerified,
+    })
+      .populate('order')
+      .populate('customer')
+      .populate('deliveryPerson')
+      .sort({ createdAt: -1 });
+
+    if (!deliveries || deliveries.length === 0) {
+      return res.status(404).json({ message: 'No deliveries found for the given filters' });
+    }
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get Deliveries By Person and Customer Verification Error:', error);
+    res.status(500).json({ message: 'Failed to fetch deliveries by person and customer verification' });
+  }
+};

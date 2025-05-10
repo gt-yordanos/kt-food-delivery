@@ -46,7 +46,10 @@ const api = {
   getDeliveriesByHour: `${BASE_URL}/delivery/by-hour?date={date}&hour={hour}`,
   getDeliveriesByOrderId: `${BASE_URL}/delivery/order/{orderId}`,
   getDeliveriesByStatus: `${BASE_URL}/delivery/status/{status}`,
-  getAllDeliveries: `${BASE_URL}/delivery/all`,  // New route added here
+  getAllDeliveries: `${BASE_URL}/delivery/all`,
+  getDeliveriesByPersonAndStatus: `${BASE_URL}/delivery/by-person-status/:status`,
+  getDeliveriesByPersonStatusAndVerification: `${BASE_URL}/delivery/by-person-status-verification/:status/:customerVerified`,
+  getDeliveriesByPersonAndCustomerVerification: `${BASE_URL}/delivery/by-person-verification/:customerVerified`,
 
   // Menu Routes
   addMenuItem: `${BASE_URL}/menu`,
