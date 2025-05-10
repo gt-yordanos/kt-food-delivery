@@ -81,7 +81,7 @@ const Cart = () => {
             <span className="text-2xl font-semibold">Total: </span>
             <span className="text-2xl font-bold text-amber-500">{totalPrice.toFixed(2)} ETB.</span>
           </div>
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-4 flex-col-reverse lg:flex-row gap-4">
             <button
               onClick={handleClearCart}
               className="btn btn-danger w-full lg:w-48"
@@ -89,7 +89,7 @@ const Cart = () => {
               Clear Cart
             </button>
             <button
-              onClick={handleCheckout}  // Use navigate to redirect to checkout
+              onClick={handleCheckout} 
               className="btn btn-primary w-full lg:w-48"
             >
               Proceed to Checkout
