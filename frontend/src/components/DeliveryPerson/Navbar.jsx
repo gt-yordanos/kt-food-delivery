@@ -88,9 +88,9 @@ const Navbar = ({ filters, setFilters }) => {
         <select
           value={filters.customerVerified}
           onChange={(e) => setFilters({ ...filters, customerVerified: e.target.value })}
-          className="select select-bordered px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm w-[145px] sm:w-[200px]"
+          className="select select-bordered px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm w-[165px] sm:w-[220px]"
         >
-          <option value="">Select Verification</option>
+          <option value="">Customer Verification</option>
           <option value="true">Verified</option>
           <option value="false">Not Verified</option>
         </select>
@@ -125,7 +125,7 @@ const Navbar = ({ filters, setFilters }) => {
             <li>
               <div className="flex items-center">
                 <span>Theme</span>
-                <ThemeToggle />
+                <span className='scale-75'><ThemeToggle /></span>
               </div>
             </li>
           </ul>

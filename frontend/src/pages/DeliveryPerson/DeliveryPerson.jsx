@@ -15,7 +15,7 @@ const DeliveryPersonPage = () => {
   const { user } = useAuth();
   const [filters, setFilters] = useState({
     deliveryStatus: '',
-    customerVerified: '',
+    customerVerification: '',  // Change 'customerVerified' to 'customerVerification'
   });
   const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,20 +34,20 @@ const DeliveryPersonPage = () => {
     setLoading(true);
     let url = '';
 
-    if (!filters.deliveryStatus && !filters.customerVerified) {
+    if (!filters.deliveryStatus && !filters.customerVerification) {
       url = api.getDeliveriesByPerson.replace('{deliveryPersonId}', user.id);
-    } else if (filters.deliveryStatus && filters.customerVerified) {
+    } else if (filters.deliveryStatus && filters.customerVerification) {
       url = api.getDeliveriesByPersonStatusAndVerification
         .replace(':status', filters.deliveryStatus)
-        .replace(':customerVerified', filters.customerVerified)
+        .replace(':customerVerified', filters.customerVerification) // Updated to customerVerification
         .replace(':personId', user.id);
     } else if (filters.deliveryStatus) {
       url = api.getDeliveriesByPersonAndStatus
         .replace(':status', filters.deliveryStatus)
         .replace(':personId', user.id);
-    } else if (filters.customerVerified) {
+    } else if (filters.customerVerification) {  // Updated to customerVerification
       url = api.getDeliveriesByPersonAndCustomerVerification
-        .replace(':customerVerified', filters.customerVerified)
+        .replace(':customerVerified', filters.customerVerification) // Updated to customerVerification
         .replace(':personId', user.id);
     }
 
@@ -101,90 +101,92 @@ const DeliveryPersonPage = () => {
     <>
       <Navbar filters={filters} setFilters={setFilters} />
 
-      {loading ? (
-        <div className="flex justify-center items-center py-10">
-          <span className="loading loading-spinner text-primary w-12 h-12"></span>
-        </div>
-      ) : (
-        <div className="overflow-x-auto p-4">
-          {deliveries.length > 0 ? (
-            <table className="table table-zebra text-xs w-full">
-              <thead>
-                <tr>
-                  <th className="sm:hidden">First Name</th>
-                  <th className="hidden sm:table-cell">Full Name</th>
-                  <th className="sm:table-cell hidden">Phone</th>
-                  <th className="sm:table-cell hidden">Email</th>
-                  <th>Items</th>
-                  <th className="sm:table-cell hidden">Campus</th>
-                  <th className="sm:table-cell hidden">Building</th>
-                  <th className="sm:table-cell hidden">Room Number</th>
-                  <th className="sm:table-cell hidden">Status</th>
-                  <th className="sm:table-cell hidden">Verified</th>
-                  <th>Actions</th>
+      <div className="overflow-x-auto p-4">
+        <table className="table table-zebra text-xs w-full">
+          <thead>
+            <tr className="text-xs"> {/* Decreased text size */}
+              <th className="sm:hidden">First Name</th>
+              <th className="hidden sm:table-cell">Full Name</th>
+              <th className="sm:table-cell hidden">Phone</th>
+              <th className="sm:table-cell hidden">Email</th>
+              <th>Items</th>
+              <th className="sm:table-cell hidden">Campus</th>
+              <th className="sm:table-cell hidden">Building</th>
+              <th className="sm:table-cell hidden">Room No</th>
+              <th className="sm:table-cell hidden">Status</th>
+              <th className="sm:table-cell hidden">Verification</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan="11" className="text-center py-4">
+                  <span className="loading loading-spinner text-content w-8 h-8"></span>
+                </td>
+              </tr>
+            ) : (
+              deliveries.map((delivery) => (
+                <tr
+                  key={delivery._id}
+                  onClick={() => handleRowClick(delivery)}
+                  className="cursor-pointer"
+                >
+                  <td className="sm:hidden">{delivery.customer.firstName}</td>
+                  <td className="hidden sm:table-cell">
+                    {`${delivery.customer.firstName} ${delivery.customer.middleName} ${delivery.customer.lastName}`}
+                  </td>
+                  <td className="sm:table-cell hidden">
+                    <a href={`tel:${delivery.customer.phoneNumber}`}>
+                      {delivery.customer.phoneNumber}
+                    </a>
+                  </td>
+                  <td className="sm:table-cell hidden">
+                    <a href={`mailto:${delivery.customer.email}`}>
+                      {delivery.customer.email}
+                    </a>
+                  </td>
+                  <td>
+                    <ul>
+                      {(delivery.order?.items || []).map((item) => (
+                        <li key={item._id}>
+                          {item.name} (x{item.quantity})
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td className="sm:table-cell hidden">{delivery.order?.campus || '-'}</td>
+                  <td className="sm:table-cell hidden">{delivery.order?.building || '-'}</td>
+                  <td className="sm:table-cell hidden">{delivery.order?.roomNumber || '-'}</td>
+                  <td className="sm:table-cell hidden">{delivery.deliveryStatus}</td>
+                  <td className="sm:table-cell hidden">
+                    {delivery.customerVerified ? 'Verified' : 'Not Verified'}
+                  </td>
+                  <td>
+                    {delivery.deliveryStatus === 'delivered' ? (
+                      <span>No Action Needed</span>
+                    ) : (
+                      <button
+                        className="btn btn-success btn-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeliveryStatusUpdate(delivery._id);
+                        }}
+                      >
+                        Mark as Delivered
+                      </button>
+                    )}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {deliveries.map((delivery) => (
-                  <tr
-                    key={delivery._id}
-                    onClick={() => handleRowClick(delivery)}
-                    className="cursor-pointer"
-                  >
-                    <td className="sm:hidden">{delivery.customer.firstName}</td>
-                    <td className="hidden sm:table-cell">
-                      {`${delivery.customer.firstName} ${delivery.customer.middleName} ${delivery.customer.lastName}`}
-                    </td>
-                    <td className="sm:table-cell hidden">
-                      <a href={`tel:${delivery.customer.phoneNumber}`}>
-                        {delivery.customer.phoneNumber}
-                      </a>
-                    </td>
-                    <td className="sm:table-cell hidden">
-                      <a href={`mailto:${delivery.customer.email}`}>
-                        {delivery.customer.email}
-                      </a>
-                    </td>
-                    <td>
-                      <ul>
-                        {(delivery.order?.items || []).map((item) => (
-                          <li key={item._id}>
-                            {item.name} (x{item.quantity})
-                          </li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td className="sm:table-cell hidden">{delivery.order?.campus || '-'}</td>
-                    <td className="sm:table-cell hidden">{delivery.order?.building || '-'}</td>
-                    <td className="sm:table-cell hidden">{delivery.order?.roomNumber || '-'}</td>
-                    <td className="sm:table-cell hidden">{delivery.deliveryStatus}</td>
-                    <td className="sm:table-cell hidden">
-                      {delivery.customerVerified ? 'Verified' : 'Not Verified'}
-                    </td>
-                    <td>
-                      {delivery.deliveryStatus === 'delivered' ? (
-                        <span>No Action Needed</span>
-                      ) : (
-                        <button
-                          className="btn btn-success btn-xs"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeliveryStatusUpdate(delivery._id);
-                          }}
-                        >
-                          Mark as Delivered
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="text-center py-4">No deliveries found.</div>
-          )}
-        </div>
-      )}
+              ))
+            )}
+          </tbody>
+        </table>
+
+        {deliveries.length === 0 && !loading && (
+          <div className="text-center py-4">No deliveries found.</div>
+        )}
+      </div>
 
       {selectedDelivery && (
         <div className="fixed inset-0 flex items-center justify-center bg-base-200 bg-opacity-50 z-50 sm:hidden">
@@ -218,7 +220,7 @@ const DeliveryPersonPage = () => {
             <div className="flex items-center mb-2">
               <FaClipboardCheck className="mr-2" />
               <p>
-                <strong>Verified:</strong>{' '}
+                <strong>Customer Verification:</strong>{' '}
                 {selectedDelivery.customerVerified ? 'Verified' : 'Not Verified'}
               </p>
             </div>
