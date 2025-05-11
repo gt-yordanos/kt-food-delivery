@@ -50,7 +50,9 @@ const api = {
   getDeliveriesByPersonAndStatus: `${BASE_URL}/delivery/by-person-status/:status`,
   getDeliveriesByPersonStatusAndVerification: `${BASE_URL}/delivery/by-person-status-verification/:status/:customerVerified`,
   getDeliveriesByPersonAndCustomerVerification: `${BASE_URL}/delivery/by-person-verification/:customerVerified`,
-
+  getDeliveriesByCustomer: `${BASE_URL}/delivery/by-customer`,
+  verifyDeliveryByCustomer: `${BASE_URL}/delivery/verify/{deliveryId}`,
+  
   // Menu Routes
   addMenuItem: `${BASE_URL}/menu`,
   updateMenuItem: `${BASE_URL}/menu/{menuId}`,

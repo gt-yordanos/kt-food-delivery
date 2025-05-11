@@ -30,6 +30,7 @@ import PaymentVerification from './pages/customer/PaymentVerification';
 import DeliveryPerson from './pages/shared/DeliveryPerson';
 import Unauthorized from './pages/shared/Unauthorized';
 import DeliveryPersonPage from './pages/DeliveryPerson/DeliveryPerson';
+import Orders from './pages/customer/Order';
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/owner/login" element={<Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" />} />
           <Route path="/delivery-person/login" element={<Login loginApi={api.loginDeliveryPerson} redirectLink="/delivery-person" />} />
           <Route path="/unauthorized" element={<Unauthorized/>} />
+
           {/* Customer*/}
           <Route path="/login" 
           element={
@@ -109,6 +111,16 @@ const App = () => {
           } 
           />
 
+          <Route path="/orders" 
+          element={
+            <>
+              <Navbar/>
+              <Orders/>
+              <Footer/>
+            </>
+          } 
+          />
+
         <Route path="/verify-payment/:tx_ref" element={<PaymentVerification/>} />
 
           {/* Admin Routes */}
@@ -128,7 +140,7 @@ const App = () => {
           <Route path="/owner/delivery" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageDelivery /></OwnerLayout></ProtectedRoute>} />
           <Route path="/owner/orders" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageOrder /></OwnerLayout></ProtectedRoute>} />
 
-          {/* DekiveryPerson Routes */}
+          {/* DeliveryPerson Routes */}
           <Route path="/delivery-person" element={<ProtectedRoute requiredRole="deliveryPerson"><DeliveryPersonPage/></ProtectedRoute>} />
         </Routes>
       </Router>

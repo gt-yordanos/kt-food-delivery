@@ -428,21 +428,51 @@ export const getDeliveriesByPersonAndCustomerVerification = async (req, res) => 
   }
 };
 
+// Get deliveries by customer
 export const getDeliveriesByCustomer = async (req, res) => {
   try {
-    const customerId = req.id;
+    const customerId = req.id; // Use the authenticated customer ID from the token
 
-    const deliveries = await Delivery.find({ customer: customerId })
-      .populate('order')
-      .populate('deliveryPerson')
-      .populate('customer')
+    // Find all orders for the given customer
+    const orders = await Order.find({ customer: customerId })
+      .populate('customer')  // Populate customer data within the order
       .sort({ createdAt: -1 });
 
-    if (!deliveries || deliveries.length === 0) {
-      return res.status(404).json({ message: 'No deliveries found for this customer' });
+    // If no orders are found, return a 404 response
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this customer' });
     }
 
-    res.status(200).json(deliveries);
+    // Modify the response based on the order status
+    const modifiedOrders = await Promise.all(
+      orders.map(async (order) => {
+        // Find the delivery related to this order (if exists)
+        let delivery = null;
+        if (order.status === 'completed') {
+          delivery = await Delivery.findOne({ order: order._id })
+            .populate('deliveryPerson') // Populate delivery person data within the delivery
+            .populate('customer'); // Populate customer data within the delivery
+        }
+
+        // If the order status is 'completed', return the full delivery data, otherwise just the order and customer
+        if (delivery) {
+          return {
+            order: order,
+            customer: order.customer,
+            delivery: delivery,  // Include delivery information if the order is completed
+          };
+        }
+
+        // If no delivery exists, return only the order and customer
+        return {
+          order: order,
+          customer: order.customer,
+        };
+      })
+    );
+
+    // Return the modified orders
+    res.status(200).json(modifiedOrders);
   } catch (error) {
     console.error('Get Deliveries By Customer Error:', error);
     res.status(500).json({ message: 'Failed to fetch deliveries for this customer' });
