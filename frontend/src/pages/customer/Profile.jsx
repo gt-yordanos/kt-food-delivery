@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'; 
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth(); // Assuming your AuthContext provides a loading state
   const [customerData, setCustomerData] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
@@ -16,19 +16,26 @@ const Profile = () => {
     phoneNumber: '',
     email: '',
     address: '',
-    password: '', // password will be handled separately
+    password: '',
   });
-  const [loading, setLoading] = useState(false); // Loading state for fetching data
+  const [dataLoading, setDataLoading] = useState(false); // Loading state for fetching data
   const [saving, setSaving] = useState(false);  // Loading state for saving data
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Wait until auth loading is complete
+    if (authLoading) return;
+
+    // If no user or not a customer after auth is loaded, redirect to login
     if (!user || user.role !== 'customer') {
       navigate('/login');
-    } else if (user.id) {
-      // Fetch customer data when user is authenticated
-      setLoading(true);
+      return;
+    }
+
+    // If we have a user and they're a customer, fetch their data
+    if (user.id) {
+      setDataLoading(true);
       axios
         .get(api.getCustomerInfo.replace('{customerId}', user.id), {
           headers: {
@@ -41,15 +48,15 @@ const Profile = () => {
             ...response.data.customer,
             password: '', // Reset password field
           });
-          setLoading(false);
+          setDataLoading(false);
         })
         .catch((error) => {
           console.error('Error fetching customer data:', error);
-          setLoading(false);
+          setDataLoading(false);
           toast.error("Error fetching customer data");
         });
     }
-  }, [user, navigate]);
+  }, [user, navigate, authLoading]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -87,9 +94,14 @@ const Profile = () => {
     toast.info("You have logged out successfully!");
   };
 
-  if (loading) return <div className="flex justify-center items-center"><span className="loading loading-spinner loading-md"></span></div>;
-
-  if (!customerData) return <div>Loading...</div>;
+  // Show loading spinner while auth is being checked or data is loading
+  if (authLoading || dataLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4 mt-12">
@@ -178,7 +190,7 @@ const Profile = () => {
             <div className="mb-4">
               <button type="submit" className="btn btn-primary">
                 {saving ? (
-                  <span className="loading loading-spinner loading-md"></span> // Spinner for Save button
+                  <span className="loading loading-spinner loading-md"></span>
                 ) : (
                   'Save Changes'
                 )}
