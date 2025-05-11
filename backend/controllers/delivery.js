@@ -427,3 +427,24 @@ export const getDeliveriesByPersonAndCustomerVerification = async (req, res) => 
     res.status(500).json({ message: 'Failed to fetch deliveries by person and customer verification' });
   }
 };
+
+export const getDeliveriesByCustomer = async (req, res) => {
+  try {
+    const customerId = req.id;
+
+    const deliveries = await Delivery.find({ customer: customerId })
+      .populate('order')
+      .populate('deliveryPerson')
+      .populate('customer')
+      .sort({ createdAt: -1 });
+
+    if (!deliveries || deliveries.length === 0) {
+      return res.status(404).json({ message: 'No deliveries found for this customer' });
+    }
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error('Get Deliveries By Customer Error:', error);
+    res.status(500).json({ message: 'Failed to fetch deliveries for this customer' });
+  }
+};
