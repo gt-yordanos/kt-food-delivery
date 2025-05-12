@@ -73,7 +73,7 @@ const DeliveryPersonPage = () => {
 
     try {
       const url = api.updateDeliveryStatus.replace('{deliveryId}', deliveryId);
-      await axios.patch(
+      await axios.put(
         url,
         { status: 'delivered' },
         { headers: getAuthHeader() }
