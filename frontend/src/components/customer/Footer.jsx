@@ -9,17 +9,14 @@ import { FaTiktok } from 'react-icons/fa';
 import { useRestaurant } from '../../contexts/RestaurantContext';
 
 const Footer = () => {
-  const { restaurant, loading, error } = useRestaurant();
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!restaurant) return null;
+  const { restaurant, error } = useRestaurant();
+  const isLoading = !restaurant;
 
   const daysOfWeek = [
     'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
   ];
 
-  const openingHours = restaurant.openingHours || {};
+  const openingHours = restaurant?.openingHours || {};
 
   return (
     <footer className="bg-base-300 py-10 px-4 sm:px-[5%] lg:px-[15%]" id="contact">
@@ -40,77 +37,105 @@ const Footer = () => {
           {/* Restaurant Info */}
           <div>
             <h4 className="text-lg font-bold text-amber-500 mb-4">Restaurant Info</h4>
-            <p className="text-content mb-2"><strong>{restaurant.name}</strong></p>
-
-            <div className="flex items-center mb-2 transition-transform hover:scale-105 min-w-0">
-              <FaPhone className="flex-shrink-0 mr-2 text-amber-500 w-5 h-5" />
-              <a href={`tel:${restaurant.phone}`} className="text-content truncate">{restaurant.phone}</a>
-            </div>
-            <div className="flex items-center mb-2 transition-transform hover:scale-105 min-w-0">
-              <FaEnvelope className="flex-shrink-0 mr-2 text-amber-500 w-5 h-5" />
-              <a href={`mailto:${restaurant.email}`} className="text-content truncate">{restaurant.email}</a>
-            </div>
-            <div className="flex items-center mb-2 transition-transform hover:scale-105 min-w-0 cursor-pointer">
-              <FaMapMarkerAlt className="flex-shrink-0 mr-2 text-amber-500 w-5 h-5" />
-              <span className="text-content truncate">{restaurant.address}</span>
-            </div>
+            {isLoading ? (
+              <div className="flex w-52 flex-col gap-4">
+                <div className="skeleton h-8 w-full"></div>
+                <div className="skeleton h-4 w-28"></div>
+                <div className="skeleton h-4 w-full"></div>
+                <div className="skeleton h-4 w-full"></div>
+              </div>
+            ) : (
+              <>
+                <p className="text-content mb-2"><strong>{restaurant.name}</strong></p>
+                <div className="flex items-center mb-2 transition-transform hover:scale-105 min-w-0">
+                  <FaPhone className="flex-shrink-0 mr-2 text-amber-500 w-5 h-5" />
+                  <a href={`tel:${restaurant.phone}`} className="text-content truncate">{restaurant.phone}</a>
+                </div>
+                <div className="flex items-center mb-2 transition-transform hover:scale-105 min-w-0">
+                  <FaEnvelope className="flex-shrink-0 mr-2 text-amber-500 w-5 h-5" />
+                  <a href={`mailto:${restaurant.email}`} className="text-content truncate">{restaurant.email}</a>
+                </div>
+                <div className="flex items-center mb-2 transition-transform hover:scale-105 min-w-0 cursor-pointer">
+                  <FaMapMarkerAlt className="flex-shrink-0 mr-2 text-amber-500 w-5 h-5" />
+                  <span className="text-content truncate">{restaurant.address}</span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Opening Hours */}
           <div>
             <h4 className="text-lg font-bold text-amber-500 mb-4">Opening Hours</h4>
-            <ul className="text-content space-y-1">
-              {daysOfWeek.map((day) => (
-                <li key={day}>
-                  <span className="capitalize">{day}:</span>{' '}
-                  {openingHours[day] ? `${openingHours[day].start} - ${openingHours[day].end}` : 'Closed'}
-                </li>
-              ))}
-            </ul>
+            {isLoading ? (
+              <div className="flex w-52 flex-col gap-4">
+                <div className="skeleton h-8 w-full"></div>
+                <div className="skeleton h-4 w-28"></div>
+                <div className="skeleton h-4 w-full"></div>
+                <div className="skeleton h-4 w-full"></div>
+              </div>
+            ) : (
+              <ul className="text-content space-y-1">
+                {daysOfWeek.map((day) => (
+                  <li key={day}>
+                    <span className="capitalize">{day}:</span>{' '}
+                    {openingHours[day] ? `${openingHours[day].start} - ${openingHours[day].end}` : 'Closed'}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Social Media */}
           <div>
             <h4 className="text-lg font-bold text-amber-500 mb-4">Follow Us</h4>
-            <div className="flex space-x-4">
-              {restaurant.socialLinks?.facebook && (
-                <a href={restaurant.socialLinks.facebook} target="_blank" rel="noopener noreferrer">
-                  <FaFacebook className="w-6 h-6 text-amber-500 hover:text-amber-400" />
-                </a>
-              )}
-              {restaurant.socialLinks?.twitter && (
-                <a href={restaurant.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
-                  <FaTwitter className="w-6 h-6 text-amber-500 hover:text-amber-400" />
-                </a>
-              )}
-              {restaurant.socialLinks?.instagram && (
-                <a href={restaurant.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
-                  <FaInstagram className="w-6 h-6 text-amber-500 hover:text-amber-400" />
-                </a>
-              )}
-              {restaurant.socialLinks?.linkedin && (
-                <a href={restaurant.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
-                  <FaLinkedin className="w-6 h-6 text-amber-500 hover:text-amber-400" />
-                </a>
-              )}
-              {restaurant.socialLinks?.youtube && (
-                <a href={restaurant.socialLinks.youtube} target="_blank" rel="noopener noreferrer">
-                  <FaYoutube className="w-6 h-6 text-amber-500 hover:text-amber-400" />
-                </a>
-              )}
-              {restaurant.socialLinks?.tiktok && (
-                <a href={restaurant.socialLinks.tiktok} target="_blank" rel="noopener noreferrer">
-                  <FaTiktok className="w-6 h-6 text-amber-500 hover:text-amber-400" />
-                </a>
-              )}
-            </div>
+            {isLoading ? (
+              <div className="flex w-52 flex-col gap-4">
+                <div className="skeleton h-8 w-full"></div>
+                <div className="skeleton h-4 w-28"></div>
+                <div className="skeleton h-4 w-full"></div>
+                <div className="skeleton h-4 w-full"></div>
+              </div>
+            ) : (
+              <div className="flex space-x-4">
+                {restaurant.socialLinks?.facebook && (
+                  <a href={restaurant.socialLinks.facebook} target="_blank" rel="noopener noreferrer">
+                    <FaFacebook className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  </a>
+                )}
+                {restaurant.socialLinks?.twitter && (
+                  <a href={restaurant.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
+                    <FaTwitter className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  </a>
+                )}
+                {restaurant.socialLinks?.instagram && (
+                  <a href={restaurant.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
+                    <FaInstagram className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  </a>
+                )}
+                {restaurant.socialLinks?.linkedin && (
+                  <a href={restaurant.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
+                    <FaLinkedin className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  </a>
+                )}
+                {restaurant.socialLinks?.youtube && (
+                  <a href={restaurant.socialLinks.youtube} target="_blank" rel="noopener noreferrer">
+                    <FaYoutube className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  </a>
+                )}
+                {restaurant.socialLinks?.tiktok && (
+                  <a href={restaurant.socialLinks.tiktok} target="_blank" rel="noopener noreferrer">
+                    <FaTiktok className="w-6 h-6 text-amber-500 hover:text-amber-400" />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Footer Bottom */}
       <div className="mt-8 text-center text-content">
-        <p>&copy; {new Date().getFullYear()} {restaurant.name}. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} {restaurant?.name || 'Our Restaurant'}. All rights reserved.</p>
       </div>
     </footer>
   );
