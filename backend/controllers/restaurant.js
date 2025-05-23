@@ -31,17 +31,48 @@ export const addRestaurant = async (req, res) => {
 export const updateRestaurant = async (req, res) => {
   try {
     const restaurant = await Restaurant.findOne();
-    if (!restaurant) return res.status(404).json({ message: 'Restaurant not found' });
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
 
-    // Update only the fields sent
-    Object.keys(req.body).forEach((key) => {
-      restaurant[key] = req.body[key];
+    // Handle opening hours update
+    if (req.body.openingHours) {
+      for (const day in req.body.openingHours) {
+        if (restaurant.openingHours[day]) {
+          restaurant.openingHours[day] = {
+            start: req.body.openingHours[day].start || restaurant.openingHours[day].start,
+            end: req.body.openingHours[day].end || restaurant.openingHours[day].end
+          };
+        }
+      }
+    }
+
+    // Handle social links update
+    if (req.body.socialLinks) {
+      restaurant.socialLinks = {
+        ...restaurant.socialLinks,
+        ...req.body.socialLinks
+      };
+    }
+
+    // Update other fields
+    const fieldsToUpdate = ['name', 'about', 'address', 'phone', 'email'];
+    fieldsToUpdate.forEach(field => {
+      if (req.body[field] !== undefined) {
+        restaurant[field] = req.body[field];
+      }
     });
 
-    await restaurant.save();
-    res.status(200).json({ message: 'Restaurant updated successfully', restaurant });
+    const savedRestaurant = await restaurant.save();
+
+    res.status(200).json({ 
+      message: 'Restaurant updated successfully', 
+      restaurant: savedRestaurant 
+    });
   } catch (error) {
-    console.error('Update error:', error);
-    res.status(500).json({ message: error.message || 'Failed to update restaurant' });
+    res.status(500).json({ 
+      message: error.message || 'Failed to update restaurant',
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    });
   }
 };

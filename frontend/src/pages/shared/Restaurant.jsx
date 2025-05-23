@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import{ useState, useEffect } from 'react'; 
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaEdit, FaSave, FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaLink, FaYoutube, FaTiktok } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -29,12 +29,10 @@ const Restaurant = () => {
     setLoading(true);
     try {
       const response = await axios.get(api.getAllRestaurantInfo, getAuthHeader());
-      console.log("Fetched restaurant data:", response.data);  // Console log to view the fetched data
       setRestaurant(response.data);
-      setEditedRestaurant(response.data);
+      setEditedRestaurant(JSON.parse(JSON.stringify(response.data))); // Deep clone
       setError(null);
     } catch (error) {
-      console.error('Error fetching restaurant:', error);
       toast.error('Failed to load restaurant details');
       setError(error);
     } finally {
@@ -45,65 +43,83 @@ const Restaurant = () => {
   const handleEditClick = (section) => {
     setIsEditing(prevState => ({
       ...prevState,
-      [section]: !prevState[section]  // Toggle edit/save
+      [section]: !prevState[section]
     }));
   };
 
-  const handleSaveClick = async (section) => {
-    setLoading(true);
-    try {
-      let updatedData = {};
+ const handleSaveClick = async (section) => {
+  setLoading(true);
+  try {
+    let updatedData = {};
 
-      if (section === 'restaurantInfo') {
-        updatedData = editedRestaurant; // Save the whole restaurant info
-      } else if (section === 'openingHours') {
-        updatedData = { openingHours: editedRestaurant.openingHours }; // Save only the opening hours
-      } else if (section === 'socialLinks') {
-        updatedData = { socialLinks: editedRestaurant.socialLinks }; // Save only the social links
-      }
-
-      const response = await axios.patch(api.updateRestaurant, updatedData, getAuthHeader());
-      toast.success(response.data.message || 'Restaurant updated successfully');
-      await fetchRestaurant();
-      setIsEditing(prevState => ({
-        ...prevState,
-        [section]: false
-      }));
-    } catch (error) {
-      console.error('Error updating restaurant:', error);
-      toast.error(error?.response?.data?.message || 'Failed to update restaurant');
-    } finally {
-      setLoading(false);
+    if (section === 'restaurantInfo') {
+      updatedData = {
+        name: editedRestaurant.name,
+        about: editedRestaurant.about,
+        address: editedRestaurant.address,
+        phone: editedRestaurant.phone,
+        email: editedRestaurant.email
+      };
+    } else if (section === 'openingHours') {
+      updatedData = { 
+        openingHours: editedRestaurant.openingHours
+      };
+      
+    } else if (section === 'socialLinks') {
+      updatedData = { 
+        socialLinks: editedRestaurant.socialLinks
+      };
     }
-  };
+
+    const response = await axios.patch(api.updateRestaurant, updatedData, getAuthHeader());
+    toast.success(response.data.message || 'Restaurant updated successfully');
+    await fetchRestaurant();
+    setIsEditing(prevState => ({
+      ...prevState,
+      [section]: false
+    }));
+  } catch (error) {
+    console.error('Error updating restaurant:', error);
+    toast.error(error?.response?.data?.message || 'Failed to update restaurant');
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const handleTimeChange = (day, field, value) => {  
+  setEditedRestaurant(prevState => {
+    if (!prevState || !prevState.openingHours) {
+      return prevState;
+    }
+
+    const newOpeningHours = {
+      ...prevState.openingHours,
+      [day]: {
+        ...prevState.openingHours[day],
+        [field]: value
+      }
+    };
+    return {
+      ...prevState,
+      openingHours: newOpeningHours
+    };
+  });
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Handle changes for social links separately since it's a nested object
     if (name.includes('socialLinks')) {
-      const platform = name.split('.')[1]; // Extract platform name
-      setEditedRestaurant((prevState) => ({
+      const platform = name.split('.')[1];
+      setEditedRestaurant(prevState => ({
         ...prevState,
         socialLinks: {
           ...prevState.socialLinks,
           [platform]: value,
         }
       }));
-    } else if (name.includes('openingHours')) {
-      const [day, key] = name.split('.');
-      setEditedRestaurant((prevState) => ({
-        ...prevState,
-        openingHours: {
-          ...prevState.openingHours,
-          [day]: {
-            ...prevState.openingHours[day],
-            [key]: value,
-          },
-        },
-      }));
     } else {
-      setEditedRestaurant((prevState) => ({
+      setEditedRestaurant(prevState => ({
         ...prevState,
         [name]: value,
       }));
@@ -208,29 +224,25 @@ const Restaurant = () => {
         <h2 className="text-lg font-semibold mb-2 flex items-center">
           <FaClock className="mr-2" /> Opening Hours
         </h2>
-        {restaurant?.openingHours ? (
-          Object.entries(restaurant.openingHours).map(([day, hours]) => (
+        {editedRestaurant?.openingHours ? (
+          Object.entries(editedRestaurant.openingHours).map(([day, hours]) => (
             <div key={day} className="flex items-center gap-4 mb-2">
               <label className="capitalize w-20">{day}:</label>
 
-              {/* Start Time Input */}
               <input
                 type="time"
-                name={`${day}.start`}
-                value={isEditing.openingHours ? editedRestaurant?.openingHours[day]?.start || '' : hours.start}
-                onChange={handleChange}
+                value={hours.start || ''}
+                onChange={(e) => handleTimeChange(day, 'start', e.target.value)}
                 disabled={!isEditing.openingHours}
                 className="input input-bordered"
               />
 
               <span>to</span>
 
-              {/* End Time Input */}
               <input
                 type="time"
-                name={`${day}.end`}
-                value={isEditing.openingHours ? editedRestaurant?.openingHours[day]?.end || '' : hours.end}
-                onChange={handleChange}
+                value={hours.end || ''}
+                onChange={(e) => handleTimeChange(day, 'end', e.target.value)}
                 disabled={!isEditing.openingHours}
                 className="input input-bordered"
               />
@@ -264,26 +276,13 @@ const Restaurant = () => {
             Object.entries(restaurant.socialLinks).map(([platform, link]) => {
               let Icon;
               switch (platform) {
-                case 'facebook':
-                  Icon = FaFacebook;
-                  break;
-                case 'instagram':
-                  Icon = FaInstagram;
-                  break;
-                case 'twitter':
-                  Icon = FaTwitter;
-                  break;
-                case 'linkedin':
-                  Icon = FaLinkedin;
-                  break;
-                case 'youtube':
-                  Icon = FaYoutube;
-                  break;
-                case 'tiktok':
-                  Icon = FaTiktok;
-                  break;
-                default:
-                  Icon = FaLink; // Fallback to a generic link icon
+                case 'facebook': Icon = FaFacebook; break;
+                case 'instagram': Icon = FaInstagram; break;
+                case 'twitter': Icon = FaTwitter; break;
+                case 'linkedin': Icon = FaLinkedin; break;
+                case 'youtube': Icon = FaYoutube; break;
+                case 'tiktok': Icon = FaTiktok; break;
+                default: Icon = FaLink;
               }
 
               return (
