@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaKey } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaKey, FaUserAlt, FaPhone, FaEnvelope, FaHome, FaLock, FaCheck, FaTimes } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -24,6 +24,31 @@ const Customers = () => {
     phoneNumber: '',
     address: '',
   });
+  const [errors, setErrors] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+    address: '',
+  });
+  const [touched, setTouched] = useState({
+    firstName: false,
+    middleName: false,
+    lastName: false,
+    email: false,
+    password: false,
+    phoneNumber: false,
+    address: false,
+  });
+  const [passwordCriteria, setPasswordCriteria] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    specialChar: false,
+  });
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [fetching, setFetching] = useState(true);
@@ -31,6 +56,26 @@ const Customers = () => {
   useEffect(() => {
     fetchCustomers();
   }, []);
+
+  useEffect(() => {
+    // Update password criteria whenever password changes
+    const password = currentCustomer.password;
+    setPasswordCriteria({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      specialChar: /[^A-Za-z0-9]/.test(password),
+    });
+
+    // Validate password in real-time when touched
+    if (touched.password) {
+      setErrors(prev => ({
+        ...prev,
+        password: validatePassword(password)
+      }));
+    }
+  }, [currentCustomer.password, touched.password]);
 
   const fetchCustomers = async () => {
     setFetching(true);
@@ -45,6 +90,52 @@ const Customers = () => {
     }
   };
 
+  const validateName = (name, fieldName) => {
+    if (!name.trim()) return `${fieldName} is required`;
+    if (/[0-9]/.test(name)) return 'Name cannot contain numbers';
+    if (!/^[a-zA-Z]+$/.test(name)) return 'Name should only contain letters';
+    return '';
+  };
+
+  const validatePhone = (phone) => {
+    if (!phone) return 'Phone number is required';
+    const cleaned = phone.replace(/\D/g, '');
+    
+    if (!/^(09|2519)\d{8}$/.test(cleaned) && !/^\+2519\d{8}$/.test(phone)) {
+      return 'Phone must start with 09, +2519 or 2519 and be 10 digits total';
+    }
+    
+    if (cleaned.length !== 10 && !phone.startsWith('+2519')) {
+      return 'Phone number must be 10 digits';
+    }
+    
+    return '';
+  };
+
+  const validatePassword = (password) => {
+    if (!password) return 'Password is required';
+    if (password.length < 8) return 'Password must be at least 8 characters';
+    if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter';
+    if (!/[a-z]/.test(password)) return 'Password must contain at least one lowercase letter';
+    if (!/[0-9]/.test(password)) return 'Password must contain at least one number';
+    if (!/[^A-Za-z0-9]/.test(password)) return 'Password must contain at least one special character';
+    return '';
+  };
+
+  const validateEmail = (email) => {
+    if (!email) return 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return 'Please enter a valid email address';
+    }
+    return '';
+  };
+
+  const validateAddress = (address) => {
+    if (!address) return 'Address is required';
+    if (address.length < 6) return 'Address must be at least 6 characters long';
+    return '';
+  };
+
   const handleSearch = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -57,24 +148,110 @@ const Customers = () => {
     }
   };
 
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    
+    // Validate the field when it loses focus
+    let error = '';
+    switch (name) {
+      case 'firstName':
+        error = validateName(currentCustomer.firstName, 'First name');
+        break;
+      case 'middleName':
+        error = validateName(currentCustomer.middleName, 'Middle name');
+        break;
+      case 'lastName':
+        error = validateName(currentCustomer.lastName, 'Last name');
+        break;
+      case 'email':
+        error = validateEmail(currentCustomer.email);
+        break;
+      case 'phoneNumber':
+        error = validatePhone(currentCustomer.phoneNumber);
+        break;
+      case 'address':
+        error = validateAddress(currentCustomer.address);
+        break;
+      case 'password':
+        error = validatePassword(currentCustomer.password);
+        break;
+      default:
+        break;
+    }
+    
+    setErrors(prev => ({ ...prev, [name]: error }));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentCustomer({ ...currentCustomer, [name]: value });
+    
+    // Validate in real-time if the field has been touched
+    if (touched[name]) {
+      let error = '';
+      switch (name) {
+        case 'firstName':
+          error = validateName(value, 'First name');
+          break;
+        case 'middleName':
+          error = validateName(value, 'Middle name');
+          break;
+        case 'lastName':
+          error = validateName(value, 'Last name');
+          break;
+        case 'email':
+          error = validateEmail(value);
+          break;
+        case 'phoneNumber':
+          error = validatePhone(value);
+          break;
+        case 'address':
+          error = validateAddress(value);
+          break;
+        case 'password':
+          error = validatePassword(value);
+          break;
+        default:
+          break;
+      }
+      
+      setErrors(prev => ({ ...prev, [name]: error }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      firstName: validateName(currentCustomer.firstName, 'First name'),
+      middleName: validateName(currentCustomer.middleName, 'Middle name'),
+      lastName: validateName(currentCustomer.lastName, 'Last name'),
+      email: validateEmail(currentCustomer.email),
+      phoneNumber: validatePhone(currentCustomer.phoneNumber),
+      address: validateAddress(currentCustomer.address),
+    };
+
+    if (modalType === 'add' || modalType === 'reset') {
+      newErrors.password = validatePassword(currentCustomer.password);
+    }
+
+    setErrors(newErrors);
+    // Mark all fields as touched when submitting
+    setTouched({
+      firstName: true,
+      middleName: true,
+      lastName: true,
+      email: true,
+      password: modalType === 'add' || modalType === 'reset',
+      phoneNumber: true,
+      address: true,
+    });
+
+    return !Object.values(newErrors).some(error => error !== '');
+  };
+
   const handleAddOrEdit = async () => {
-    if (modalType === 'add' || modalType === 'edit') {
-      if (!currentCustomer.firstName || !currentCustomer.lastName) {
-        toast.error('First and Last name are required');
-        return;
-      }
-      if (!currentCustomer.email || !/^\S+@\S+\.\S+$/.test(currentCustomer.email)) {
-        toast.error('Please enter a valid email address');
-        return;
-      }
-      if (!currentCustomer.phoneNumber || !/^\d{10}$/.test(currentCustomer.phoneNumber)) {
-        toast.error('Please enter a valid phone number');
-        return;
-      }
-      if (modalType === 'add' && (!currentCustomer.password || currentCustomer.password.length < 6)) {
-        toast.error('Password must be at least 6 characters long');
-        return;
-      }
+    if (!validateForm()) {
+      return;
     }
 
     setLoading(true);
@@ -89,10 +266,6 @@ const Customers = () => {
         );
         toast.success('Updated successfully!');
       } else if (modalType === 'reset') {
-        if (!currentCustomer.password || currentCustomer.password.length < 6) {
-          toast.error('Password must be at least 6 characters long');
-          return;
-        }
         await axios.put(
           api.updateCustomer.replace('{customerId}', currentCustomer._id),
           { password: currentCustomer.password },
@@ -142,6 +315,51 @@ const Customers = () => {
       phoneNumber: '',
       address: '',
     });
+    setErrors({
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      phoneNumber: '',
+      address: '',
+    });
+    setTouched({
+      firstName: false,
+      middleName: false,
+      lastName: false,
+      email: false,
+      password: false,
+      phoneNumber: false,
+      address: false,
+    });
+  };
+
+  const renderPasswordCriteria = () => {
+    return (
+      <div className="mt-2 space-y-1">
+        <div className={`flex items-center text-xs ${passwordCriteria.length ? 'text-emerald-500' : 'text-error'}`}>
+          {passwordCriteria.length ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+          At least 8 characters
+        </div>
+        <div className={`flex items-center text-xs ${passwordCriteria.uppercase ? 'text-emerald-500' : 'text-error'}`}>
+          {passwordCriteria.uppercase ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+          At least one uppercase letter
+        </div>
+        <div className={`flex items-center text-xs ${passwordCriteria.lowercase ? 'text-emerald-500' : 'text-error'}`}>
+          {passwordCriteria.lowercase ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+          At least one lowercase letter
+        </div>
+        <div className={`flex items-center text-xs ${passwordCriteria.number ? 'text-emerald-500' : 'text-error'}`}>
+          {passwordCriteria.number ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+          At least one number
+        </div>
+        <div className={`flex items-center text-xs ${passwordCriteria.specialChar ? 'text-emerald-500' : 'text-error'}`}>
+          {passwordCriteria.specialChar ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+          At least one special character
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -240,7 +458,7 @@ const Customers = () => {
 
       {showModal && (
         <div className="modal modal-open">
-          <div className="modal-box">
+          <div className="modal-box w-11/12 max-w-5xl">
             <h2 className="text-lg font-bold mb-4">
               {modalType === 'edit'
                 ? 'Edit'
@@ -250,73 +468,135 @@ const Customers = () => {
               Customer
             </h2>
             {modalType !== 'reset' && (
-              <>
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  value={currentCustomer.firstName}
-                  onChange={(e) =>
-                    setCurrentCustomer({ ...currentCustomer, firstName: e.target.value })
-                  }
-                  className="input input-bordered w-full mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Middle Name"
-                  value={currentCustomer.middleName}
-                  onChange={(e) =>
-                    setCurrentCustomer({ ...currentCustomer, middleName: e.target.value })
-                  }
-                  className="input input-bordered w-full mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Last Name"
-                  value={currentCustomer.lastName}
-                  onChange={(e) =>
-                    setCurrentCustomer({ ...currentCustomer, lastName: e.target.value })
-                  }
-                  className="input input-bordered w-full mb-2"
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={currentCustomer.email}
-                  onChange={(e) =>
-                    setCurrentCustomer({ ...currentCustomer, email: e.target.value })
-                  }
-                  className="input input-bordered w-full mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Phone Number"
-                  value={currentCustomer.phoneNumber}
-                  onChange={(e) =>
-                    setCurrentCustomer({ ...currentCustomer, phoneNumber: e.target.value })
-                  }
-                  className="input input-bordered w-full mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Address"
-                  value={currentCustomer.address}
-                  onChange={(e) =>
-                    setCurrentCustomer({ ...currentCustomer, address: e.target.value })
-                  }
-                  className="input input-bordered w-full mb-2"
-                />
-              </>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* First Name */}
+                <div className="form-control">
+                  <label className="label"><span className="label-text">First Name</span></label>
+                  <div className="relative">
+                    <input
+                      name="firstName"
+                      value={currentCustomer.firstName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      type="text"
+                      className={`input input-bordered w-full pl-10 ${errors.firstName && touched.firstName ? 'input-error' : ''}`}
+                      placeholder="First Name"
+                    />
+                    <FaUserAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  </div>
+                  {errors.firstName && touched.firstName && <span className="text-error text-xs mt-1">{errors.firstName}</span>}
+                </div>
+
+                {/* Middle Name */}
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Middle Name</span></label>
+                  <div className="relative">
+                    <input
+                      name="middleName"
+                      value={currentCustomer.middleName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      type="text"
+                      className={`input input-bordered w-full ${errors.middleName && touched.middleName ? 'input-error' : ''}`}
+                      placeholder="Middle Name"
+                    />
+                  </div>
+                  {errors.middleName && touched.middleName && <span className="text-error text-xs mt-1">{errors.middleName}</span>}
+                </div>
+
+                {/* Last Name */}
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Last Name</span></label>
+                  <div className="relative">
+                    <input
+                      name="lastName"
+                      value={currentCustomer.lastName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      type="text"
+                      className={`input input-bordered w-full ${errors.lastName && touched.lastName ? 'input-error' : ''}`}
+                      placeholder="Last Name"
+                    />
+                  </div>
+                  {errors.lastName && touched.lastName && <span className="text-error text-xs mt-1">{errors.lastName}</span>}
+                </div>
+
+                {/* Email */}
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Email</span></label>
+                  <div className="relative">
+                    <input
+                      name="email"
+                      value={currentCustomer.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      type="email"
+                      className={`input input-bordered w-full pl-10 ${errors.email && touched.email ? 'input-error' : ''}`}
+                      placeholder="Email"
+                    />
+                    <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  </div>
+                  {errors.email && touched.email && <span className="text-error text-xs mt-1">{errors.email}</span>}
+                </div>
+
+                {/* Phone Number */}
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Phone Number</span></label>
+                  <div className="relative">
+                    <input
+                      name="phoneNumber"
+                      value={currentCustomer.phoneNumber}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      type="text"
+                      className={`input input-bordered w-full pl-10 ${errors.phoneNumber && touched.phoneNumber ? 'input-error' : ''}`}
+                      placeholder="09XXXXXXXX or +2519XXXXXX"
+                    />
+                    <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  </div>
+                  {errors.phoneNumber && touched.phoneNumber && <span className="text-error text-xs mt-1">{errors.phoneNumber}</span>}
+                </div>
+
+                {/* Address */}
+                <div className="form-control col-span-2">
+                  <label className="label"><span className="label-text">Address</span></label>
+                  <div className="relative">
+                    <input
+                      name="address"
+                      value={currentCustomer.address}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      type="text"
+                      className={`input input-bordered w-full pl-10 ${errors.address && touched.address ? 'input-error' : ''}`}
+                      placeholder="Address"
+                    />
+                    <FaHome className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  </div>
+                  {errors.address && touched.address && <span className="text-error text-xs mt-1">{errors.address}</span>}
+                  <span className="text-xs text-gray-500 mt-1">Address must be at least 6 characters long</span>
+                </div>
+              </div>
             )}
-            {modalType !== 'edit' && (
-              <input
-                type="password"
-                placeholder="Password"
-                value={currentCustomer.password}
-                onChange={(e) =>
-                  setCurrentCustomer({ ...currentCustomer, password: e.target.value })
-                }
-                className="input input-bordered w-full mb-2"
-              />
+            {(modalType === 'add' || modalType === 'reset') && (
+              <div className="mt-4">
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Password</span></label>
+                  <div className="relative">
+                    <input
+                      name="password"
+                      value={currentCustomer.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      type="password"
+                      className={`input input-bordered w-full pl-10 ${errors.password && touched.password ? 'input-error' : ''}`}
+                      placeholder="Password"
+                    />
+                    <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  </div>
+                  {errors.password && touched.password && <span className="text-error text-xs mt-1">{errors.password}</span>}
+                  {renderPasswordCriteria()}
+                </div>
+              </div>
             )}
             <div className="modal-action">
               <button onClick={handleAddOrEdit} className="btn btn-success">
