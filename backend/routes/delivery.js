@@ -24,7 +24,7 @@ const router = express.Router();
 router.post(
   '/create',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   createDelivery
 );
 

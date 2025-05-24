@@ -10,6 +10,7 @@ const Order = () => {
   const [error, setError] = useState(null);
   const [deliveryPersons, setDeliveryPersons] = useState({});
   const [selectedDeliveryPerson, setSelectedDeliveryPerson] = useState(null);
+  const [currentlyAssigningId, setCurrentlyAssigningId] = useState(null); // Track which order is being assigned
 
   // Fetch orders based on status
   const fetchOrders = async () => {
@@ -108,10 +109,11 @@ const Order = () => {
 
   const handleAssignDeliveryPerson = async (orderId, deliveryPersonId) => {
     if (!deliveryPersonId) {
-      toast.warning('Please select a delivery person');
+      toast.warning('Please select a delivery person before assigning');
       return;
     }
 
+    setCurrentlyAssigningId(orderId); // Set the currently assigning order ID
     try {
       const response = await fetch(api.createDelivery, {
         method: 'POST',
@@ -135,6 +137,8 @@ const Order = () => {
     } catch (err) {
       setError('Error assigning delivery person: ' + err.message);
       toast.error('Error assigning delivery person: ' + err.message);
+    } finally {
+      setCurrentlyAssigningId(null); // Reset the currently assigning order ID
     }
   };
 
@@ -211,7 +215,7 @@ const Order = () => {
                 <tr key={order._id} className="text-xs">
                   <td className="py-2">
                     <button
-                      className="btn btn-xs text-[9px] btn-outline hover:bg-emerald-500 hover:text-black"
+                      className="btn btn-xs text-[9px] btn-outline hover:bg-emerald-500 hover:text-black min-w-16"
                       onClick={() => copyToClipboard(order._id)}
                     >
                       Copy ID
@@ -274,8 +278,16 @@ const Order = () => {
                               <button
                                 className="btn btn-primary btn-xs"
                                 onClick={() => handleAssignDeliveryPerson(order._id, selectedDeliveryPerson)}
+                                disabled={currentlyAssigningId === order._id}
                               >
-                                Assign
+                                {currentlyAssigningId === order._id ? (
+                                  <>
+                                    <span className="loading loading-spinner loading-xs"></span>
+                                    Assigning...
+                                  </>
+                                ) : (
+                                  'Assign'
+                                )}
                               </button>
                             </>
                           ) : (
