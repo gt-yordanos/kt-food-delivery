@@ -13,13 +13,13 @@ import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.
 
 const router = express.Router();
 
-router.post('/add', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), addDeliveryPerson);
+router.post('/add', authenticateToken, authorizeRoles(['admin', 'manager']), addDeliveryPerson);
 router.post('/login', loginDeliveryPerson);
-router.put('/update/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']), updateDeliveryPerson);
-router.delete('/delete/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), deleteDeliveryPerson);
-router.get('/get/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']), getDeliveryPersonById);
-router.get('/all', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllDeliveryPersons);
-router.get('/search', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), searchDeliveryPerson);
-router.get('/campus/:campus/active-deliveries', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getDeliveryPersonsByCampusWithActiveDeliveries);
+router.put('/update/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'manager', 'deliveryPerson']), updateDeliveryPerson);
+router.delete('/delete/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'manager']), deleteDeliveryPerson);
+router.get('/get/:deliveryPersonId', authenticateToken, authorizeRoles(['admin', 'manager', 'deliveryPerson']), getDeliveryPersonById);
+router.get('/all', authenticateToken, authorizeRoles(['admin', 'manager']), getAllDeliveryPersons);
+router.get('/search', authenticateToken, authorizeRoles(['admin', 'manager']), searchDeliveryPerson);
+router.get('/campus/:campus/active-deliveries', authenticateToken, authorizeRoles(['admin', 'manager']), getDeliveryPersonsByCampusWithActiveDeliveries);
 
 export default router;

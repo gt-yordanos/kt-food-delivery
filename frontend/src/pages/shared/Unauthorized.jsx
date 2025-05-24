@@ -10,8 +10,8 @@ const Unauthorized = () => {
   const handleGoBack = () => {
     if (user?.role === 'admin') {
       navigate('/admin/dashboard');
-    } else if (user?.role === 'restaurantOwner') {
-      navigate('/owner/dashboard');
+    } else if (user?.role === 'manager') {
+      navigate('/manager/dashboard');
     } else if (user?.role === 'deliveryPerson') {
       navigate('/delivery-person');
     } else {

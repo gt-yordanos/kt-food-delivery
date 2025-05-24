@@ -38,7 +38,7 @@ const App = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/admin/login" element={<Login loginApi={api.loginAdmin} redirectLink="/admin/dashboard" />} />
-          <Route path="/owner/login" element={<Login loginApi={api.loginRestaurantOwner} redirectLink="/owner/dashboard" />} />
+          <Route path="/manager/login" element={<Login loginApi={api.loginRestaurantOwner} redirectLink="/manager/dashboard" />} />
           <Route path="/delivery-person/login" element={<Login loginApi={api.loginDeliveryPerson} redirectLink="/delivery-person" />} />
           <Route path="/unauthorized" element={<Unauthorized/>} />
 
@@ -127,18 +127,18 @@ const App = () => {
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="admin"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/customers" element={<ProtectedRoute requiredRole="admin"><AdminLayout><ManageCustomers /></AdminLayout></ProtectedRoute>} />
-          <Route path="/admin/owners" element={<ProtectedRoute requiredRole="admin"><AdminLayout><ManageOwners /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/managers" element={<ProtectedRoute requiredRole="admin"><AdminLayout><ManageOwners /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/delivery-person" element={<ProtectedRoute requiredRole="admin"><AdminLayout><ManageDeliveryPeople /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/restaurant" element={<ProtectedRoute requiredRole="admin"><AdminLayout><ManageRestaurant /></AdminLayout></ProtectedRoute>} />
 
           {/* Owner Routes */}
-          <Route path="/owner" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><OwnerDashboard /></OwnerLayout></ProtectedRoute>} />
-          <Route path="/owner/dashboard" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><OwnerDashboard /></OwnerLayout></ProtectedRoute>} />
-          <Route path="/owner/menu" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageMenu /></OwnerLayout></ProtectedRoute>} />
-          <Route path="/owner/restaurant" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageRestaurant /></OwnerLayout></ProtectedRoute>} />
-          <Route path="/owner/delivery-people" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageDeliveryPeople /></OwnerLayout></ProtectedRoute>} />
-          <Route path="/owner/delivery" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageDelivery /></OwnerLayout></ProtectedRoute>} />
-          <Route path="/owner/orders" element={<ProtectedRoute requiredRole="restaurantOwner"><OwnerLayout><ManageOrder /></OwnerLayout></ProtectedRoute>} />
+          <Route path="/manager" element={<ProtectedRoute requiredRole="manager"><OwnerLayout><OwnerDashboard /></OwnerLayout></ProtectedRoute>} />
+          <Route path="/manager/dashboard" element={<ProtectedRoute requiredRole="manager"><OwnerLayout><OwnerDashboard /></OwnerLayout></ProtectedRoute>} />
+          <Route path="/manager/menu" element={<ProtectedRoute requiredRole="manager"><OwnerLayout><ManageMenu /></OwnerLayout></ProtectedRoute>} />
+          <Route path="/manager/restaurant" element={<ProtectedRoute requiredRole="manager"><OwnerLayout><ManageRestaurant /></OwnerLayout></ProtectedRoute>} />
+          <Route path="/manager/delivery-people" element={<ProtectedRoute requiredRole="manager"><OwnerLayout><ManageDeliveryPeople /></OwnerLayout></ProtectedRoute>} />
+          <Route path="/manager/delivery" element={<ProtectedRoute requiredRole="manager"><OwnerLayout><ManageDelivery /></OwnerLayout></ProtectedRoute>} />
+          <Route path="/manager/orders" element={<ProtectedRoute requiredRole="manager"><OwnerLayout><ManageOrder /></OwnerLayout></ProtectedRoute>} />
 
           {/* DeliveryPerson Routes */}
           <Route path="/delivery-person" element={<ProtectedRoute requiredRole="deliveryPerson"><DeliveryPersonPage/></ProtectedRoute>} />

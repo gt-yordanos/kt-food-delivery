@@ -23,7 +23,7 @@ const router = express.Router();
 router.post(
   '/',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   upload.single('image'),
   addMenuItem
 );
@@ -31,7 +31,7 @@ router.post(
 router.put(
   '/:menuId',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   upload.single('image'),
   updateMenuItem
 );
@@ -39,28 +39,28 @@ router.put(
 router.delete(
   '/:menuId',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   deleteMenuItem
 );
 
 router.get(
   '/',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   getAllMenuItems
 );
 
 router.get(
   '/search',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   searchMenuByName
 );
 
 router.get(
   '/category/:category',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   getMenuByCategory
 );
 
@@ -73,14 +73,14 @@ router.get('/available/:menuId', getAvailableMenuItemById); // <- LAST in the av
 router.put(
   '/update-availability/:menuId',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   updateMenuItemAvailability
 );
 
 // Final catch: this should be LAST
 router.get('/:menuId',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   getMenuItemById
 );
 

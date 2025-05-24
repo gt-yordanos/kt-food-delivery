@@ -14,8 +14,8 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   if (user) {
     if (location.pathname === `/admin/login` && user.role === 'admin') {
       return <Navigate to="/admin/dashboard" />;
-    } else if (location.pathname === `/owner/login` && user.role === 'restaurantOwner') {
-      return <Navigate to="/owner/dashboard" />;
+    } else if (location.pathname === `/manager/login` && user.role === 'manager') {
+      return <Navigate to="/manager/dashboard" />;
     } else if (location.pathname === `/delivery-person/login` && user.role === 'deliveryPerson') {
       return <Navigate to="/delivery-person" />;
     }
@@ -25,8 +25,8 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   if (!user) {
     if (location.pathname.startsWith('/admin')) {
       return <Navigate to="/admin/login" state={{ from: location }} />;
-    } else if (location.pathname.startsWith('/owner')) {
-      return <Navigate to="/owner/login" state={{ from: location }} />;
+    } else if (location.pathname.startsWith('/manager')) {
+      return <Navigate to="/manager/login" state={{ from: location }} />;
     } else if (location.pathname.startsWith('/delivery-person')) {
       return <Navigate to="/delivery-person/login" state={{ from: location }} />;
     } else {

@@ -56,7 +56,7 @@ router.get(
 router.get(
   '/all',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']),
+  authorizeRoles(['admin', 'manager', 'deliveryPerson']),
   getAllDeliveries
 );
 
@@ -64,7 +64,7 @@ router.get(
 router.get(
   '/:deliveryId',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']),
+  authorizeRoles(['admin', 'manager', 'deliveryPerson']),
   getDeliveryById
 );
 
@@ -72,7 +72,7 @@ router.get(
 router.get(
   '/by-person/:deliveryPersonId',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']),
+  authorizeRoles(['admin', 'manager', 'deliveryPerson']),
   getDeliveriesByPerson
 );
 
@@ -80,7 +80,7 @@ router.get(
 router.get(
   '/by-campus/:campus',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   getDeliveriesByCampus
 );
 
@@ -88,7 +88,7 @@ router.get(
 router.get(
   '/by-day',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   getDeliveriesByDay
 );
 
@@ -96,7 +96,7 @@ router.get(
 router.get(
   '/by-hour',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   getDeliveriesByHour
 );
 
@@ -104,7 +104,7 @@ router.get(
 router.get(
   '/order/:orderId',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner']),
+  authorizeRoles(['admin', 'manager']),
   getDeliveriesByOrderId
 );
 
@@ -112,7 +112,7 @@ router.get(
 router.get(
   '/status/:status',
   authenticateToken,
-  authorizeRoles(['admin', 'restaurantOwner', 'deliveryPerson']),
+  authorizeRoles(['admin', 'manager', 'deliveryPerson']),
   getDeliveriesByStatus
 );
 

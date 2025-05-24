@@ -51,7 +51,7 @@ export const loginRestaurantOwner = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: owner._id, role: 'restaurantOwner' },
+      { id: owner._id, role: 'manager' },
       process.env.JWT_SECRET,
       { expiresIn: '30d' }
     );

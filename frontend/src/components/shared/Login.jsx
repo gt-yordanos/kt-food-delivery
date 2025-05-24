@@ -22,8 +22,8 @@ const Login = ({ loginApi, redirectLink }) => {
         case 'admin':
           navigate('/admin/dashboard');
           break;
-        case 'restaurantOwner':
-          navigate('/owner/dashboard');
+        case 'manager':
+          navigate('/manager/dashboard');
           break;
         case 'deliveryPerson':
           navigate('/delivery-person');

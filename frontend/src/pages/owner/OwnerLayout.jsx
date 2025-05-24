@@ -11,12 +11,12 @@ import {
 
 const OwnerLayout = ({ children }) => {
   const links = [
-    { label: 'Dashboard', path: '/owner/dashboard', icon: FaTachometerAlt },
-    { label: 'Menu', path: '/owner/menu', icon: FaUtensils },
-    { label: 'Restaurant', path: '/owner/restaurant', icon: FaRegBuilding },
-    { label: 'Delivery People', path: '/owner/delivery-people', icon: FaTruck },
-    { label: 'Delivery', path: '/owner/delivery', icon: FaGift },
-    { label: 'Orders', path: '/owner/orders', icon: FaClipboardList },
+    { label: 'Dashboard', path: '/manager/dashboard', icon: FaTachometerAlt },
+    { label: 'Menu', path: '/manager/menu', icon: FaUtensils },
+    { label: 'Restaurant', path: '/manager/restaurant', icon: FaRegBuilding },
+    { label: 'Delivery People', path: '/manager/delivery-people', icon: FaTruck },
+    { label: 'Delivery', path: '/manager/delivery', icon: FaGift },
+    { label: 'Orders', path: '/manager/orders', icon: FaClipboardList },
   ];
 
   return (

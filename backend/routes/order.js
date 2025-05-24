@@ -15,10 +15,10 @@ import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.
 const router = express.Router();
 
 router.post('/', authenticateToken, authorizeRoles(['customer']), createOrder);
-router.get('/', authenticateToken, authorizeRoles(['admin', 'restaurantOwner']), getAllOrders);
-router.get('/customer/:customerId', authenticateToken, authorizeRoles(['restaurantOwner', 'customer']), getOrdersByCustomerId);
-router.get('/status/:status', authenticateToken, authorizeRoles(['restaurantOwner']), getOrdersByStatus);
-router.patch('/:orderId/status', authenticateToken, authorizeRoles(['restaurantOwner']), updateOrderStatus);
+router.get('/', authenticateToken, authorizeRoles(['admin', 'manager']), getAllOrders);
+router.get('/customer/:customerId', authenticateToken, authorizeRoles(['manager', 'customer']), getOrdersByCustomerId);
+router.get('/status/:status', authenticateToken, authorizeRoles(['manager']), getOrdersByStatus);
+router.patch('/:orderId/status', authenticateToken, authorizeRoles(['manager']), updateOrderStatus);
 
 // Payment verification routes
 router.get('/payments/chapa/verify/:tx_ref', verifyPayment);
