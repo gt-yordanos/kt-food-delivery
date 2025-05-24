@@ -26,11 +26,8 @@ export const checkPendingPayments = async () => {
           }
           await customer.save();
         }
-
-        console.log(`✅ Order ${order._id} marked as paid and inProgress`);
       }
     }
   } catch (error) {
-    console.error('❌ Error checking pending payments:', error.message);
   }
 };
