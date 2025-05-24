@@ -61,28 +61,31 @@ const Order = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch delivery persons');
+        setDeliveryPersons((prev) => ({
+          ...prev,
+          [campus]: [],
+        }));
+        return;
       }
 
       const data = await response.json();
-      console.log('Fetched delivery persons for campus', campus, data);
-
       setDeliveryPersons((prev) => ({
         ...prev,
-        [campus]: data,
+        [campus]: Array.isArray(data) ? data : [],
       }));
     } catch (err) {
-      setError('Error fetching delivery persons: ' + err.message);
-      toast.error('Error fetching delivery persons: ' + err.message);
+      console.error('Error fetching delivery persons:', err);
+      setDeliveryPersons((prev) => ({
+        ...prev,
+        [campus]: [],
+      }));
     }
   };
 
-  // Fetch orders and delivery persons when status or orders change
   useEffect(() => {
     fetchOrders();
   }, [selectedStatus]);
 
-  // Fetch delivery persons for each campus of the orders
   useEffect(() => {
     if (orders.length > 0) {
       const campuses = [...new Set(orders.map((order) => order.campus))];
@@ -90,7 +93,6 @@ const Order = () => {
     }
   }, [orders]);
 
-  // Improved date formatting function
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const options = {
@@ -104,7 +106,6 @@ const Order = () => {
     return date.toLocaleString('en-US', options);
   };
 
-  // Handle selecting a delivery person for an order
   const handleAssignDeliveryPerson = async (orderId, deliveryPersonId) => {
     if (!deliveryPersonId) {
       toast.warning('Please select a delivery person');
@@ -137,7 +138,6 @@ const Order = () => {
     }
   };
 
-  // Function to copy order ID to clipboard
   const copyToClipboard = (orderId) => {
     navigator.clipboard.writeText(orderId);
     toast.success('Order ID copied to clipboard!');
@@ -160,7 +160,6 @@ const Order = () => {
       
       <h1 className="text-2xl font-bold mb-4">Orders</h1>
 
-      {/* Status Filter */}
       <div className="mb-4">
         <label htmlFor="status" className="mr-2 font-semibold">
           Filter by Status:
@@ -255,27 +254,35 @@ const Order = () => {
                   <td className="py-2 whitespace-nowrap">{formatDate(order.createdAt)}</td>
                   <td className="py-2">
                     {order.status === 'completed' ? (
-                      <span className="text-sucess">Assigned</span>
+                      <span className="text-success">Assigned</span>
                     ) : (
                       order.status === 'inProgress' && (
                         <div className="flex flex-col space-y-1">
-                          <select
-                            onChange={(e) => setSelectedDeliveryPerson(e.target.value)}
-                            className="select select-bordered select-sm text-xs"
-                          >
-                            <option value="">Select Delivery</option>
-                            {deliveryPersons[order.campus]?.map((person) => (
-                              <option key={person._id} value={person._id}>
-                                {person.firstName} {person.lastName} ({person.deliveries.length})
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            className="btn btn-primary btn-xs"
-                            onClick={() => handleAssignDeliveryPerson(order._id, selectedDeliveryPerson)}
-                          >
-                            Assign
-                          </button>
+                          {deliveryPersons[order.campus]?.length > 0 ? (
+                            <>
+                              <select
+                                onChange={(e) => setSelectedDeliveryPerson(e.target.value)}
+                                className="select select-bordered select-sm text-xs"
+                              >
+                                <option value="">Select Delivery</option>
+                                {deliveryPersons[order.campus]?.map((person) => (
+                                  <option key={person._id} value={person._id}>
+                                    {person.firstName} {person.lastName} ({person.deliveries.length})
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                className="btn btn-primary btn-xs"
+                                onClick={() => handleAssignDeliveryPerson(order._id, selectedDeliveryPerson)}
+                              >
+                                Assign
+                              </button>
+                            </>
+                          ) : (
+                            <div className="text-error text-xs">
+                              No delivery person available for this campus
+                            </div>
+                          )}
                         </div>
                       )
                     )}
