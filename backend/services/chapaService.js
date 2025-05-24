@@ -6,11 +6,6 @@ const CHAPA_AUTH_KEY = chapaConfig.chapaSecretKey;
 
 export const initiateChapaPayment = async (paymentData) => {
   try {
-    // Log Chapa API URL and Authorization Key
-    console.log('Chapa API URL:', CHAPA_API_URL);
-    console.log('Chapa Auth Key:', CHAPA_AUTH_KEY);
-
-    console.log('Payment Data:', paymentData);
 
     const response = await axios.post(
       CHAPA_API_URL,
@@ -36,9 +31,6 @@ export const initiateChapaPayment = async (paymentData) => {
       }
     );
 
-    // Log the response data from Chapa API
-    console.log('Chapa Payment Initiation Response:', response.data);
-
     return response.data;
   } catch (error) {
     console.error('Chapa payment initiation error:', error.response?.data || error.message);
@@ -48,9 +40,6 @@ export const initiateChapaPayment = async (paymentData) => {
 
 export const verifyChapaPayment = async (tx_ref) => {
   try {
-    // Log Chapa API URL and Authorization Key
-    console.log('Verifying Chapa Payment with tx_ref:', tx_ref);
-    console.log('Chapa Auth Key:', CHAPA_AUTH_KEY);
 
     const response = await axios.get(
       `https://api.chapa.co/v1/transaction/verify/${tx_ref}`,
@@ -61,12 +50,8 @@ export const verifyChapaPayment = async (tx_ref) => {
       }
     );
 
-    // Log the response data from Chapa API
-    console.log('Chapa Payment Verification Response:', response.data);
-
     return response.data;
   } catch (error) {
-    console.error('Chapa payment verification error:', error.response?.data || error.message);
     throw new Error('Failed to verify Chapa payment');
   }
 };
