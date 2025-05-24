@@ -240,17 +240,17 @@ const Orders = () => {
                     <div key={item._id} className="flex justify-between items-center p-2 border-b">
                       <div>
                         <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-gray-500">${item.priceAtPurchase.toFixed(2)} each</p>
+                        <p className="text-sm text-gray-500">{item.priceAtPurchase.toFixed(2)} ETB each</p>
                       </div>
                       <div className="text-right">
                         <p>× {item.quantity}</p>
-                        <p className="font-bold">${(item.priceAtPurchase * item.quantity).toFixed(2)}</p>
+                        <p className="font-bold">{(item.priceAtPurchase * item.quantity).toFixed(2)} ETB</p>
                       </div>
                     </div>
                   ))}
                   <div className="flex justify-between items-center p-2 font-bold text-lg">
                     <span>Total</span>
-                    <span>${selectedOrder.order.totalPrice.toFixed(2)}</span>
+                    <span>{selectedOrder.order.totalPrice.toFixed(2)} ETB</span>
                   </div>
                 </div>
               </div>

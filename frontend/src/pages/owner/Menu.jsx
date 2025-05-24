@@ -223,7 +223,6 @@ const Menu = () => {
               <tr>
                 <th>Image</th>
                 <th>Name</th>
-                <th>Description</th>
                 <th>Price</th>
                 <th>Category</th>
                 <th>Availability</th>
@@ -233,7 +232,7 @@ const Menu = () => {
             <tbody>
               {loadingTable ? (
                 <tr>
-                  <td colSpan="7" className="text-center">
+                  <td colSpan="6" className="text-center">
                     <span className="loading loading-spinner loading-lg"></span>
                   </td>
                 </tr>
@@ -250,8 +249,7 @@ const Menu = () => {
                       ) : 'No Image'}
                     </td>
                     <td>{item.name}</td>
-                    <td>{item.description}</td>
-                    <td>${item.price}</td>
+                    <td>{item.price} ETB</td>
                     <td>{item.category.join(', ')}</td>
                     <td>
                       <input
