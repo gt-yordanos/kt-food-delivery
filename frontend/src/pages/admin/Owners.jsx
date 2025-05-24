@@ -55,7 +55,7 @@ const Owners = () => {
   }, []);
 
   useEffect(() => {
-    const password = currentOwner.password;
+    const password = currentOwner.password || '';
     setPasswordCriteria({
       length: password.length >= 8,
       uppercase: /[A-Z]/.test(password),
@@ -86,7 +86,7 @@ const Owners = () => {
   };
 
   const validateName = (name, fieldName) => {
-    if (!name.trim()) return `${fieldName} is required`;
+    if (!name || !name.trim()) return `${fieldName} is required`;
     if (/[0-9]/.test(name)) return 'Name cannot contain numbers';
     if (!/^[a-zA-Z]+$/.test(name)) return 'Name should only contain letters';
     return '';
@@ -144,22 +144,22 @@ const Owners = () => {
     let error = '';
     switch (name) {
       case 'firstName':
-        error = validateName(currentOwner.firstName, 'First name');
+        error = validateName(currentOwner.firstName || '', 'First name');
         break;
       case 'middleName':
-        error = validateName(currentOwner.middleName, 'Middle name');
+        error = validateName(currentOwner.middleName || '', 'Middle name');
         break;
       case 'lastName':
-        error = validateName(currentOwner.lastName, 'Last name');
+        error = validateName(currentOwner.lastName || '', 'Last name');
         break;
       case 'email':
-        error = validateEmail(currentOwner.email);
+        error = validateEmail(currentOwner.email || '');
         break;
       case 'phoneNumber':
-        error = validatePhone(currentOwner.phoneNumber);
+        error = validatePhone(currentOwner.phoneNumber || '');
         break;
       case 'password':
-        error = validatePassword(currentOwner.password);
+        error = validatePassword(currentOwner.password || '');
         break;
       default:
         break;
@@ -172,7 +172,6 @@ const Owners = () => {
     const { name, value } = e.target;
     setCurrentOwner({ ...currentOwner, [name]: value });
     
-    // Validate in real-time if the field has been touched
     if (touched[name]) {
       let error = '';
       switch (name) {
@@ -203,26 +202,28 @@ const Owners = () => {
   };
 
   const validateForm = () => {
-    const newErrors = {
-      firstName: validateName(currentOwner.firstName, 'First name'),
-      middleName: validateName(currentOwner.middleName, 'Middle name'),
-      lastName: validateName(currentOwner.lastName, 'Last name'),
-      email: validateEmail(currentOwner.email),
-      phoneNumber: validatePhone(currentOwner.phoneNumber),
-    };
+    const newErrors = {};
+    
+    if (modalType !== 'reset') {
+      newErrors.firstName = validateName(currentOwner.firstName || '', 'First name');
+      newErrors.middleName = validateName(currentOwner.middleName || '', 'Middle name');
+      newErrors.lastName = validateName(currentOwner.lastName || '', 'Last name');
+      newErrors.email = validateEmail(currentOwner.email || '');
+      newErrors.phoneNumber = validatePhone(currentOwner.phoneNumber || '');
+    }
 
     if (modalType === 'add' || modalType === 'reset') {
-      newErrors.password = validatePassword(currentOwner.password);
+      newErrors.password = validatePassword(currentOwner.password || '');
     }
 
     setErrors(newErrors);
-    // Mark all fields as touched when submitting
+    
     setTouched({
-      firstName: true,
-      middleName: true,
-      lastName: true,
-      email: true,
-      phoneNumber: true,
+      firstName: modalType !== 'reset',
+      middleName: modalType !== 'reset',
+      lastName: modalType !== 'reset',
+      email: modalType !== 'reset',
+      phoneNumber: modalType !== 'reset',
       password: modalType === 'add' || modalType === 'reset',
     });
 
@@ -337,7 +338,7 @@ const Owners = () => {
 
   return (
     <div className="p-6 bg-base-100 rounded-lg shadow-md h-full">
-      <h1 className="text-2xl font-bold mb-4">Restaurant Owners</h1>
+      <h1 className="text-2xl font-bold mb-4">Restaurant Managers</h1>
       <input
         type="text"
         placeholder="Search"
@@ -388,7 +389,7 @@ const Owners = () => {
                   <td className="flex gap-2">
                     <button
                       onClick={() => {
-                        setCurrentOwner(owner);
+                        setCurrentOwner({ ...owner });
                         setModalType('edit');
                         setShowModal(true);
                       }}
@@ -408,7 +409,7 @@ const Owners = () => {
                     </button>
                     <button
                       onClick={() => {
-                        setCurrentOwner({ _id: owner._id, password: '' });
+                        setCurrentOwner({ ...owner, password: '' });
                         setModalType('reset');
                         setShowModal(true);
                       }}
@@ -438,7 +439,7 @@ const Owners = () => {
                   <div className="relative">
                     <input
                       name="firstName"
-                      value={currentOwner.firstName}
+                      value={currentOwner.firstName || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -456,7 +457,7 @@ const Owners = () => {
                   <div className="relative">
                     <input
                       name="middleName"
-                      value={currentOwner.middleName}
+                      value={currentOwner.middleName || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -473,7 +474,7 @@ const Owners = () => {
                   <div className="relative">
                     <input
                       name="lastName"
-                      value={currentOwner.lastName}
+                      value={currentOwner.lastName || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -490,7 +491,7 @@ const Owners = () => {
                   <div className="relative">
                     <input
                       name="email"
-                      value={currentOwner.email}
+                      value={currentOwner.email || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="email"
@@ -508,7 +509,7 @@ const Owners = () => {
                   <div className="relative">
                     <input
                       name="phoneNumber"
-                      value={currentOwner.phoneNumber}
+                      value={currentOwner.phoneNumber || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -528,7 +529,7 @@ const Owners = () => {
                   <div className="relative">
                     <input
                       name="password"
-                      value={currentOwner.password}
+                      value={currentOwner.password || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="password"

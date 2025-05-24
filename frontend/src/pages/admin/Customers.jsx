@@ -58,8 +58,7 @@ const Customers = () => {
   }, []);
 
   useEffect(() => {
-    // Update password criteria whenever password changes
-    const password = currentCustomer.password;
+    const password = currentCustomer.password || '';
     setPasswordCriteria({
       length: password.length >= 8,
       uppercase: /[A-Z]/.test(password),
@@ -68,7 +67,6 @@ const Customers = () => {
       specialChar: /[^A-Za-z0-9]/.test(password),
     });
 
-    // Validate password in real-time when touched
     if (touched.password) {
       setErrors(prev => ({
         ...prev,
@@ -91,7 +89,7 @@ const Customers = () => {
   };
 
   const validateName = (name, fieldName) => {
-    if (!name.trim()) return `${fieldName} is required`;
+    if (!name || !name.trim()) return `${fieldName} is required`;
     if (/[0-9]/.test(name)) return 'Name cannot contain numbers';
     if (!/^[a-zA-Z]+$/.test(name)) return 'Name should only contain letters';
     return '';
@@ -152,29 +150,28 @@ const Customers = () => {
     const { name } = e.target;
     setTouched(prev => ({ ...prev, [name]: true }));
     
-    // Validate the field when it loses focus
     let error = '';
     switch (name) {
       case 'firstName':
-        error = validateName(currentCustomer.firstName, 'First name');
+        error = validateName(currentCustomer.firstName || '', 'First name');
         break;
       case 'middleName':
-        error = validateName(currentCustomer.middleName, 'Middle name');
+        error = validateName(currentCustomer.middleName || '', 'Middle name');
         break;
       case 'lastName':
-        error = validateName(currentCustomer.lastName, 'Last name');
+        error = validateName(currentCustomer.lastName || '', 'Last name');
         break;
       case 'email':
-        error = validateEmail(currentCustomer.email);
+        error = validateEmail(currentCustomer.email || '');
         break;
       case 'phoneNumber':
-        error = validatePhone(currentCustomer.phoneNumber);
+        error = validatePhone(currentCustomer.phoneNumber || '');
         break;
       case 'address':
-        error = validateAddress(currentCustomer.address);
+        error = validateAddress(currentCustomer.address || '');
         break;
       case 'password':
-        error = validatePassword(currentCustomer.password);
+        error = validatePassword(currentCustomer.password || '');
         break;
       default:
         break;
@@ -187,7 +184,6 @@ const Customers = () => {
     const { name, value } = e.target;
     setCurrentCustomer({ ...currentCustomer, [name]: value });
     
-    // Validate in real-time if the field has been touched
     if (touched[name]) {
       let error = '';
       switch (name) {
@@ -221,29 +217,34 @@ const Customers = () => {
   };
 
   const validateForm = () => {
-    const newErrors = {
-      firstName: validateName(currentCustomer.firstName, 'First name'),
-      middleName: validateName(currentCustomer.middleName, 'Middle name'),
-      lastName: validateName(currentCustomer.lastName, 'Last name'),
-      email: validateEmail(currentCustomer.email),
-      phoneNumber: validatePhone(currentCustomer.phoneNumber),
-      address: validateAddress(currentCustomer.address),
-    };
+    const newErrors = {};
+    
+    // Only validate name fields if not in reset mode
+    if (modalType !== 'reset') {
+      newErrors.firstName = validateName(currentCustomer.firstName || '', 'First name');
+      newErrors.middleName = validateName(currentCustomer.middleName || '', 'Middle name');
+      newErrors.lastName = validateName(currentCustomer.lastName || '', 'Last name');
+      newErrors.email = validateEmail(currentCustomer.email || '');
+      newErrors.phoneNumber = validatePhone(currentCustomer.phoneNumber || '');
+      newErrors.address = validateAddress(currentCustomer.address || '');
+    }
 
+    // Always validate password in add or reset mode
     if (modalType === 'add' || modalType === 'reset') {
-      newErrors.password = validatePassword(currentCustomer.password);
+      newErrors.password = validatePassword(currentCustomer.password || '');
     }
 
     setErrors(newErrors);
-    // Mark all fields as touched when submitting
+    
+    // Only mark fields as touched that we're actually validating
     setTouched({
-      firstName: true,
-      middleName: true,
-      lastName: true,
-      email: true,
+      firstName: modalType !== 'reset',
+      middleName: modalType !== 'reset',
+      lastName: modalType !== 'reset',
+      email: modalType !== 'reset',
       password: modalType === 'add' || modalType === 'reset',
-      phoneNumber: true,
-      address: true,
+      phoneNumber: modalType !== 'reset',
+      address: modalType !== 'reset',
     });
 
     return !Object.values(newErrors).some(error => error !== '');
@@ -256,10 +257,9 @@ const Customers = () => {
 
     setLoading(true);
     try {
-      let response;
       if (modalType === 'edit') {
         const { password, ...dataToUpdate } = currentCustomer;
-        response = await axios.put(
+        await axios.put(
           api.updateCustomer.replace('{customerId}', currentCustomer._id),
           dataToUpdate,
           getAuthHeader()
@@ -273,7 +273,7 @@ const Customers = () => {
         );        
         toast.success('Password reset successfully!');
       } else {
-        response = await axios.post(api.create, currentCustomer, getAuthHeader());
+        await axios.post(api.create, currentCustomer, getAuthHeader());
         toast.success('Customer added successfully!');
       }
 
@@ -420,7 +420,7 @@ const Customers = () => {
                   <td className="flex gap-2">
                     <button
                       onClick={() => {
-                        setCurrentCustomer(customer);
+                        setCurrentCustomer({ ...customer });
                         setModalType('edit');
                         setShowModal(true);
                       }}
@@ -440,7 +440,7 @@ const Customers = () => {
                     </button>
                     <button
                       onClick={() => {
-                        setCurrentCustomer({ _id: customer._id, password: '' });
+                        setCurrentCustomer({ ...customer, password: '' });
                         setModalType('reset');
                         setShowModal(true);
                       }}
@@ -475,7 +475,7 @@ const Customers = () => {
                   <div className="relative">
                     <input
                       name="firstName"
-                      value={currentCustomer.firstName}
+                      value={currentCustomer.firstName || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -493,7 +493,7 @@ const Customers = () => {
                   <div className="relative">
                     <input
                       name="middleName"
-                      value={currentCustomer.middleName}
+                      value={currentCustomer.middleName || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -510,7 +510,7 @@ const Customers = () => {
                   <div className="relative">
                     <input
                       name="lastName"
-                      value={currentCustomer.lastName}
+                      value={currentCustomer.lastName || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -527,7 +527,7 @@ const Customers = () => {
                   <div className="relative">
                     <input
                       name="email"
-                      value={currentCustomer.email}
+                      value={currentCustomer.email || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="email"
@@ -545,7 +545,7 @@ const Customers = () => {
                   <div className="relative">
                     <input
                       name="phoneNumber"
-                      value={currentCustomer.phoneNumber}
+                      value={currentCustomer.phoneNumber || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -563,7 +563,7 @@ const Customers = () => {
                   <div className="relative">
                     <input
                       name="address"
-                      value={currentCustomer.address}
+                      value={currentCustomer.address || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -584,7 +584,7 @@ const Customers = () => {
                   <div className="relative">
                     <input
                       name="password"
-                      value={currentCustomer.password}
+                      value={currentCustomer.password || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="password"

@@ -58,7 +58,7 @@ const DeliveryPerson = () => {
   }, []);
 
   useEffect(() => {
-    const password = currentPerson.password;
+    const password = currentPerson.password || '';
     setPasswordCriteria({
       length: password.length >= 8,
       uppercase: /[A-Z]/.test(password),
@@ -112,7 +112,7 @@ const DeliveryPerson = () => {
   };
 
   const validateName = (name, fieldName) => {
-    if (!name.trim()) return `${fieldName} is required`;
+    if (!name || !name.trim()) return `${fieldName} is required`;
     if (/[0-9]/.test(name)) return 'Name cannot contain numbers';
     if (!/^[a-zA-Z]+$/.test(name)) return 'Name should only contain letters';
     return '';
@@ -172,25 +172,25 @@ const DeliveryPerson = () => {
     let error = '';
     switch (name) {
       case 'firstName':
-        error = validateName(currentPerson.firstName, 'First name');
+        error = validateName(currentPerson.firstName || '', 'First name');
         break;
       case 'middleName':
-        error = validateName(currentPerson.middleName, 'Middle name');
+        error = validateName(currentPerson.middleName || '', 'Middle name');
         break;
       case 'lastName':
-        error = validateName(currentPerson.lastName, 'Last name');
+        error = validateName(currentPerson.lastName || '', 'Last name');
         break;
       case 'email':
-        error = validateEmail(currentPerson.email);
+        error = validateEmail(currentPerson.email || '');
         break;
       case 'phoneNumber':
-        error = validatePhone(currentPerson.phoneNumber);
+        error = validatePhone(currentPerson.phoneNumber || '');
         break;
       case 'campus':
-        error = validateCampus(currentPerson.campus);
+        error = validateCampus(currentPerson.campus || '');
         break;
       case 'password':
-        error = validatePassword(currentPerson.password);
+        error = validatePassword(currentPerson.password || '');
         break;
       default:
         break;
@@ -206,7 +206,6 @@ const DeliveryPerson = () => {
       [name]: value
     }));
     
-    // Validate in real-time if the field has been touched
     if (touched[name]) {
       let error = '';
       switch (name) {
@@ -240,28 +239,33 @@ const DeliveryPerson = () => {
   };
 
   const validateForm = () => {
-    const newErrors = {
-      firstName: validateName(currentPerson.firstName, 'First name'),
-      middleName: validateName(currentPerson.middleName, 'Middle name'),
-      lastName: validateName(currentPerson.lastName, 'Last name'),
-      email: validateEmail(currentPerson.email),
-      phoneNumber: validatePhone(currentPerson.phoneNumber),
-      campus: validateCampus(currentPerson.campus),
-    };
+    const newErrors = {};
+    
+    // Only validate name fields if not in reset mode
+    if (modalType !== 'reset') {
+      newErrors.firstName = validateName(currentPerson.firstName || '', 'First name');
+      newErrors.middleName = validateName(currentPerson.middleName || '', 'Middle name');
+      newErrors.lastName = validateName(currentPerson.lastName || '', 'Last name');
+      newErrors.email = validateEmail(currentPerson.email || '');
+      newErrors.phoneNumber = validatePhone(currentPerson.phoneNumber || '');
+      newErrors.campus = validateCampus(currentPerson.campus || '');
+    }
 
+    // Always validate password in add or reset mode
     if (modalType === 'add' || modalType === 'reset') {
-      newErrors.password = validatePassword(currentPerson.password);
+      newErrors.password = validatePassword(currentPerson.password || '');
     }
 
     setErrors(newErrors);
-    // Mark all fields as touched when submitting
+    
+    // Only mark fields as touched that we're actually validating
     setTouched({
-      firstName: true,
-      middleName: true,
-      lastName: true,
-      email: true,
-      phoneNumber: true,
-      campus: true,
+      firstName: modalType !== 'reset',
+      middleName: modalType !== 'reset',
+      lastName: modalType !== 'reset',
+      email: modalType !== 'reset',
+      phoneNumber: modalType !== 'reset',
+      campus: modalType !== 'reset',
       password: modalType === 'add' || modalType === 'reset',
     });
 
@@ -276,24 +280,23 @@ const DeliveryPerson = () => {
 
     setLoading(true);
     try {
-      let response;
       if (modalType === 'edit') {
         const { password, ...dataToUpdate } = currentPerson;
-        response = await axios.put(
+        await axios.put(
           api.updateDeliveryPerson.replace('{deliveryPersonId}', currentPerson._id),
           dataToUpdate,
           getAuthHeader()
         );
         toast.success('Delivery person updated successfully!');
       } else if (modalType === 'reset') {
-        response = await axios.put(
+        await axios.put(
           api.updateDeliveryPerson.replace('{deliveryPersonId}', currentPerson._id),
           { password: currentPerson.password },
           getAuthHeader()
         );
         toast.success('Password reset successfully!');
       } else {
-        response = await axios.post(api.addDeliveryPerson, currentPerson, getAuthHeader());
+        await axios.post(api.addDeliveryPerson, currentPerson, getAuthHeader());
         toast.success('Delivery person added successfully!');
       }
 
@@ -465,7 +468,7 @@ const DeliveryPerson = () => {
                   <td className="flex gap-2">
                     <button
                       onClick={() => {
-                        setCurrentPerson(person);
+                        setCurrentPerson({ ...person });
                         setModalType('edit');
                         setShowModal(true);
                       }}
@@ -485,7 +488,7 @@ const DeliveryPerson = () => {
                     </button>
                     <button
                       onClick={() => {
-                        setCurrentPerson({ _id: person._id, password: '' });
+                        setCurrentPerson({ ...person, password: '' });
                         setModalType('reset');
                         setShowModal(true);
                       }}
@@ -515,7 +518,7 @@ const DeliveryPerson = () => {
                   <div className="relative">
                     <input
                       name="firstName"
-                      value={currentPerson.firstName}
+                      value={currentPerson.firstName || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -535,7 +538,7 @@ const DeliveryPerson = () => {
                   <div className="relative">
                     <input
                       name="middleName"
-                      value={currentPerson.middleName}
+                      value={currentPerson.middleName || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -554,7 +557,7 @@ const DeliveryPerson = () => {
                   <div className="relative">
                     <input
                       name="lastName"
-                      value={currentPerson.lastName}
+                      value={currentPerson.lastName || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -573,7 +576,7 @@ const DeliveryPerson = () => {
                   <div className="relative">
                     <input
                       name="email"
-                      value={currentPerson.email}
+                      value={currentPerson.email || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="email"
@@ -593,7 +596,7 @@ const DeliveryPerson = () => {
                   <div className="relative">
                     <input
                       name="phoneNumber"
-                      value={currentPerson.phoneNumber}
+                      value={currentPerson.phoneNumber || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="text"
@@ -612,7 +615,7 @@ const DeliveryPerson = () => {
                   <label className="label"><span className="label-text">Campus</span></label>
                   <select
                     name="campus"
-                    value={currentPerson.campus}
+                    value={currentPerson.campus || ''}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className={`select select-bordered w-full ${errors.campus && touched.campus ? 'select-error' : ''}`}
@@ -635,7 +638,7 @@ const DeliveryPerson = () => {
                   <div className="relative">
                     <input
                       name="password"
-                      value={currentPerson.password}
+                      value={currentPerson.password || ''}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       type="password"
